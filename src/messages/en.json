@@ -183,6 +183,8 @@
       "Check any urgent caretaker notes for Ramesh."
     ],
     "addPatient": "Register New Patient",
+    "redeemCode": "Redeem Code",
+    "linkPatientWithCode": "Link with Passcode",
     "patientTabs": {
       "overview": "Overview",
       "medicines": "Prescriptions",

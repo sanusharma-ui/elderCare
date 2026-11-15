@@ -8,6 +8,7 @@ import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Skeleton, SkeletonCard } from "@/components/shared/Skeleton";
+import { RedeemInviteModal } from "@/components/doctor/RedeemInviteModal";
 import {
   Users,
   CheckCircle2,
@@ -136,7 +137,8 @@ export default function DoctorDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <RedeemInviteModal />
           <Link
             href="/doctor/patients/new"
             className="px-4 py-2.5 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all"

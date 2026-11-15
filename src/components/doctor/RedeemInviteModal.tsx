@@ -1,0 +1,315 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
+import { apiClient, ApiError } from "@/lib/api-client";
+import {
+  KeyRound,
+  X,
+  Loader2,
+  CheckCircle2,
+  ArrowRight,
+  ShieldCheck,
+  AlertCircle,
+  UserCheck,
+} from "lucide-react";
+import { toast } from "sonner";
+
+interface RedeemInviteModalProps {
+  triggerVariant?: "default" | "primary" | "outline";
+  triggerLabel?: string;
+  className?: string;
+}
+
+interface RedeemResponse {
+  message: string;
+  elderId: string;
+  elderName: string;
+  role: string;
+  accessId: string;
+}
+
+export function RedeemInviteModal({
+  triggerVariant = "default",
+  triggerLabel,
+  className = "",
+}: RedeemInviteModalProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successData, setSuccessData] = useState<RedeemResponse | null>(null);
+
+  // Auto-format: uppercase, auto-hyphenate standard 8-character codes
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    if (raw.length > 12) raw = raw.slice(0, 12);
+
+    // Auto-hyphen if user types alphanumeric without hyphen at 8 chars
+    const plain = raw.replace(/-/g, "");
+    if (!raw.includes("-") && plain.length > 4) {
+      raw = `${plain.slice(0, 4)}-${plain.slice(4)}`;
+    }
+
+    setCode(raw);
+    setErrorMessage("");
+  };
+
+  const redeemMutation = useMutation({
+    mutationFn: (passcode: string) =>
+      apiClient<RedeemResponse>("/api/invites/redeem", {
+        method: "POST",
+        body: JSON.stringify({ code: passcode }),
+      }),
+    onSuccess: (res) => {
+      // Refresh doctor's patient list and dashboard metrics
+      queryClient.invalidateQueries({ queryKey: ["doctor-patients"] });
+      queryClient.invalidateQueries({ queryKey: ["doctor-dashboard-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["doctor-elders"] });
+
+      setSuccessData(res);
+      toast.success(
+        res.elderName
+          ? `मरीज ${res.elderName} सफलतापूर्वक आपके क्लिनिक से जुड़ गए!`
+          : "मरीज सफलतापूर्वक जुड़ गया!"
+      );
+    },
+    onError: (err: any) => {
+      if (err instanceof ApiError) {
+        if (err.message.includes("requires the role")) {
+          setErrorMessage(
+            "यह पासकोड डॉक्टर रोल के लिए नहीं है। कृपया मरीज से 'Doctor' हेतु कोड जनरेट करने को कहें।"
+          );
+        } else if (err.message.includes("already been redeemed")) {
+          setErrorMessage("यह कोड पहले ही इस्तेमाल किया जा चुका है।");
+        } else if (err.message.includes("expired")) {
+          setErrorMessage("यह पासकोड समाप्त (expire) हो चुका है। कृपया नया कोड लें।");
+        } else {
+          setErrorMessage(err.message);
+        }
+      } else {
+        setErrorMessage("पासकोड अमान्य है या सत्यापन विफल रहा। कृपया पुनः प्रयास करें।");
+      }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = code.trim().toUpperCase();
+    if (cleanCode.length < 4) {
+      setErrorMessage("कृपया मान्य पासकोड दर्ज करें (उदा. K7QD-9M2X)");
+      return;
+    }
+    redeemMutation.mutate(cleanCode);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setCode("");
+    setErrorMessage("");
+    setSuccessData(null);
+  };
+
+  const handleViewPatient = () => {
+    if (successData?.elderId) {
+      handleClose();
+      router.push(`/doctor/patients/${successData.elderId}`);
+    }
+  };
+
+  return (
+    <>
+      {/* Trigger Button */}
+      {triggerVariant === "primary" ? (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`px-4 py-2.5 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all ${className}`}
+        >
+          <KeyRound className="w-4 h-4" />
+          <span>{triggerLabel || "पासकोड से जोड़ें • Redeem Code"}</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`px-3.5 py-2.5 bg-surface hover:bg-paper active:scale-95 text-forest border border-forest/30 hover:border-forest font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all ${className}`}
+        >
+          <KeyRound className="w-4 h-4 text-forest" />
+          <span>{triggerLabel || "पासकोड से मरीज जोड़ें • Redeem Code"}</span>
+        </button>
+      )}
+
+      {/* Modal Dialog */}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={handleClose}
+              className="fixed inset-0 bg-ink/60 backdrop-blur-xs"
+            />
+
+            {/* Dialog Panel */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="relative w-full max-w-md bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl z-10 overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={handleClose}
+                className="absolute top-5 right-5 p-1.5 text-ink-muted hover:text-ink rounded-full hover:bg-paper active:scale-90 transition-all"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {!successData ? (
+                <>
+                  {/* Header */}
+                  <div className="flex items-center gap-3.5 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
+                      <KeyRound className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="font-display text-xl font-bold text-ink leading-tight">
+                        मरीज जोड़ें • Redeem Code
+                      </h2>
+                      <p className="text-xs text-ink-muted mt-0.5">
+                        CareSaathi Passcode Mapping
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-ink-muted leading-relaxed mb-5">
+                    बुजुर्ग मरीज अथवा उनके परिवार द्वारा CareSaathi ऐप में जनरेट किया गया 6 से 9-अक्षरों का पासकोड दर्ज करें। मरीज तुरंत आपके क्लिनिकल खाते से मैप हो जाएगा।
+                  </p>
+
+                  {/* Error Alert */}
+                  {errorMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-4 p-3 bg-brick-soft border border-brick/30 rounded-xl text-brick text-xs font-semibold flex items-start gap-2"
+                    >
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{errorMessage}</span>
+                    </motion.div>
+                  )}
+
+                  {/* Redeem Form */}
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">
+                        इनवाइट कोड दर्ज करें • Enter Passcode
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        autoFocus
+                        value={code}
+                        onChange={handleCodeChange}
+                        placeholder="उदा. K7QD-9M2X"
+                        maxLength={12}
+                        className="w-full min-h-[54px] text-center font-mono text-2xl font-extrabold tracking-widest uppercase bg-paper border-2 border-line focus:border-forest focus:outline-none rounded-2xl text-forest placeholder:text-ink-muted/30 transition-all select-all shadow-inner"
+                      />
+                    </div>
+
+                    <div className="bg-forest-soft/40 border border-forest/20 rounded-xl p-3 text-[11px] text-ink-muted leading-normal flex items-start gap-2">
+                      <ShieldCheck className="w-4 h-4 text-forest shrink-0 mt-0.5" />
+                      <span>
+                        सुरक्षित मैपिंग: कोड रिडीम होते ही मरीज की दवाइयां, डोज ट्रैकिंग व स्वास्थ्य इतिहास आपके कंसोल में उपलब्ध होंगे।
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={handleClose}
+                        className="flex-1 min-h-[46px] bg-paper hover:bg-paper-2 active:scale-95 text-ink font-semibold text-sm rounded-xl transition-all border border-line"
+                      >
+                        रद्द करें • Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={redeemMutation.isPending || code.trim().length < 4}
+                        className="flex-1 min-h-[46px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+                      >
+                        {redeemMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>सत्यापित हो रहा है...</span>
+                          </>
+                        ) : (
+                          <>
+                            <UserCheck className="w-4 h-4" />
+                            <span>जोड़ें • Redeem</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                /* Success Celebration State */
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-2 space-y-4"
+                >
+                  <div className="w-16 h-16 bg-forest-soft text-forest rounded-3xl flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-9 h-9" />
+                  </div>
+
+                  <div>
+                    <h3 className="font-display text-2xl font-bold text-ink">
+                      मरीज जुड़ गए!
+                    </h3>
+                    <p className="text-sm font-semibold text-forest mt-1">
+                      {successData.elderName || "Patient"}
+                    </p>
+                    <p className="text-xs text-ink-muted mt-2 max-w-xs mx-auto leading-relaxed">
+                      मरीज की प्रोफाइल आपके क्लिनिक से सफलतापूर्वक लिंक हो चुकी है। अब आप उनकी दवाओं की सूची व डोज लॉग देख सकते हैं।
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleViewPatient}
+                      className="w-full min-h-[48px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all"
+                    >
+                      <span>मरीज प्रोफाइल देखें • Open Profile</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="w-full min-h-[42px] bg-paper hover:bg-paper-2 active:scale-95 text-ink font-semibold text-xs rounded-xl transition-all border border-line"
+                    >
+                      पूर्ण • Done
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SkeletonCard } from "@/components/shared/Skeleton";
+import { RedeemInviteModal } from "@/components/doctor/RedeemInviteModal";
 import {
   Users,
   Search,
@@ -72,13 +73,16 @@ export default function DoctorPatientsPage() {
           </p>
         </div>
 
-        <Link
-          href="/doctor/patients/new"
-          className="px-4 py-2.5 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>नया मरीज पंजीकृत करें • Add Patient</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <RedeemInviteModal />
+          <Link
+            href="/doctor/patients/new"
+            className="px-4 py-2.5 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>नया मरीज पंजीकृत करें • Add Patient</span>
+          </Link>
+        </div>
       </div>
 
       {/* Search Input */}
@@ -172,8 +176,20 @@ export default function DoctorPatientsPage() {
 
       {patients.length === 0 && !isLoading && (
         <EmptyState
-          title="कोई मरीज नहीं मिला"
-          description="खोज शब्द बदलें या नया मरीज पंजीकृत करें।"
+          title="कोई मरीज नहीं मिला • No Patients Found"
+          description="खोज शब्द बदलें, नया मरीज पंजीकृत करें अथवा मरीज का पासकोड रिडीम करें।"
+          action={
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
+              <RedeemInviteModal triggerVariant="primary" />
+              <Link
+                href="/doctor/patients/new"
+                className="px-4 py-2.5 bg-paper hover:bg-paper-2 active:scale-95 text-ink font-semibold text-sm rounded-xl border border-line flex items-center gap-2 transition-all"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>नया मरीज जोड़ें</span>
+              </Link>
+            </div>
+          }
         />
       )}
     </div>
