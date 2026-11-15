@@ -31,6 +31,8 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
+let cachedAuthUsers: any[] | null = null;
+
 // Helper to idempotently get or create a Supabase Auth user
 async function getOrCreateAuthUser(params: {
   email: string;
@@ -39,23 +41,20 @@ async function getOrCreateAuthUser(params: {
 }): Promise<string> {
   const password = params.password || "Password@123";
 
-  // Check if user exists by listing (paging if needed)
-  const { data: listData } = await supabaseAdmin.auth.admin.listUsers({
-    page: 1,
-    perPage: 100,
-  });
+  // Cache existing auth users in memory to prevent repeated remote API calls
+  if (!cachedAuthUsers) {
+    const { data: listData } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 100,
+    });
+    cachedAuthUsers = listData?.users || [];
+  }
 
-  const existing = listData?.users?.find(
+  const existing = cachedAuthUsers.find(
     (u) => u.email?.toLowerCase() === params.email.toLowerCase()
   );
 
   if (existing) {
-    // Ensure password matches for demo repeatability
-    await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-      password,
-      email_confirm: true,
-      user_metadata: { name: params.name },
-    });
     return existing.id;
   }
 
@@ -71,6 +70,7 @@ async function getOrCreateAuthUser(params: {
     throw new Error(`Failed to create auth user ${params.email}: ${error?.message}`);
   }
 
+  cachedAuthUsers.push(data.user);
   return data.user.id;
 }
 
@@ -623,6 +623,13 @@ async function main() {
   const now = new Date();
   const startDate = subDays(now, 30);
 
+  // Prefetch existing medicines and schedules in 1 query to avoid dozens of round-trips
+  const elderIds = createdElders.map((e) => e.user.id);
+  const existingMedicines = await prisma.medicine.findMany({
+    where: { elderId: { in: elderIds } },
+    include: { schedules: true },
+  });
+
   // For each elder, assign 2 to 4 medicines with schedules
   const allCreatedSchedules: Array<{
     schedule: any;
@@ -643,10 +650,9 @@ async function main() {
     ];
 
     for (const tpl of templates) {
-      // Find or create medicine
-      let med = await prisma.medicine.findFirst({
-        where: { elderId: elder.user.id, name: tpl.name },
-      });
+      let med = existingMedicines.find(
+        (m) => m.elderId === elder.user.id && m.name === tpl.name
+      );
 
       if (!med) {
         med = await prisma.medicine.create({
@@ -666,13 +672,13 @@ async function main() {
             refillThreshold: tpl.refillThreshold,
             status: MedicineStatus.ACTIVE,
           },
+          include: { schedules: true },
         });
+        existingMedicines.push(med);
       }
 
       for (const s of tpl.schedules) {
-        let schedule = await prisma.medicineSchedule.findFirst({
-          where: { medicineId: med.id, timeOfDay: s.timeOfDay },
-        });
+        let schedule = med.schedules.find((sc) => sc.timeOfDay === s.timeOfDay);
 
         if (!schedule) {
           schedule = await prisma.medicineSchedule.create({
@@ -686,6 +692,7 @@ async function main() {
               isActive: true,
             },
           });
+          med.schedules.push(schedule);
         }
 
         allCreatedSchedules.push({
@@ -702,6 +709,8 @@ async function main() {
   // 6. HISTORICAL DOSE LOGS (Past 7 Days: days -7 to -1)
   // ===========================================================================
   console.log("Seeding 7 days of realistic DoseLog history (high vs poor adherence)...");
+
+  const doseLogsToInsert: any[] = [];
 
   for (let dayOffset = 7; dayOffset >= 1; dayOffset--) {
     const historicalDay = subDays(now, dayOffset);
@@ -743,36 +752,31 @@ async function main() {
         }
       }
 
-      await prisma.doseLog.upsert({
-        where: {
-          scheduleId_scheduledFor: {
-            scheduleId: item.schedule.id,
-            scheduledFor,
-          },
-        },
-        update: {
-          status,
-          markedByRole,
-          markedById,
-          markedAt: status !== DoseStatus.MISSED ? scheduledFor : null,
-          escalationLevel,
-          note,
-        },
-        create: {
-          scheduleId: item.schedule.id,
-          medicineId: item.medicine.id,
-          elderId: item.elderId,
-          scheduledFor,
-          status,
-          markedByRole,
-          markedById,
-          markedAt: status !== DoseStatus.MISSED ? scheduledFor : null,
-          escalationLevel,
-          note,
-        },
+      doseLogsToInsert.push({
+        scheduleId: item.schedule.id,
+        medicineId: item.medicine.id,
+        elderId: item.elderId,
+        scheduledFor,
+        status,
+        markedByRole,
+        markedById,
+        markedAt: status !== DoseStatus.MISSED ? scheduledFor : null,
+        escalationLevel,
+        note,
       });
     }
   }
+
+  // Batch insert all historical dose logs in ONE single query (fast & idempotent)
+  const scheduleIds = allCreatedSchedules.map((s) => s.schedule.id);
+  await prisma.doseLog.deleteMany({
+    where: { scheduleId: { in: scheduleIds } },
+  });
+  await prisma.doseLog.createMany({
+    data: doseLogsToInsert,
+    skipDuplicates: true,
+  });
+  console.log(`✅ Batch inserted ${doseLogsToInsert.length} historical dose logs in one shot!`);
 
   // ===========================================================================
   // 7. UPCOMING APPOINTMENTS

@@ -1,0 +1,197 @@
+"use client";
+
+import React from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCaretaker } from "@/components/caretaker/CaretakerContext";
+import { ElderSwitcher } from "@/components/caretaker/ElderSwitcher";
+import { DoseCard, TodayDoseItem } from "@/components/elder/DoseCard";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { InstallPrompt } from "@/components/shared/InstallPrompt";
+import { apiClient } from "@/lib/api-client";
+import { Activity, Clock, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+
+interface TodayResponse {
+  date: string;
+  summary: {
+    total: number;
+    pending: number;
+    taken: number;
+    given: number;
+    missed: number;
+    skipped: number;
+  };
+  slots: {
+    MORNING: TodayDoseItem[];
+    AFTERNOON: TodayDoseItem[];
+    EVENING: TodayDoseItem[];
+    NIGHT: TodayDoseItem[];
+  };
+}
+
+interface AdherenceResponse {
+  overall: {
+    rate7d: number;
+    rate14d: number;
+    rate30d: number;
+    missStreak: number;
+  };
+}
+
+export default function CaretakerTodayPage() {
+  const { selectedElder, selectedElderId } = useCaretaker();
+  const queryClient = useQueryClient();
+
+  // Fetch today doses for selected elder
+  const { data, isLoading } = useQuery<TodayResponse>({
+    queryKey: ["caretaker-today", selectedElderId],
+    queryFn: () => apiClient<TodayResponse>(`/api/elders/${selectedElderId}/today`),
+    enabled: !!selectedElderId,
+    refetchInterval: 60000,
+  });
+
+  // Fetch mini adherence stats
+  const { data: adherenceData } = useQuery<AdherenceResponse>({
+    queryKey: ["caretaker-adherence-mini", selectedElderId],
+    queryFn: () => apiClient<AdherenceResponse>(`/api/elders/${selectedElderId}/adherence`),
+    enabled: !!selectedElderId,
+  });
+
+  // Mark Given Mutation
+  const markGivenMutation = useMutation({
+    mutationFn: (dose: TodayDoseItem) =>
+      apiClient(`/api/elders/${selectedElderId}/doses/mark`, {
+        method: "POST",
+        body: JSON.stringify({
+          scheduleId: dose.scheduleId,
+          scheduledFor: dose.scheduledFor,
+          status: "GIVEN",
+        }),
+      }),
+    onSuccess: (result: any) => {
+      queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
+      const doseLogId = result?.id;
+      toast.success("दवा दे दी गई (Marked as Given)", {
+        action: doseLogId
+          ? {
+              label: "Undo",
+              onClick: () => undoMutation.mutate(doseLogId),
+            }
+          : undefined,
+      });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to mark dose");
+    },
+  });
+
+  // Mark Skipped Mutation
+  const markSkippedMutation = useMutation({
+    mutationFn: (dose: TodayDoseItem) =>
+      apiClient(`/api/elders/${selectedElderId}/doses/mark`, {
+        method: "POST",
+        body: JSON.stringify({
+          scheduleId: dose.scheduleId,
+          scheduledFor: dose.scheduledFor,
+          status: "SKIPPED",
+          note: "Skipped by caretaker",
+        }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
+      toast.info("दवा छोड़ दी गई (Marked as Skipped)");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to skip dose");
+    },
+  });
+
+  // Undo Mutation
+  const undoMutation = useMutation({
+    mutationFn: (doseLogId: string) =>
+      apiClient(`/api/doses/${doseLogId}/undo`, { method: "POST" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
+      toast.success("खुराक पूर्ववत कर दी गई (Undo successful)");
+    },
+  });
+
+  const adherenceRate = adherenceData?.overall.rate7d ?? 100;
+  const missStreak = adherenceData?.overall.missStreak ?? 0;
+
+  return (
+    <div className="p-4 sm:p-5 space-y-4">
+      {/* Elder Switcher Header */}
+      <ElderSwitcher />
+
+      {/* Mini Adherence Summary Card */}
+      {selectedElderId && (
+        <div className="bg-surface border border-line rounded-2xl p-4 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-forest-soft text-forest flex items-center justify-center">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-ink-muted uppercase block">
+                7-दिन अनुपालन दर • 7d Adherence
+              </span>
+              <span className="text-xl font-bold text-ink">{adherenceRate}%</span>
+            </div>
+          </div>
+
+          {missStreak > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brick-soft text-brick text-xs font-bold rounded-xl border border-brick/20">
+              <AlertCircle className="w-4 h-4" />
+              <span>{missStreak} दिन लगातार छूटी!</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Schedule Grouped by Slot */}
+      <div className="space-y-4 pt-1">
+        <h2 className="font-bold text-lg text-ink px-1">
+          आज की खुराक सूची • Daily Doses
+        </h2>
+
+        {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
+          const slotDoses = data?.slots[slotKey] || [];
+          if (slotDoses.length === 0) return null;
+
+          return (
+            <div key={slotKey} className="space-y-3">
+              <div className="flex items-center gap-2 px-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-forest" />
+                <h3 className="font-bold text-sm text-ink capitalize">
+                  {slotKey.toLowerCase()} ({slotDoses.length})
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                {slotDoses.map((dose) => (
+                  <DoseCard
+                    key={dose.scheduleId}
+                    dose={dose}
+                    isElderView={false}
+                    onMarkGiven={(d) => markGivenMutation.mutate(d)}
+                    onMarkSkipped={(d) => markSkippedMutation.mutate(d)}
+                    onUndo={(d) => d.doseLogId && undoMutation.mutate(d.doseLogId)}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        {data?.summary.total === 0 && !isLoading && (
+          <EmptyState
+            title="कोई खुराक निर्धारित नहीं"
+            description="इस बुजुर्ग के लिए आज कोई दवा तय नहीं है।"
+          />
+        )}
+      </div>
+
+      <InstallPrompt />
+    </div>
+  );
+}

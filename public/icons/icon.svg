@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#1F5C4A"/>
+  <!-- Diya flame & medicinal leaf motif -->
+  <path d="M256 96 C296 176 348 232 348 296 C348 352 308 392 256 392 C204 392 164 352 164 296 C164 232 216 176 256 96 Z" fill="#E39B2B"/>
+  <!-- Inner calming leaf vein / pill center -->
+  <path d="M256 160 C274 216 304 256 304 300 C304 336 280 360 256 360 C232 360 208 336 208 300 C208 256 238 216 256 160 Z" fill="#FFFDF7" opacity="0.95"/>
+  <!-- Calming medicine base -->
+  <rect x="180" y="328" width="152" height="44" rx="22" fill="#FAF5EA"/>
+  <circle cx="256" cy="350" r="8" fill="#1F5C4A"/>
+</svg>

@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --paper: #FAF5EA;
+    --paper-2: #F3EBDA;
+    --surface: #FFFDF7;
+    --ink: #1E2B25;
+    --ink-muted: #5B665F;
+    --line: #E2D8C3;
+    --forest: #1F5C4A;
+    --forest-hover: #174A3B;
+    --forest-soft: #DDEBE3;
+    --saffron: #E39B2B;
+    --saffron-soft: #FBE9C8;
+    --ok: #2F7D4F;
+    --brick: #B93A2B;
+    --brick-soft: #F7DDD6;
+
+    --font-scale: 1;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Elder large text scale override */
+  body[data-text-size="large"] {
+    --font-scale: 1.18;
+  }
+  body[data-text-size="xlarge"] {
+    --font-scale: 1.32;
+  }
+
+  html {
+    font-size: calc(17px * var(--font-scale));
+    color: var(--ink);
+    background-color: var(--paper-2);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: contain;
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-mukta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "tnum" on, "cv01" on;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+
+  /* Remove default tap delay and accidental selection on action elements */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  button:active, a:active {
+    opacity: 0.92;
+  }
+
+  /* Accessible focus ring */
+  *:focus-visible {
+    outline: 2px solid var(--forest);
+    outline-offset: 2px;
+  }
+
+  /* Smooth appearance for native-feeling scroll containers */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-muted);
+  }
+}
+
+/* Tabular figures for time and numerical data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Safe area padding utilities */
+.pt-safe {
+  padding-top: var(--safe-top);
+}
+.pb-safe {
+  padding-bottom: var(--safe-bottom);
+}
+.pl-safe {
+  padding-left: var(--safe-left);
+}
+.pr-safe {
+  padding-right: var(--safe-right);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
