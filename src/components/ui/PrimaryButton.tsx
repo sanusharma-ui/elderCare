@@ -8,6 +8,7 @@ interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   variant?: "primary" | "secondary" | "danger" | "ghost";
   size?: "sm" | "md" | "lg" | "elder";
   loading?: boolean;
+  fullWidth?: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
 }
@@ -17,6 +18,7 @@ export function PrimaryButton({
   size = "md",
   loading = false,
   disabled = false,
+  fullWidth = false,
   icon,
   children,
   className = "",
@@ -47,6 +49,7 @@ export function PrimaryButton({
       disabled={disabled || loading}
       className={cn(
         "rounded-full inline-flex items-center justify-center gap-2.5 transition-all duration-150 select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100",
+        fullWidth && "w-full",
         sizeStyles[size],
         variantStyles[variant],
         className

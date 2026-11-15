@@ -6,6 +6,9 @@ import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { BottomSheet } from "@/components/shared/BottomSheet";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { WeekStrip } from "@/components/ui/WeekStrip";
 import { Calendar, Clock, MapPin, Plus, User, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +25,7 @@ interface AppointmentItem {
 
 export default function DoctorAppointmentsPage() {
   const queryClient = useQueryClient();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   // Fetch patients to select in appointment modal
   const { data: patientsData } = useQuery<any[]>({
@@ -59,67 +63,110 @@ export default function DoctorAppointmentsPage() {
     },
   });
 
+  const allAppointments = patients.flatMap((p) =>
+    p.nextAppointment ? [{ ...p.nextAppointment, elderName: p.name }] : []
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-line">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-extrabold text-ink">
+          <span className="text-xs uppercase font-extrabold tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+            Clinical Calendar
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
             अपॉइंटमेंट कैलेंडर • Appointments
           </h1>
-          <p className="text-sm text-ink-muted mt-1">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
             मरीजों के साथ निर्धारित क्लिनिकल विजिट्स एवं फॉलो-अप्स
           </p>
         </div>
 
-        <button
+        <PrimaryButton
+          variant="primary"
           onClick={() => {
             if (patients.length > 0 && !selectedElderId) {
               setSelectedElderId(patients[0].id);
             }
             setCreateOpen(true);
           }}
-          className="px-4 py-2.5 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all"
+          className="gap-2 shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>नया अपॉइंटमेंट तय करें • Schedule</span>
-        </button>
+        </PrimaryButton>
       </div>
 
-      <div className="bg-surface border border-line rounded-3xl p-6 shadow-xs space-y-4">
-        <h2 className="font-bold text-lg text-ink">आगामी अपॉइंटमेंट्स • Upcoming Visits</h2>
+      {/* Week Selector Strip */}
+      <div>
+        <WeekStrip
+          selectedDate={selectedDate}
+          onSelectDate={(d) => setSelectedDate(d)}
+        />
+      </div>
+
+      {/* Appointments List */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-lg text-slate-900 dark:text-white">
+            आगामी अपॉइंटमेंट्स • Upcoming Visits ({allAppointments.length})
+          </h2>
+          <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+            {selectedDate.toLocaleDateString("en-IN", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        </div>
 
         <div className="space-y-3">
-          {patients.flatMap((p) => (p.nextAppointment ? [{ ...p.nextAppointment, elderName: p.name }] : [])).map((apt: any) => (
-            <div
+          {allAppointments.map((apt: any) => (
+            <GlassPanel
               key={apt.id}
-              className="p-4 bg-paper rounded-2xl border border-line flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
+              variant="default"
+              className="rounded-[28px] p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
             >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
-                  <Calendar className="w-5 h-5" />
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <Calendar className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-ink text-base">{apt.title}</h3>
-                  <span className="text-xs font-semibold text-forest block">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
+                    {apt.title}
+                  </h3>
+                  <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 block mt-0.5">
                     मरीज: {apt.elderName}
                   </span>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-ink-muted tabular-nums">
-                    <Clock className="w-3.5 h-3.5 text-forest" />
-                    <span>
+                  <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-500 dark:text-slate-400 tabular-nums">
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       {new Date(apt.scheduledAt).toLocaleString("en-IN", {
                         dateStyle: "medium",
                         timeStyle: "short",
                       })}
                     </span>
+                    {apt.location && (
+                      <>
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                          {apt.location}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <StatusBadge variant="ok" label="SCHEDULED" />
-            </div>
+              <div className="self-end sm:self-auto">
+                <StatusBadge variant="ok" label="SCHEDULED" />
+              </div>
+            </GlassPanel>
           ))}
 
-          {patients.every((p) => !p.nextAppointment) && (
+          {allAppointments.length === 0 && (
             <EmptyState
               title="कोई आगामी अपॉइंटमेंट नहीं"
               description="ऊपर 'Schedule' बटन दबाकर नया अपॉइंटमेंट तय करें।"
@@ -139,17 +186,19 @@ export default function DoctorAppointmentsPage() {
             e.preventDefault();
             createAppointmentMutation.mutate();
           }}
-          className="space-y-3.5"
+          className="space-y-4"
         >
           <div>
-            <label className="block text-xs font-semibold text-ink mb-1">मरीज चुनें • Patient *</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+              मरीज चुनें • Patient *
+            </label>
             <select
               value={selectedElderId}
               onChange={(e) => setSelectedElderId(e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm text-ink"
+              className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             >
               {patients.map((p) => (
-                <option key={p.id} value={p.id}>
+                <option key={p.id} value={p.id} className="dark:bg-slate-900">
                   {p.name}
                 </option>
               ))}
@@ -157,56 +206,65 @@ export default function DoctorAppointmentsPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink mb-1">शीर्षक / उद्देश्य • Title *</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+              शीर्षक / उद्देश्य • Title *
+            </label>
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Monthly Geriatric Review"
-              className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+              className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink mb-1">तारीख व समय • Date & Time *</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+              तारीख व समय • Date & Time *
+            </label>
             <input
               type="datetime-local"
               required
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+              className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink mb-1">स्थान / क्लिनिक • Location</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+              स्थान / क्लिनिक • Location
+            </label>
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+              className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink mb-1">अतिरिक्त नोट्स • Notes</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+              अतिरिक्त नोट्स • Notes
+            </label>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="रक्त परीक्षण रिपोर्ट साथ लाएं..."
-              className="w-full p-2.5 bg-paper border border-line rounded-xl text-sm"
+              className="w-full p-3 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             />
           </div>
 
-          <button
+          <PrimaryButton
             type="submit"
+            variant="primary"
             disabled={createAppointmentMutation.isPending || !scheduledAt}
-            className="w-full min-h-[48px] bg-forest text-surface font-bold rounded-xl mt-3 hover:bg-forest-hover active:scale-95 transition-all shadow-xs"
+            className="w-full mt-2"
           >
             {createAppointmentMutation.isPending ? "सहेजा जा रहा है..." : "अपॉइंटमेंट तय करें"}
-          </button>
+          </PrimaryButton>
         </form>
       </BottomSheet>
     </div>

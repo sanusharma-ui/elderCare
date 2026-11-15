@@ -9,12 +9,13 @@ export interface StatItemData {
   value: string | number;
   subtext?: string;
   icon?: React.ReactNode;
-  color?: "default" | "ok" | "alert" | "danger" | "blue";
+  color?: "default" | "ok" | "alert" | "danger" | "blue" | "accent" | "warning";
   isElder?: boolean;
 }
 
 interface StatGroupProps {
-  items: StatItemData[];
+  items?: StatItemData[];
+  stats?: StatItemData[];
   columns?: 2 | 3 | 4 | 5;
   className?: string;
   isElder?: boolean;
@@ -28,9 +29,10 @@ export function StatItem({
   color = "default",
   isElder = false,
 }: StatItemData) {
+  const normalizedColor = color === "accent" ? "blue" : color === "warning" ? "alert" : color;
   const valueColorStyles = {
     default: "text-ink",
-    blue: "text-accent-blue",
+    blue: "text-accent-blue dark:text-sky-400",
     ok: "text-emerald-600 dark:text-emerald-400",
     alert: "text-amber-500 dark:text-amber-400",
     danger: "text-rose-500 dark:text-rose-400",
@@ -57,7 +59,7 @@ export function StatItem({
           className={cn(
             "font-black tracking-tight leading-none tabular-nums",
             isElder ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl lg:text-5xl",
-            valueColorStyles[color]
+            valueColorStyles[normalizedColor]
           )}
         >
           {value}
@@ -74,10 +76,12 @@ export function StatItem({
 
 export function StatGroup({
   items,
+  stats,
   columns = 4,
   className = "",
   isElder = false,
 }: StatGroupProps) {
+  const statList = items || stats || [];
   const colClass = {
     2: "grid-cols-2",
     3: "grid-cols-2 sm:grid-cols-3",
@@ -93,7 +97,7 @@ export function StatGroup({
         className
       )}
     >
-      {items.map((stat, idx) => (
+      {statList.map((stat, idx) => (
         <div key={stat.id || idx} className={idx > 0 ? "pt-3 sm:pt-0 sm:pl-4 lg:pl-6" : ""}>
           <StatItem {...stat} isElder={isElder || stat.isElder} />
         </div>

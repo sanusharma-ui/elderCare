@@ -4,26 +4,24 @@
 
 @layer base {
   :root {
-    /* Light Mode Tokens (Clean, Bright Sky-Blue & Indigo Luminous Palette) */
-    --canvas-bg: linear-gradient(180deg, #DCEAFE 0%, #E0E7FF 28%, #F0F4FF 65%, #F8FAFC 100%);
-    --canvas-blooms: radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.22) 0%, transparent 48%),
-                     radial-gradient(circle at 85% 10%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
-                     radial-gradient(circle at 50% 75%, rgba(147, 197, 253, 0.25) 0%, transparent 55%);
+    /* Light Mode Tokens: Soft, Warm Glass Canvas with High Contrast Slate Text */
+    --canvas-bg: linear-gradient(135deg, rgba(168, 237, 234, 0.32) 0%, #F8FAFC 50%, rgba(254, 214, 227, 0.32) 100%);
+    --canvas-blooms: none;
 
-    --paper: rgba(255, 255, 255, 0.72);
-    --paper-2: rgba(241, 245, 249, 0.85);
-    --surface: rgba(255, 255, 255, 0.82);
+    --paper: rgba(255, 255, 255, 0.82);
+    --paper-2: rgba(241, 245, 249, 0.9);
+    --surface: rgba(255, 255, 255, 0.88);
     --ink: #0F172A;
-    --ink-muted: #475569;
-    --line: rgba(255, 255, 255, 0.75);
+    --ink-muted: #334155;
+    --line: rgba(226, 232, 240, 0.8);
 
     --accent-blue: #2563EB;
     --accent-indigo: #4F46E5;
 
-    --glass-bg: rgba(255, 255, 255, 0.76);
-    --glass-border: rgba(255, 255, 255, 0.8);
-    --glass-subtle: rgba(255, 255, 255, 0.52);
-    --glass-pill: rgba(255, 255, 255, 0.9);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-subtle: rgba(255, 255, 255, 0.55);
+    --glass-pill: rgba(255, 255, 255, 0.95);
 
     --forest: #0D4436;
     --forest-hover: #082F25;
@@ -40,30 +38,28 @@
   }
 
   .dark {
-    /* Dark Mode Tokens (Deep Midnight Navy / Obsidian with Electric Blue Glows) */
-    --canvas-bg: linear-gradient(180deg, #070B14 0%, #0A1020 30%, #0B132B 70%, #070B14 100%);
-    --canvas-blooms: radial-gradient(circle at 20% 15%, rgba(37, 99, 235, 0.18) 0%, transparent 50%),
-                     radial-gradient(circle at 80% 25%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
-                     radial-gradient(circle at 50% 85%, rgba(56, 189, 248, 0.12) 0%, transparent 60%);
+    /* Dark Mode Tokens: Pure Deep Obsidian / Charcoal (NO Blue Background), Crisp White Text */
+    --canvas-bg: #09090B;
+    --canvas-blooms: none;
 
-    --paper: rgba(15, 23, 42, 0.65);
-    --paper-2: rgba(11, 19, 36, 0.8);
-    --surface: rgba(15, 23, 42, 0.72);
-    --ink: #F8FAFC;
-    --ink-muted: #94A3B8;
+    --paper: rgba(24, 24, 27, 0.85);
+    --paper-2: rgba(39, 39, 42, 0.8);
+    --surface: rgba(18, 18, 20, 0.88);
+    --ink: #FFFFFF;
+    --ink-muted: #CBD5E1;
     --line: rgba(255, 255, 255, 0.12);
 
-    --accent-blue: #60A5FA;
-    --accent-indigo: #818CF8;
+    --accent-blue: #3B82F6;
+    --accent-indigo: #6366F1;
 
-    --glass-bg: rgba(255, 255, 255, 0.07);
-    --glass-border: rgba(255, 255, 255, 0.14);
-    --glass-subtle: rgba(255, 255, 255, 0.04);
-    --glass-pill: rgba(255, 255, 255, 0.12);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-subtle: rgba(255, 255, 255, 0.03);
+    --glass-pill: rgba(255, 255, 255, 0.1);
 
-    --forest: #38BDF8;
-    --forest-hover: #0284C7;
-    --forest-soft: rgba(56, 189, 248, 0.16);
+    --forest: #10B981;
+    --forest-hover: #059669;
+    --forest-soft: rgba(16, 185, 129, 0.16);
     --saffron-soft: rgba(245, 158, 11, 0.16);
     --ok-soft: rgba(34, 197, 94, 0.16);
     --brick-soft: rgba(239, 68, 68, 0.16);
@@ -98,7 +94,7 @@
     padding: 0;
     line-height: 1.5;
     background-color: #F8FAFC;
-    background-image: var(--canvas-blooms), var(--canvas-bg);
+    background-image: var(--canvas-bg);
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
@@ -107,8 +103,8 @@
   }
 
   .dark body {
-    background-color: #070B14;
-    background-image: var(--canvas-blooms), var(--canvas-bg);
+    background-color: #09090B;
+    background-image: none;
     color: var(--ink);
   }
 

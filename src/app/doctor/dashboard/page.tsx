@@ -9,6 +9,10 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Skeleton, SkeletonCard } from "@/components/shared/Skeleton";
 import { RedeemInviteModal } from "@/components/doctor/RedeemInviteModal";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { StatGroup } from "@/components/ui/StatGroup";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { ProgressRing } from "@/components/ui/ProgressRing";
 import {
   Users,
   CheckCircle2,
@@ -23,6 +27,7 @@ import {
   Send,
   UserPlus,
   Loader2,
+  KeyRound,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,8 +64,8 @@ interface AiBriefData {
 
 interface AskResponse {
   answer: string;
-  disclaimer: string;
   toolsUsed: string[];
+  disclaimer: string;
 }
 
 export default function DoctorDashboardPage() {
@@ -69,45 +74,57 @@ export default function DoctorDashboardPage() {
 
   const [askQuestion, setAskQuestion] = useState("");
   const [askResult, setAskResult] = useState<AskResponse | null>(null);
+  const [redeemOpen, setRedeemOpen] = useState(false);
 
-  // 1. Fetch Dashboard Metrics
-  const { data: metrics, isLoading: metricsLoading } = useQuery<DoctorDashboardData>({
+  // 1. Fetch Aggregated Metrics & Needs Attention List
+  const {
+    data: metrics,
+    isLoading: metricsLoading,
+    refetch: refetchMetrics,
+  } = useQuery<DoctorDashboardData>({
     queryKey: ["doctor-dashboard-metrics"],
     queryFn: () => apiClient<DoctorDashboardData>("/api/doctor/dashboard"),
     refetchInterval: 30000,
   });
 
-  // 2. Fetch AI Daily Brief
-  const { data: brief, isLoading: briefLoading } = useQuery<AiBriefData>({
-    queryKey: ["doctor-daily-brief"],
-    queryFn: () => apiClient<AiBriefData>("/api/doctor/brief"),
-    staleTime: 1000 * 60 * 30, // 30 mins
+  // 2. Fetch Daily AI Brief
+  const {
+    data: brief,
+    isLoading: briefLoading,
+  } = useQuery<AiBriefData>({
+    queryKey: ["doctor-ai-brief"],
+    queryFn: () => apiClient<AiBriefData>("/api/doctor/daily-brief"),
+    staleTime: 1000 * 60 * 60,
   });
 
-  // Refresh AI Brief Mutation
+  // 3. Mutation: Force Regenerate AI Daily Brief
   const refreshBriefMutation = useMutation({
-    mutationFn: () => apiClient<AiBriefData>("/api/doctor/brief/refresh", { method: "POST" }),
-    onSuccess: (newBrief) => {
-      queryClient.setQueryData(["doctor-daily-brief"], newBrief);
-      toast.success("दैनिक सारांश रीफ्रेश हो गया!");
+    mutationFn: () =>
+      apiClient<AiBriefData>("/api/doctor/daily-brief", {
+        method: "POST",
+      }),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["doctor-ai-brief"], data);
+      toast.success(t("briefRefreshSuccess"));
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to refresh brief");
+      toast.error(err.message || "Failed to regenerate brief");
     },
   });
 
-  // Ask Smriti Mutation
+  // 4. Mutation: Ask CareSaathi Assistant
   const askMutation = useMutation({
     mutationFn: (question: string) =>
       apiClient<AskResponse>("/api/doctor/ask", {
         method: "POST",
         body: JSON.stringify({ question }),
       }),
-    onSuccess: (res) => {
-      setAskResult(res);
+    onSuccess: (data) => {
+      setAskResult(data);
+      toast.success("CareSaathi AI ने विश्लेषण पूरा किया");
     },
     onError: (err: any) => {
-      toast.error(err.message || "Ask CareSaathi request failed");
+      toast.error(err.message || "Failed to get AI answer");
     },
   });
 
@@ -118,126 +135,114 @@ export default function DoctorDashboardPage() {
   };
 
   const reasonLabels: Record<string, string> = {
-    LOW_ADHERENCE: "कम अनुपालन (<75%)",
-    MISS_STREAK: "लगातार 3+ दिन छूटी",
-    URGENT_NOTE: "अनदेखा आवश्यक नोट",
-    LOW_STOCK: "दवा स्टॉक कम",
+    URGENT_NOTE: "गंभीर नोट (Urgent Note)",
+    LOW_ADHERENCE: "कम अनुपालन (< 75%)",
+    MISS_STREAK: "दवा छूटी (Streak > 2)",
+    LOW_STOCK: "स्टॉक समाप्त होने वाला है",
   };
+
+  // Calculate cohort average adherence for the progress ring
+  const cohortAdherence =
+    metrics && metrics.totalPatients > 0
+      ? Math.round((metrics.onTrack / metrics.totalPatients) * 100)
+      : 0;
+
+  const todayFormatted = new Date().toLocaleDateString("en-IN", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <div className="space-y-8">
-      {/* Top Ledger Strip */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-line">
+      {/* HEADER SECTION (REFERENCE LOOK) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
         <div>
-          <h1 className="font-display text-3xl font-extrabold text-ink tracking-tight">
-            {t("dashboard")}
+          <span className="text-xs uppercase font-extrabold tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+            CareSaathi Clinical Suite
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+            Dashboard
           </h1>
-          <p className="text-sm text-ink-muted mt-1">
-            समस्त पंजीकृत बुजुर्गों की दैनिक निगरानी व प्राथमिकता रिपोर्ट
+          <p className="text-sm sm:text-base font-bold text-blue-600 dark:text-blue-400 mt-1">
+            {todayFormatted} • समस्त पंजीकृत बुजुर्गों की दैनिक निगरानी
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <RedeemInviteModal />
-          <Link
-            href="/doctor/patients/new"
-            className="px-4 py-2.5 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center gap-2 shadow-xs transition-all"
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Cohort Adherence Gauge */}
+          <div className="hidden sm:flex items-center gap-3 pr-2 mr-2 border-r border-slate-200/60 dark:border-white/10">
+            <ProgressRing
+              value={cohortAdherence}
+              size={68}
+              strokeWidth={6}
+              label="Cohort On-Track"
+            />
+          </div>
+
+          <PrimaryButton
+            variant="secondary"
+            size="md"
+            onClick={() => setRedeemOpen(true)}
+            className="gap-2"
           >
-            <UserPlus className="w-4 h-4" />
-            <span>{t("addPatient")}</span>
+            <KeyRound className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>पासकोड से मरीज जोड़ें • Redeem Code</span>
+          </PrimaryButton>
+
+          <Link href="/doctor/patients/new">
+            <PrimaryButton variant="primary" size="md" className="gap-2">
+              <UserPlus className="w-4 h-4" />
+              <span>{t("registerPatient")}</span>
+            </PrimaryButton>
           </Link>
         </div>
       </div>
 
-      {/* STAT CARDS STRIP */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5 sm:gap-4">
-        {/* Total Patients */}
-        <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-bold text-ink-muted uppercase tracking-wider block">
-            {t("statTotalPatients")}
-          </span>
-          {metricsLoading ? (
-            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
-          ) : (
-            <span className="text-3xl font-extrabold text-ink mt-1 block">
-              {metrics?.totalPatients ?? "—"}
-            </span>
-          )}
-        </div>
+      {/* STATS STRIP: STRICTLY NO BOXES OR INDIVIDUAL CARDS (REFERENCE RULE) */}
+      <StatGroup
+        columns={5}
+        items={[
+          {
+            label: t("statTotalPatients"),
+            value: metricsLoading ? "—" : metrics?.totalPatients ?? 0,
+            color: "default",
+          },
+          {
+            label: "Adherence > 80%",
+            value: metricsLoading ? "—" : metrics?.onTrack ?? 0,
+            color: "ok",
+          },
+          {
+            label: t("statNeedsAttention"),
+            value: metricsLoading ? "—" : metrics?.needsAttention ?? 0,
+            color: (metrics?.needsAttention ?? 0) > 0 ? "alert" : "default",
+          },
+          {
+            label: t("statCritical"),
+            value: metricsLoading ? "—" : metrics?.critical ?? 0,
+            color: (metrics?.critical ?? 0) > 0 ? "danger" : "default",
+          },
+          {
+            label: t("statUnseenNotes"),
+            value: metricsLoading ? "—" : metrics?.unseenNotesCount ?? 0,
+            color: (metrics?.unseenNotesCount ?? 0) > 0 ? "blue" : "default",
+          },
+        ]}
+      />
 
-        {/* On Track */}
-        <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-bold text-ok uppercase tracking-wider block flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{t("statOnTrack")}</span>
-          </span>
-          {metricsLoading ? (
-            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
-          ) : (
-            <span className="text-3xl font-extrabold text-ok mt-1 block">
-              {metrics?.onTrack ?? "—"}
-            </span>
-          )}
-        </div>
-
-        {/* Needs Attention */}
-        <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-bold text-saffron uppercase tracking-wider block flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>{t("statNeedsAttention")}</span>
-          </span>
-          {metricsLoading ? (
-            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
-          ) : (
-            <span className="text-3xl font-extrabold text-saffron mt-1 block">
-              {metrics?.needsAttention ?? "—"}
-            </span>
-          )}
-        </div>
-
-        {/* High Risk / Critical */}
-        <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-bold text-brick uppercase tracking-wider block flex items-center gap-1">
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>{t("statCritical")}</span>
-          </span>
-          {metricsLoading ? (
-            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
-          ) : (
-            <span className="text-3xl font-extrabold text-brick mt-1 block">
-              {metrics?.critical ?? "—"}
-            </span>
-          )}
-        </div>
-
-        {/* Unseen Notes */}
-        <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs col-span-2 md:col-span-1">
-          <span className="text-xs font-bold text-ink-muted uppercase tracking-wider block flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5 text-forest" />
-            <span>{t("statUnseenNotes")}</span>
-          </span>
-          {metricsLoading ? (
-            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
-          ) : (
-            <span className="text-3xl font-extrabold text-forest mt-1 block">
-              {metrics?.unseenNotesCount ?? "—"}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* AI DAILY BRIEF CARD */}
-      <div className="bg-surface border-2 border-forest/30 rounded-3xl p-6 sm:p-7 shadow-sm relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-saffron" />
+      {/* AI DAILY BRIEF FROSTED GLASS PANEL */}
+      <GlassPanel variant="default" className="rounded-[32px] p-6 sm:p-8 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <h2 className="font-displayDeva text-xl font-bold text-ink">
+              <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                 {t("briefCardTitle")}
               </h2>
-              <span className="text-xs text-ink-muted">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
                 {brief?.briefDate ? `Date: ${brief.briefDate}` : "Today"}
               </span>
             </div>
@@ -247,8 +252,8 @@ export default function DoctorDashboardPage() {
             <span
               className={`text-xs font-bold px-3 py-1 rounded-full border ${
                 brief?.source === "ai"
-                  ? "bg-forest-soft text-forest border-forest/20"
-                  : "bg-paper-2 text-ink-muted border-line"
+                  ? "bg-blue-50/80 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200/50 dark:border-blue-800/40"
+                  : "bg-white/40 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-white/40 dark:border-white/10"
               }`}
             >
               {brief?.source === "ai" ? t("sourceAi") : t("sourceFallback")}
@@ -257,11 +262,11 @@ export default function DoctorDashboardPage() {
             <button
               onClick={() => refreshBriefMutation.mutate()}
               disabled={refreshBriefMutation.isPending}
-              className="p-2 rounded-xl border border-line bg-surface hover:bg-paper active:scale-95 text-ink transition-all"
+              className="p-2.5 rounded-full bg-white/60 dark:bg-white/10 border border-white/60 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/20 active:scale-95 transition-all text-slate-700 dark:text-slate-200"
               title="Refresh Brief"
             >
               <RefreshCw
-                className={`w-4 h-4 text-forest ${
+                className={`w-4 h-4 text-blue-600 dark:text-blue-400 ${
                   refreshBriefMutation.isPending ? "animate-spin" : ""
                 }`}
               />
@@ -270,10 +275,10 @@ export default function DoctorDashboardPage() {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-5 bg-paper rounded-2xl border border-line text-sm sm:text-base text-ink leading-relaxed whitespace-pre-line font-normal min-h-[90px]">
+        <div className="p-5 sm:p-6 bg-white/60 dark:bg-white/5 rounded-2xl border border-white/60 dark:border-white/10 text-sm sm:text-base text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line font-normal min-h-[90px]">
           {briefLoading ? (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-forest">
+              <div className="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>दैनिक क्लिनिकल सारांश संकलित हो रहा है... (Generating AI brief...)</span>
               </div>
@@ -286,27 +291,27 @@ export default function DoctorDashboardPage() {
         </div>
 
         {/* Clinical Disclaimer */}
-        <div className="mt-3 text-[11px] text-ink-muted italic">
+        <div className="text-[11px] text-slate-400 dark:text-slate-500 italic">
           {brief?.disclaimer}
         </div>
-      </div>
+      </GlassPanel>
 
-      {/* TWO COLUMN WORKSPACE: Priority Attention List + Ask Smriti Assistant */}
+      {/* TWO COLUMN WORKSPACE: Priority Attention List + Ask CareSaathi */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Ranked Priority Attention Patients (Span 7) */}
+        {/* Left: Ranked Priority Attention Patients */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-display text-xl font-bold text-ink">
+              <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                 {t("needsAttentionTitle")}
               </h2>
-              <p className="text-xs text-ink-muted">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 जोखिम स्कोर के आधार पर क्रमबद्ध मरीज जिन्हें तुरंत ध्यान की जरूरत है
               </p>
             </div>
             <Link
               href="/doctor/patients"
-              className="text-xs font-bold text-forest hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
               <span>सभी मरीज देखें</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -321,74 +326,80 @@ export default function DoctorDashboardPage() {
               </>
             ) : (
               metrics?.attentionList.map((patient) => {
-              const isHighRisk = patient.riskScore >= 50;
+                const isHighRisk = patient.riskScore >= 50;
 
-              return (
-                <Link
-                  key={patient.elderId}
-                  href={`/doctor/patients/${patient.elderId}`}
-                  className="block group"
-                >
-                  <div
-                    className={`bg-surface border rounded-2xl p-4 sm:p-5 shadow-xs transition-all group-hover:shadow-sm relative overflow-hidden ${
-                      isHighRisk ? "border-brick/40" : "border-saffron/40"
-                    }`}
+                return (
+                  <Link
+                    key={patient.elderId}
+                    href={`/doctor/patients/${patient.elderId}`}
+                    className="block group"
                   >
-                    {/* Left status color bar */}
-                    <div
-                      className={`absolute left-0 top-0 bottom-0 w-1.5 ${
-                        isHighRisk ? "bg-brick" : "bg-saffron"
+                    <GlassPanel
+                      variant="interactive"
+                      className={`rounded-[28px] p-5 relative overflow-hidden ${
+                        isHighRisk
+                          ? "border-rose-400/50 dark:border-rose-500/30"
+                          : "border-amber-400/50 dark:border-amber-500/30"
                       }`}
-                    />
+                    >
+                      {/* Left status color bar */}
+                      <div
+                        className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                          isHighRisk ? "bg-rose-500" : "bg-amber-500"
+                        }`}
+                      />
 
-                    <div className="flex items-start justify-between gap-3 pl-2">
-                      <div>
-                        <div className="flex items-baseline gap-2">
-                          <h3 className="font-bold text-ink text-base sm:text-lg group-hover:text-forest transition-colors">
-                            {patient.name}
-                          </h3>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-paper-2 border border-line text-ink">
-                            जोखिम: {patient.riskScore}
+                      <div className="flex items-start justify-between gap-3 pl-3">
+                        <div>
+                          <div className="flex items-baseline gap-2.5">
+                            <h3 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              {patient.name}
+                            </h3>
+                            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                              जोखिम: {patient.riskScore}
+                            </span>
+                          </div>
+
+                          {/* Reason Chips */}
+                          <div className="flex flex-wrap gap-1.5 mt-2.5">
+                            {patient.reasons.map((r) => (
+                              <span
+                                key={r}
+                                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                  r === "URGENT_NOTE" || r === "MISS_STREAK"
+                                    ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200/50 dark:border-rose-800/40"
+                                    : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/50 dark:border-amber-800/40"
+                                }`}
+                              >
+                                {reasonLabels[r] || r}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Right Adherence Stats */}
+                        <div className="text-right shrink-0">
+                          <span className="text-xs text-slate-400 dark:text-slate-500 block">
+                            7-दिन अनुपालन
+                          </span>
+                          <span
+                            className={`text-lg font-black ${
+                              (patient.adherencePercentage ?? 100) < 75
+                                ? "text-rose-600 dark:text-rose-400"
+                                : "text-emerald-600 dark:text-emerald-400"
+                            }`}
+                          >
+                            {patient.adherencePercentage !== null
+                              ? `${patient.adherencePercentage}%`
+                              : "—"}
                           </span>
                         </div>
-
-                        {/* Reason Chips */}
-                        <div className="flex flex-wrap gap-1.5 mt-2.5">
-                          {patient.reasons.map((r) => (
-                            <span
-                              key={r}
-                              className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${
-                                r === "URGENT_NOTE" || r === "MISS_STREAK"
-                                  ? "bg-brick-soft text-brick border-brick/20"
-                                  : "bg-saffron-soft text-ink border-saffron/30"
-                              }`}
-                            >
-                              {reasonLabels[r] || r}
-                            </span>
-                          ))}
-                        </div>
                       </div>
-
-                      {/* Right Adherence Stats */}
-                      <div className="text-right shrink-0">
-                        <span className="text-xs text-ink-muted block">7-दिन अनुपालन</span>
-                        <span
-                          className={`text-lg font-extrabold ${
-                            (patient.adherencePercentage ?? 100) < 75
-                              ? "text-brick"
-                              : "text-forest"
-                          }`}
-                        >
-                          {patient.adherencePercentage !== null
-                            ? `${patient.adherencePercentage}%`
-                            : "—"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            }))}
+                    </GlassPanel>
+                  </Link>
+                );
+              })
+            )}
 
             {(!metrics || metrics.attentionList.length === 0) && !metricsLoading && (
               <EmptyState
@@ -399,102 +410,118 @@ export default function DoctorDashboardPage() {
           </div>
         </div>
 
-        {/* Right: "Ask Smriti" Clinical Assistant (Span 5) */}
-        <div className="lg:col-span-5 bg-surface border border-line rounded-3xl p-6 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Bot className="w-6 h-6 text-forest" />
-              <h2 className="font-displayDeva text-xl font-bold text-ink">
-                {t("askSmriti")}
-              </h2>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed mb-4">
-              CareSaathi AI scans your patients' prescriptions, dose adherence logs, and caretaker observations to provide immediate clinical answers.
-            </p>
+        {/* Right: "Ask CareSaathi" Clinical Assistant */}
+        <div className="lg:col-span-5">
+          <GlassPanel
+            variant="default"
+            className="rounded-[32px] p-6 sm:p-7 flex flex-col justify-between h-full space-y-5"
+          >
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  {t("askSmriti")}
+                </h2>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                CareSaathi AI scans your patients' prescriptions, dose adherence logs, and caretaker observations to provide immediate clinical answers.
+              </p>
 
-            {/* Example Prompt Chips */}
-            <div className="space-y-1.5 mb-5">
-              <span className="text-[11px] font-bold text-forest uppercase tracking-wider block">
-                त्वरित प्रश्न • Example Prompts:
-              </span>
-              {[
-                "सुरेश जी ने इस हफ्ते सुबह की दवा कितनी बार छोड़ी?",
-                "कमला देवी की वर्तमान दवाइयां और स्टॉक बताएं।",
-                "रमेश जी के लिए कोई अर्जेंट केयरटेकर नोट है क्या?",
-              ].map((ex, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => {
-                    setAskQuestion(ex);
-                    askMutation.mutate(ex);
-                  }}
-                  className="w-full text-left p-2 bg-paper-2 hover:bg-forest-soft hover:text-forest text-xs rounded-xl border border-line transition-all block truncate"
-                >
-                  "{ex}"
-                </button>
-              ))}
-            </div>
-
-            {/* Analyzing Indicator */}
-            {askMutation.isPending && (
-              <div className="p-4 bg-paper rounded-2xl border border-line text-xs text-ink mb-4 flex items-center gap-3 animate-pulse">
-                <Loader2 className="w-5 h-5 animate-spin text-forest shrink-0" />
-                <span className="font-medium">
-                  मरीजों के रिकॉर्ड और क्लिनिकल डेटा का विश्लेषण हो रहा है... (Analyzing patient cohort...)
+              {/* Example Prompt Chips */}
+              <div className="space-y-2 mb-4">
+                <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
+                  त्वरित प्रश्न • Example Prompts:
                 </span>
+                {[
+                  "सुरेश जी ने इस हफ्ते सुबह की दवा कितनी बार छोड़ी?",
+                  "कमला देवी की वर्तमान दवाइयां और स्टॉक बताएं।",
+                  "रमेश जी के लिए कोई अर्जेंट केयरटेकर नोट है क्या?",
+                ].map((ex, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setAskQuestion(ex);
+                      askMutation.mutate(ex);
+                    }}
+                    className="w-full text-left p-2.5 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 text-xs text-slate-700 dark:text-slate-200 rounded-xl border border-white/60 dark:border-white/10 transition-all block truncate"
+                  >
+                    "{ex}"
+                  </button>
+                ))}
               </div>
-            )}
 
-            {/* Answer Display */}
-            {askResult && !askMutation.isPending && (
-              <div className="p-4 bg-paper rounded-2xl border border-forest/20 text-xs sm:text-sm text-ink mb-4 space-y-2 animate-fade-in">
-                <div className="font-semibold text-forest flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-saffron" />
-                  <span>क्लिनिकल उत्तर:</span>
+              {/* Analyzing Indicator */}
+              {askMutation.isPending && (
+                <div className="p-4 bg-white/50 dark:bg-white/5 rounded-2xl border border-white/60 dark:border-white/10 text-xs text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-3 animate-pulse">
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span className="font-medium">
+                    मरीजों के रिकॉर्ड और क्लिनिकल डेटा का विश्लेषण हो रहा है... (Analyzing cohort...)
+                  </span>
                 </div>
-                <p className="leading-relaxed whitespace-pre-line">
-                  {askResult.answer}
-                </p>
-                {askResult.toolsUsed && askResult.toolsUsed.length > 0 && (
-                  <div className="pt-2 border-t border-line/60 text-[10px] text-ink-muted">
-                    डेटा स्रोत: {askResult.toolsUsed.join(", ")}
+              )}
+
+              {/* Answer Display */}
+              {askResult && !askMutation.isPending && (
+                <div className="p-4 sm:p-5 bg-white/60 dark:bg-white/5 rounded-2xl border border-blue-500/20 text-xs sm:text-sm text-slate-800 dark:text-slate-200 mb-4 space-y-2">
+                  <div className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>क्लिनिकल उत्तर:</span>
                   </div>
-                )}
-                <div className="text-[10px] text-ink-muted italic">
-                  {askResult.disclaimer}
+                  <p className="leading-relaxed whitespace-pre-line">
+                    {askResult.answer}
+                  </p>
+                  {askResult.toolsUsed && askResult.toolsUsed.length > 0 && (
+                    <div className="pt-2 border-t border-slate-200/50 dark:border-white/10 text-[10px] text-slate-400 dark:text-slate-500">
+                      डेटा स्रोत: {askResult.toolsUsed.join(", ")}
+                    </div>
+                  )}
+                  <div className="text-[10px] text-slate-400 dark:text-slate-500 italic">
+                    {askResult.disclaimer}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Ask Input Form */}
-          <form onSubmit={handleAskSubmit} className="mt-4 pt-3 border-t border-line">
-            <div className="relative">
-              <input
-                type="text"
-                required
-                value={askQuestion}
-                onChange={(e) => setAskQuestion(e.target.value)}
-                placeholder={t("askPlaceholder")}
-                className="w-full min-h-[46px] pl-3.5 pr-11 bg-paper border border-line rounded-xl text-xs sm:text-sm text-ink focus:bg-surface focus:border-forest transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={askMutation.isPending || !askQuestion.trim()}
-                className="absolute right-1.5 top-1.5 p-2 bg-forest text-surface rounded-lg hover:bg-forest-hover active:scale-95 disabled:opacity-50 transition-all"
-                title="Send Question"
-              >
-                {askMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </button>
+              )}
             </div>
-          </form>
+
+            {/* Ask Input Form */}
+            <form onSubmit={handleAskSubmit} className="pt-3 border-t border-slate-200/50 dark:border-white/10">
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={askQuestion}
+                  onChange={(e) => setAskQuestion(e.target.value)}
+                  placeholder={t("askPlaceholder")}
+                  className="w-full min-h-[46px] pl-4 pr-12 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-full text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                />
+                <button
+                  type="submit"
+                  disabled={askMutation.isPending || !askQuestion.trim()}
+                  className="absolute right-1.5 top-1.5 p-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full hover:scale-105 active:scale-95 disabled:opacity-50 transition-all shadow-xs"
+                  title="Send Question"
+                >
+                  {askMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </form>
+          </GlassPanel>
         </div>
       </div>
+
+      {/* Redeem Invite Modal */}
+      <RedeemInviteModal
+        isOpen={redeemOpen}
+        onClose={() => setRedeemOpen(false)}
+        onSuccess={() => {
+          refetchMetrics();
+        }}
+      />
     </div>
   );
 }

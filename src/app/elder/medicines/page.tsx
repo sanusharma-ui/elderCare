@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SkeletonCard } from "@/components/shared/Skeleton";
+import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Pill, AlertTriangle, Utensils, Clock, Package } from "lucide-react";
 import { formatTime24to12 } from "@/lib/utils";
 
@@ -47,12 +48,15 @@ export default function ElderMedicinesPage() {
   const medicines = data?.items || [];
 
   return (
-    <div className="p-4 sm:p-5 space-y-4">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       <div>
-        <h1 className="font-displayDeva text-2xl font-bold text-ink">
+        <span className="text-xs uppercase font-extrabold tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+          Prescriptions
+        </span>
+        <h1 className="font-displayDeva text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
           {t("medicinesTitle")}
         </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
           {t("medicinesSubtitle")}
         </p>
       </div>
@@ -66,87 +70,89 @@ export default function ElderMedicinesPage() {
           </>
         ) : (
           medicines.map((med) => (
-          <div
-            key={med.id}
-            className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs relative overflow-hidden"
-          >
-            {/* Top Row */}
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-forest-soft flex items-center justify-center shrink-0 mt-0.5">
-                  <Pill className="w-5 h-5 text-forest" />
-                </div>
-                <div>
-                  <div className="flex items-baseline gap-2 flex-wrap">
-                    <h3 className="font-bold text-ink text-lg sm:text-xl">
-                      {med.name}
-                    </h3>
-                    {med.nameLocal && (
-                      <span className="font-displayDeva text-base font-semibold text-forest">
-                        ({med.nameLocal})
+            <GlassPanel
+              key={med.id}
+              variant="elder"
+              className="rounded-[28px] p-5 sm:p-6 space-y-4"
+            >
+              {/* Top Row */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Pill className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-baseline gap-2.5 flex-wrap">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-xl sm:text-2xl">
+                        {med.name}
+                      </h3>
+                      {med.nameLocal && (
+                        <span className="font-displayDeva text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
+                          ({med.nameLocal})
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex-wrap">
+                      <span className="font-bold text-slate-900 dark:text-white px-2.5 py-0.5 bg-white/70 dark:bg-white/10 rounded-full border border-slate-200/60 dark:border-white/10">
+                        {med.dosage} • {med.form}
                       </span>
-                    )}
+                      <span className="flex items-center gap-1 font-semibold">
+                        <Utensils className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                        <span>{tFood(med.foodRelation as any)}</span>
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-ink-muted">
-                    <span className="font-semibold text-ink px-2 py-0.5 bg-paper-2 rounded-md">
-                      {med.dosage} • {med.form}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Utensils className="w-3.5 h-3.5 text-forest" />
-                      <span>{tFood(med.foodRelation as any)}</span>
-                    </span>
+                </div>
+
+                {/* Stock info if tracked */}
+                {med.stockCount !== null && (
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-1 bg-white/70 dark:bg-white/10 rounded-full border border-slate-200/60 dark:border-white/10 text-slate-800 dark:text-slate-200 shrink-0">
+                    <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span>{t("stockRemaining", { count: med.stockCount })}</span>
                   </div>
+                )}
+              </div>
+
+              {/* Timings / Schedules */}
+              <div className="pt-3 border-t border-slate-200/50 dark:border-white/10">
+                <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 block mb-2">
+                  {t("timings")}:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {med.schedules.map((sch) => (
+                    <span
+                      key={sch.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10 rounded-full text-xs sm:text-sm font-bold text-slate-900 dark:text-white tabular-nums"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <span>{formatTime24to12(sch.timeOfDay)}</span>
+                      <span className="text-slate-500 dark:text-slate-400">({sch.doseQuantity})</span>
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              {/* Stock info if tracked */}
-              {med.stockCount !== null && (
-                <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-paper-2 rounded-lg border border-line">
-                  <Package className="w-3.5 h-3.5 text-forest" />
-                  <span>{t("stockRemaining", { count: med.stockCount })}</span>
+              {/* Instructions */}
+              {med.instructions && (
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                  <strong className="text-slate-900 dark:text-white font-bold">{t("instructionsLabel")}: </strong>
+                  <span>{med.instructions}</span>
                 </div>
               )}
-            </div>
 
-            {/* Timings / Schedules */}
-            <div className="mt-3.5 pt-3 border-t border-line/60">
-              <span className="text-xs font-semibold text-ink-muted block mb-1.5">
-                {t("timings")}:
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {med.schedules.map((sch) => (
-                  <span
-                    key={sch.id}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-paper-2 border border-line rounded-lg text-xs font-semibold text-ink"
-                  >
-                    <Clock className="w-3 h-3 text-forest" />
-                    <span>{formatTime24to12(sch.timeOfDay)}</span>
-                    <span className="text-ink-muted">({sch.doseQuantity})</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Instructions */}
-            {med.instructions && (
-              <div className="mt-3 text-xs text-ink-muted">
-                <strong className="text-ink">{t("instructionsLabel")}: </strong>
-                <span>{med.instructions}</span>
-              </div>
-            )}
-
-            {/* PROMINENT WARNINGS ("what NOT to do") */}
-            {med.warnings && (
-              <div className="mt-3 p-3 bg-saffron-soft/70 border border-saffron/40 rounded-xl flex items-start gap-2.5 text-ink text-xs sm:text-sm">
-                <AlertTriangle className="w-4 h-4 text-saffron shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-bold text-ink">{t("warningLabel")}: </strong>
-                  <span>{med.warnings}</span>
+              {/* Warnings */}
+              {med.warnings && (
+                <div className="p-3 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300/60 dark:border-amber-700/40 rounded-2xl flex items-start gap-2.5 text-slate-900 dark:text-slate-100 text-xs sm:text-sm">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="font-bold text-amber-800 dark:text-amber-300">{t("warningLabel")}: </strong>
+                    <span className="font-semibold">{med.warnings}</span>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )))}
+              )}
+            </GlassPanel>
+          ))
+        )}
 
         {medicines.length === 0 && !isLoading && (
           <EmptyState

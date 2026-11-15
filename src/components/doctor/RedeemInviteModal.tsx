@@ -19,6 +19,9 @@ import { toast } from "sonner";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 interface RedeemInviteModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  onSuccess?: () => void;
   triggerVariant?: "default" | "primary" | "outline";
   triggerLabel?: string;
   className?: string;
@@ -33,6 +36,9 @@ interface RedeemResponse {
 }
 
 export function RedeemInviteModal({
+  isOpen: controlledIsOpen,
+  onClose: controlledOnClose,
+  onSuccess: controlledOnSuccess,
   triggerVariant = "default",
   triggerLabel,
   className = "",
@@ -40,7 +46,10 @@ export function RedeemInviteModal({
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isModalOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  const isControlled = controlledIsOpen !== undefined;
+
   const [code, setCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successData, setSuccessData] = useState<RedeemResponse | null>(null);
@@ -71,6 +80,7 @@ export function RedeemInviteModal({
       queryClient.invalidateQueries({ queryKey: ["doctor-elders"] });
 
       setSuccessData(res);
+      controlledOnSuccess?.();
       toast.success(
         res.elderName
           ? `मरीज ${res.elderName} सफलतापूर्वक आपके क्लिनिक से जुड़ गए!`
@@ -107,7 +117,11 @@ export function RedeemInviteModal({
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    if (isControlled) {
+      controlledOnClose?.();
+    } else {
+      setInternalIsOpen(false);
+    }
     setCode("");
     setErrorMessage("");
     setSuccessData(null);
@@ -122,31 +136,33 @@ export function RedeemInviteModal({
 
   return (
     <>
-      {/* Trigger Button */}
-      {triggerVariant === "primary" ? (
-        <PrimaryButton
-          type="button"
-          onClick={() => setIsOpen(true)}
-          icon={<KeyRound className="w-4 h-4" />}
-          className={className}
-        >
-          {triggerLabel || "पासकोड से जोड़ें • Redeem Code"}
-        </PrimaryButton>
-      ) : (
-        <PrimaryButton
-          type="button"
-          variant="secondary"
-          onClick={() => setIsOpen(true)}
-          icon={<KeyRound className="w-4 h-4 text-accent-blue" />}
-          className={className}
-        >
-          {triggerLabel || "पासकोड से मरीज जोड़ें • Redeem Code"}
-        </PrimaryButton>
+      {/* Trigger Button only in uncontrolled mode */}
+      {!isControlled && (
+        triggerVariant === "primary" ? (
+          <PrimaryButton
+            type="button"
+            onClick={() => setInternalIsOpen(true)}
+            icon={<KeyRound className="w-4 h-4" />}
+            className={className}
+          >
+            {triggerLabel || "पासकोड से जोड़ें • Redeem Code"}
+          </PrimaryButton>
+        ) : (
+          <PrimaryButton
+            type="button"
+            variant="secondary"
+            onClick={() => setInternalIsOpen(true)}
+            icon={<KeyRound className="w-4 h-4 text-accent-blue" />}
+            className={className}
+          >
+            {triggerLabel || "पासकोड से मरीज जोड़ें • Redeem Code"}
+          </PrimaryButton>
+        )
       )}
 
       {/* Modal Dialog */}
       <AnimatePresence>
-        {isOpen && (
+        {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
             <motion.div

@@ -8,6 +8,8 @@ import { useI18n, Locale } from "@/lib/i18n-provider";
 import { apiClient } from "@/lib/api-client";
 import { InviteCodeCard } from "@/components/shared/InviteCodeCard";
 import { BottomSheet } from "@/components/shared/BottomSheet";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import {
   UserPlus,
   Users,
@@ -23,6 +25,7 @@ import {
   HeartHandshake,
   Stethoscope,
   Loader2,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -57,7 +60,7 @@ export default function ElderMePage() {
   const [selectedRole, setSelectedRole] = useState<"DOCTOR" | "CARETAKER" | "FAMILY">("FAMILY");
   const [newInvite, setNewInvite] = useState<InviteItem | null>(null);
 
-  // Instant client-side state for Large Text & Voice Reminders (0ms lag, no DB blocking)
+  // Instant client-side state for Large Text & Voice Reminders
   const [largeText, setLargeText] = useState<boolean>(false);
   const [voiceReminders, setVoiceReminders] = useState<boolean>(true);
 
@@ -83,7 +86,6 @@ export default function ElderMePage() {
     }
     toast.success(next ? "बड़ा फ़ॉन्ट और आइकन चालू (Large Size Enabled)" : "सामान्य आकार (Normal Size)");
 
-    // Fire-and-forget background sync without blocking or refetching
     fetch("/api/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -116,19 +118,6 @@ export default function ElderMePage() {
     queryKey: ["elder-invites", user?.id],
     queryFn: () => apiClient<{ items: InviteItem[] }>(`/api/elders/${user?.id}/invites`),
     enabled: !!user?.id,
-  });
-
-  // Toggle Preferences (Large text & Voice reminders)
-  const updatePreferenceMutation = useMutation({
-    mutationFn: (updates: { largeTextMode?: boolean; voiceReminders?: boolean }) =>
-      apiClient("/api/me", {
-        method: "PATCH",
-        body: JSON.stringify(updates),
-      }),
-    onSuccess: () => {
-      refetch();
-      toast.success("सेटिंग्स अपडेट हो गई");
-    },
   });
 
   // Generate Invite Code Mutation
@@ -164,39 +153,39 @@ export default function ElderMePage() {
   const invites = invitesData?.items || [];
 
   return (
-    <div className="p-4 sm:p-5 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       {/* Elder Profile Summary */}
-      <div className="bg-surface border border-line rounded-3xl p-5 shadow-smriti flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-forest-soft flex items-center justify-center text-forest font-bold text-2xl">
+      <GlassPanel variant="elder" className="rounded-[32px] p-6 flex items-center gap-5">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl flex items-center justify-center shadow-md shrink-0">
           {user?.name?.[0] || "CS"}
         </div>
         <div className="flex-1">
-          <h1 className="font-displayDeva text-2xl font-bold text-ink leading-tight">
+          <h1 className="font-displayDeva text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-tight">
             {user?.name}
           </h1>
-          <p className="text-sm text-ink-muted mt-0.5">
+          <p className="text-sm sm:text-base font-bold text-blue-600 dark:text-blue-400 mt-1">
             {user?.phone || user?.email || (locale === "en" ? "Elder Account" : "बुजुर्ग खाता")}
           </p>
         </div>
-      </div>
+      </GlassPanel>
 
       {/* Senior Accessibility Preferences */}
-      <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
-        <h2 className="font-bold text-base text-ink flex items-center gap-2">
+      <GlassPanel variant="elder" className="rounded-[32px] p-6 space-y-5">
+        <h2 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
           <span>सुविधा और भाषा • Preferences</span>
         </h2>
 
         {/* Large Text Mode */}
-        <div className="flex items-center justify-between py-2 border-b border-line/60">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
-              <Type className="w-5 h-5" />
+        <div className="flex items-center justify-between py-2.5 border-b border-slate-200/50 dark:border-white/10">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Type className="w-6 h-6" />
             </div>
             <div>
-              <span className="font-semibold text-ink text-sm sm:text-base block">
+              <span className="font-bold text-slate-900 dark:text-white text-base sm:text-lg block">
                 {t("largeText")}
               </span>
-              <span className="text-xs text-ink-muted">
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 {locale === "en" ? "Larger, readable fonts & icons" : "आंखों के लिए बड़े और स्पष्ट अक्षर"}
               </span>
             </div>
@@ -204,31 +193,31 @@ export default function ElderMePage() {
           <button
             type="button"
             onClick={handleToggleLargeText}
-            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors active:scale-95 ${
-              largeText ? "bg-forest" : "bg-line"
+            className={`w-16 h-9 flex items-center rounded-full p-1 transition-colors active:scale-95 ${
+              largeText ? "bg-slate-900 dark:bg-white" : "bg-slate-300 dark:bg-slate-700"
             }`}
             title="Toggle Large Text & Icons"
             aria-label="Toggle Large Text"
           >
             <div
-              className={`bg-surface w-6 h-6 rounded-full shadow-md transform transition-transform ${
-                largeText ? "translate-x-6" : "translate-x-0"
+              className={`w-7 h-7 rounded-full shadow-md transform transition-transform ${
+                largeText ? "translate-x-7 bg-white dark:bg-slate-900" : "translate-x-0 bg-white"
               }`}
             />
           </button>
         </div>
 
         {/* Voice Reminders */}
-        <div className="flex items-center justify-between py-2 border-b border-line/60">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
-              <Volume2 className="w-5 h-5" />
+        <div className="flex items-center justify-between py-2.5 border-b border-slate-200/50 dark:border-white/10">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Volume2 className="w-6 h-6" />
             </div>
             <div>
-              <span className="font-semibold text-ink text-sm sm:text-base block">
+              <span className="font-bold text-slate-900 dark:text-white text-base sm:text-lg block">
                 {t("voiceReminders")}
               </span>
-              <span className="text-xs text-ink-muted">
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 {locale === "en" ? "Vernacular audio guidance & speech reminders" : "दवा का समय होने पर बोलकर याद दिलाएं"}
               </span>
             </div>
@@ -236,15 +225,15 @@ export default function ElderMePage() {
           <button
             type="button"
             onClick={handleToggleVoiceReminders}
-            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors active:scale-95 ${
-              voiceReminders ? "bg-forest" : "bg-line"
+            className={`w-16 h-9 flex items-center rounded-full p-1 transition-colors active:scale-95 ${
+              voiceReminders ? "bg-slate-900 dark:bg-white" : "bg-slate-300 dark:bg-slate-700"
             }`}
             title="Toggle Voice Reminders"
             aria-label="Toggle Voice Reminders"
           >
             <div
-              className={`bg-surface w-6 h-6 rounded-full shadow-md transform transition-transform ${
-                voiceReminders ? "translate-x-6" : "translate-x-0"
+              className={`w-7 h-7 rounded-full shadow-md transform transition-transform ${
+                voiceReminders ? "translate-x-7 bg-white dark:bg-slate-900" : "translate-x-0 bg-white"
               }`}
             />
           </button>
@@ -252,26 +241,28 @@ export default function ElderMePage() {
 
         {/* Language Chooser */}
         <div className="flex items-center justify-between py-1">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
-              <Globe className="w-5 h-5" />
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Globe className="w-6 h-6" />
             </div>
             <div>
-              <span className="font-semibold text-ink text-sm sm:text-base block">
+              <span className="font-bold text-slate-900 dark:text-white text-base sm:text-lg block">
                 भाषा • App Language
               </span>
-              <span className="text-xs text-ink-muted">
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 {locale === "hi" ? "हिन्दी" : locale === "mr" ? "मराठी" : "English"}
               </span>
             </div>
           </div>
-          <div className="flex gap-1 bg-paper-2 p-1 rounded-xl border border-line">
+          <div className="flex gap-1.5 bg-white/60 dark:bg-white/10 p-1.5 rounded-full border border-slate-200/60 dark:border-white/10">
             {(["hi", "mr", "en"] as const).map((l) => (
               <button
                 key={l}
                 onClick={() => setLocale(l)}
-                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
-                  locale === l ? "bg-surface text-forest shadow-xs" : "text-ink-muted"
+                className={`px-3 py-1.5 text-xs sm:text-sm font-black rounded-full transition-all ${
+                  locale === l
+                    ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
                 }`}
               >
                 {l === "hi" ? "हिन्दी" : l === "mr" ? "मराठी" : "Eng"}
@@ -279,41 +270,43 @@ export default function ElderMePage() {
             ))}
           </div>
         </div>
-      </div>
+      </GlassPanel>
 
       {/* CARE CIRCLE MANAGEMENT */}
-      <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
+      <GlassPanel variant="elder" className="rounded-[32px] p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-displayDeva text-xl font-bold text-ink">
+            <h2 className="font-displayDeva text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
               {t("circleTitle")}
             </h2>
-            <p className="text-xs text-ink-muted mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               आपके साथ जुड़े परिवार के सदस्य, केयरटेकर और डॉक्टर
             </p>
           </div>
 
-          <button
+          <PrimaryButton
+            variant="primary"
+            size="sm"
             onClick={() => {
               setNewInvite(null);
               setInviteSheetOpen(true);
             }}
-            className="px-3.5 py-2 bg-forest text-surface text-xs font-bold rounded-xl flex items-center gap-1.5 hover:bg-forest-hover shadow-xs active:scale-95 transition-all"
+            className="gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span>जोड़ें • Add</span>
-          </button>
+          </PrimaryButton>
         </div>
 
         {/* Active Members List */}
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {members.map((member) => (
             <div
               key={member.id}
-              className="p-3 bg-paper rounded-xl border border-line flex items-center justify-between gap-3"
+              className="p-4 bg-white/50 dark:bg-white/5 rounded-2xl border border-white/60 dark:border-white/10 flex items-center justify-between gap-3"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                   {member.role === "DOCTOR" ? (
                     <Stethoscope className="w-5 h-5" />
                   ) : member.role === "CARETAKER" ? (
@@ -323,10 +316,10 @@ export default function ElderMePage() {
                   )}
                 </div>
                 <div>
-                  <span className="font-bold text-ink text-sm block">
+                  <span className="font-bold text-slate-900 dark:text-white text-sm sm:text-base block">
                     {member.user.name}
                   </span>
-                  <span className="text-[11px] font-semibold text-forest uppercase">
+                  <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase">
                     {tRoles(member.role)}
                   </span>
                 </div>
@@ -338,7 +331,7 @@ export default function ElderMePage() {
                     revokeMemberMutation.mutate(member.user.id);
                   }
                 }}
-                className="text-xs text-brick hover:bg-brick-soft px-2.5 py-1 rounded-lg border border-transparent hover:border-brick/20 font-medium transition-all"
+                className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 px-3 py-1.5 rounded-full border border-transparent transition-all"
               >
                 हटाएं
               </button>
@@ -346,7 +339,7 @@ export default function ElderMePage() {
           ))}
 
           {members.length === 0 && (
-            <p className="text-xs text-ink-muted text-center py-4 bg-paper rounded-xl">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center py-6 bg-white/40 dark:bg-white/5 rounded-2xl">
               अभी कोई सदस्य नहीं जुड़ा है। परिवार या डॉक्टर को जोड़ने के लिए ऊपर 'जोड़ें' बटन दबाएं।
             </p>
           )}
@@ -354,21 +347,21 @@ export default function ElderMePage() {
 
         {/* Pending Invites List */}
         {invites.length > 0 && (
-          <div className="pt-3 border-t border-line/60">
-            <span className="text-xs font-bold text-ink block mb-2">
+          <div className="pt-3 border-t border-slate-200/50 dark:border-white/10">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block mb-2">
               सक्रिय पासकोड कोड • Pending Passcodes
             </span>
             <div className="space-y-2">
               {invites.map((inv) => (
                 <div
                   key={inv.id}
-                  className="p-3 bg-paper-2 rounded-xl border border-line flex items-center justify-between"
+                  className="p-3.5 bg-white/50 dark:bg-white/5 rounded-2xl border border-white/60 dark:border-white/10 flex items-center justify-between"
                 >
                   <div>
-                    <span className="font-mono font-extrabold text-forest text-base tracking-wider block">
+                    <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-lg tracking-wider block">
                       {inv.code}
                     </span>
-                    <span className="text-[10px] text-ink-muted">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       {tRoles(inv.intendedRole as any)} के लिए • 48 घंटे में समाप्त
                     </span>
                   </div>
@@ -377,30 +370,32 @@ export default function ElderMePage() {
             </div>
           </div>
         )}
-      </div>
+      </GlassPanel>
 
       {/* Security & Account Links */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Link
           href="/me/change-password"
-          className="w-full p-4 bg-surface border border-line hover:bg-paper-2 rounded-2xl flex items-center justify-between text-ink text-sm font-semibold transition-all shadow-xs"
+          className="w-full p-4 sm:p-5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 rounded-2xl flex items-center justify-between text-slate-900 dark:text-white text-base font-bold transition-all shadow-xs"
         >
-          <div className="flex items-center gap-3">
-            <Lock className="w-5 h-5 text-forest" />
+          <div className="flex items-center gap-3.5">
+            <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <span>पासवर्ड बदलें • Change Password</span>
           </div>
-          <span>&gt;</span>
+          <ChevronRight className="w-5 h-5 text-slate-400" />
         </Link>
 
         <button
           onClick={() => logout()}
-          className="w-full p-4 bg-surface border border-line hover:bg-brick-soft hover:text-brick rounded-2xl flex items-center justify-between text-ink text-sm font-semibold transition-all shadow-xs"
+          className="w-full p-4 sm:p-5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-2xl flex items-center justify-between text-slate-900 dark:text-white text-base font-bold transition-all shadow-xs group"
         >
-          <div className="flex items-center gap-3">
-            <LogOut className="w-5 h-5 text-brick" />
-            <span>लॉग आउट • Sign Out</span>
+          <div className="flex items-center gap-3.5">
+            <LogOut className="w-5 h-5 text-rose-500 group-hover:scale-110 transition-transform" />
+            <span className="group-hover:text-rose-600 dark:group-hover:text-rose-400">
+              लॉग आउट • Sign Out
+            </span>
           </div>
-          <span>&gt;</span>
+          <ChevronRight className="w-5 h-5 text-slate-400" />
         </button>
       </div>
 
@@ -412,43 +407,45 @@ export default function ElderMePage() {
       >
         {!newInvite ? (
           <div className="space-y-4">
-            <p className="text-sm text-ink-muted">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               आप किसे जोड़ना चाहते हैं? भूमिका चुनें और पासकोड बनाएं:
             </p>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               {(["FAMILY", "CARETAKER", "DOCTOR"] as const).map((r) => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => setSelectedRole(r)}
-                  className={`p-3 rounded-xl border text-center transition-all ${
+                  className={`p-3.5 rounded-2xl border text-center transition-all ${
                     selectedRole === r
-                      ? "border-forest bg-forest-soft text-forest font-bold"
-                      : "border-line bg-paper-2 text-ink"
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-black shadow-xs"
+                      : "border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 text-slate-700 dark:text-slate-300"
                   }`}
                 >
-                  <div className="text-xs font-bold leading-tight">
+                  <div className="text-xs sm:text-sm font-bold leading-tight">
                     {r === "FAMILY" ? "परिवार" : r === "CARETAKER" ? "केयरटेकर" : "डॉक्टर"}
                   </div>
                 </button>
               ))}
             </div>
 
-            <button
+            <PrimaryButton
+              variant="primary"
+              size="lg"
               onClick={() => createInviteMutation.mutate(selectedRole)}
               disabled={createInviteMutation.isPending}
-              className="w-full min-h-[50px] bg-forest text-surface font-bold rounded-xl mt-4 hover:bg-forest-hover active:scale-95 transition-all shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full mt-4"
             >
               {createInviteMutation.isPending ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>पासकोड बन रहा है... • Generating Code</span>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  <span>पासकोड बन रहा है...</span>
                 </>
               ) : (
                 <span>पासकोड कोड बनाएं • Generate Code</span>
               )}
-            </button>
+            </PrimaryButton>
           </div>
         ) : (
           <div className="space-y-4">
@@ -458,12 +455,13 @@ export default function ElderMePage() {
               expiresAt={newInvite.expiresAt}
             />
 
-            <button
+            <PrimaryButton
+              variant="secondary"
               onClick={() => setInviteSheetOpen(false)}
-              className="w-full min-h-[46px] bg-paper-2 border border-line text-ink font-semibold rounded-xl hover:bg-paper"
+              className="w-full"
             >
               पूर्ण • Done
-            </button>
+            </PrimaryButton>
           </div>
         )}
       </BottomSheet>

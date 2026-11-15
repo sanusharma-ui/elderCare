@@ -10,13 +10,14 @@ import { DoseCard, TodayDoseItem } from "@/components/elder/DoseCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import { SkeletonSchedule } from "@/components/shared/Skeleton";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { ProgressRing } from "@/components/ui/ProgressRing";
 import {
   Volume2,
   VolumeX,
   CheckCircle2,
   Clock,
   Sparkles,
-  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatTime24to12 } from "@/lib/utils";
@@ -64,7 +65,7 @@ export default function ElderTodayPage() {
     queryKey: ["elder-today", user?.id],
     queryFn: () => apiClient<TodayResponse>(`/api/elders/${user?.id}/today`),
     enabled: !!user?.id,
-    refetchInterval: 60000, // 60s auto refresh
+    refetchInterval: 60000,
   });
 
   // Mark Dose Mutation with Optimistic 0ms UI Update
@@ -153,7 +154,7 @@ export default function ElderTodayPage() {
     return t("greetingNight", { name });
   };
 
-  // Find the next upcoming/due pending dose
+  // Find next pending dose
   const allDoses: TodayDoseItem[] = data
     ? [
         ...(data.slots.MORNING || []),
@@ -204,7 +205,7 @@ export default function ElderTodayPage() {
 
     const utterance = new SpeechSynthesisUtterance(speechText);
     utterance.lang = locale === "hi" ? "hi-IN" : locale === "mr" ? "mr-IN" : "en-IN";
-    utterance.rate = 0.9; // Calm, senior-friendly pacing
+    utterance.rate = 0.9;
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
 
@@ -214,67 +215,79 @@ export default function ElderTodayPage() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-5">
+      <div className="p-4 sm:p-6">
         <SkeletonSchedule />
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-5 space-y-5">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       {/* Calm Senior Greeting Banner */}
-      <div className="bg-surface border border-line rounded-3xl p-5 shadow-smriti relative overflow-hidden">
-        <div className="flex items-start justify-between gap-3">
+      <GlassPanel variant="elder" className="rounded-[32px] p-6 sm:p-7 relative overflow-hidden">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-displayDeva text-2xl sm:text-3xl font-bold text-ink leading-tight">
+            <h1 className="font-displayDeva text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight">
               {getGreeting()}
             </h1>
-            <p className="text-sm sm:text-base text-ink-muted mt-1 font-medium">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mt-1.5 font-bold">
               {totalDoses === 0
                 ? t("noMedicinesToday")
                 : t("progress", { taken: totalTaken, total: totalDoses })}
             </p>
           </div>
 
-          {/* Listen / Speech Button */}
-          {speechSupported && (
-            <button
-              onClick={handleSpeakSchedule}
-              className={`p-3 rounded-2xl flex items-center justify-center shrink-0 border transition-all active:scale-95 shadow-xs ${
-                isSpeaking
-                  ? "bg-saffron text-surface border-saffron animate-pulse"
-                  : "bg-forest-soft text-forest border-forest/20 hover:bg-forest hover:text-surface"
-              }`}
-              title="Listen Schedule Aloud"
-              aria-label="Listen Schedule"
-            >
-              {isSpeaking ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Progress Gauge */}
+            {totalDoses > 0 && (
+              <ProgressRing
+                value={progressPercent}
+                size={68}
+                strokeWidth={6}
+                showValueInside={true}
+              />
+            )}
+
+            {/* Listen / Speech Button */}
+            {speechSupported && (
+              <button
+                onClick={handleSpeakSchedule}
+                className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border transition-all active:scale-95 shadow-sm ${
+                  isSpeaking
+                    ? "bg-amber-500 text-white border-amber-500 animate-pulse"
+                    : "bg-white/80 dark:bg-white/10 text-blue-600 dark:text-blue-400 border-white/80 dark:border-white/10 hover:bg-white"
+                }`}
+                title="Listen Schedule Aloud"
+                aria-label="Listen Schedule"
+              >
+                {isSpeaking ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Progress Bar & Ring */}
+        {/* Progress Bar */}
         {totalDoses > 0 && (
-          <div className="mt-4 pt-4 border-t border-line/60">
-            <div className="flex items-center justify-between text-xs font-semibold text-ink-muted mb-1.5">
+          <div className="mt-5 pt-4 border-t border-slate-200/50 dark:border-white/10">
+            <div className="flex items-center justify-between text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">
               <span>{t("progress", { taken: totalTaken, total: totalDoses })}</span>
-              <span className="text-forest font-bold">{progressPercent}%</span>
+              <span className="text-blue-600 dark:text-blue-400 font-black">{progressPercent}%</span>
             </div>
-            <div className="w-full h-3 bg-paper-2 rounded-full overflow-hidden border border-line/50">
+            <div className="w-full h-3.5 bg-slate-200/70 dark:bg-white/10 rounded-full overflow-hidden">
               <div
-                className="h-full bg-forest transition-all duration-500 rounded-full"
+                className="h-full bg-blue-600 dark:bg-sky-400 transition-all duration-500 rounded-full"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
         )}
-      </div>
+      </GlassPanel>
 
       {/* BIG "NEXT DOSE" CARD */}
       {nextDose && (
-        <div>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-forest uppercase tracking-wider mb-2 px-1">
-            <Sparkles className="w-4 h-4 text-saffron" />
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2 text-sm sm:text-base font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider px-1">
+            <Sparkles className="w-5 h-5 text-amber-500" />
             <span>{t("nextDose")}</span>
           </div>
           <DoseCard
@@ -287,9 +300,9 @@ export default function ElderTodayPage() {
         </div>
       )}
 
-      {/* Schedule grouped by time slots */}
-      <div className="space-y-4 pt-2">
-        <h2 className="font-displayDeva text-xl font-bold text-ink px-1">
+      {/* Schedule Grouped by Time Slots */}
+      <div className="space-y-5 pt-2">
+        <h2 className="font-displayDeva text-2xl font-black text-slate-900 dark:text-white px-1">
           {t("fullSchedule")}
         </h2>
 
@@ -300,8 +313,8 @@ export default function ElderTodayPage() {
           return (
             <div key={slotKey} className="space-y-3">
               <div className="flex items-center gap-2 px-1 pt-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-forest" />
-                <h3 className="font-bold text-base text-ink">
+                <span className="w-3 h-3 rounded-full bg-blue-600 dark:bg-sky-400" />
+                <h3 className="font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
                   {tSlots(slotKey)} ({slotDoses.length})
                 </h3>
               </div>

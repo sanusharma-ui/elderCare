@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { apiClient, ApiError } from "@/lib/api-client";
 import { KeyRound, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 export default function FamilyLinkElderPage() {
   const t = useTranslations("family");
@@ -59,28 +61,31 @@ export default function FamilyLinkElderPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 flex flex-col justify-center">
-      <div className="bg-surface border border-line rounded-3xl p-6 sm:p-8 shadow-smriti text-center">
-        <div className="w-14 h-14 bg-forest-soft rounded-2xl flex items-center justify-center text-forest mx-auto mb-4">
+    <div className="p-4 sm:p-6 max-w-md mx-auto w-full my-auto space-y-6">
+      <GlassPanel variant="default" className="p-6 sm:p-8 text-center rounded-[32px]">
+        <div className="w-14 h-14 bg-accent-blue/15 text-accent-blue rounded-2xl flex items-center justify-center mx-auto mb-4 border border-accent-blue/20">
           <KeyRound className="w-7 h-7" />
         </div>
 
-        <h1 className="font-displayDeva text-2xl font-bold text-ink mb-1">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-accent-blue">
+          Care Circle Connect
+        </span>
+        <h1 className="text-2xl font-black text-ink mt-1 mb-2">
           {t("linkElder")}
         </h1>
-        <p className="text-xs text-ink-muted mb-6 leading-relaxed">
+        <p className="text-xs sm:text-sm text-ink-muted mb-6 leading-relaxed">
           {t("linkDescription")}
         </p>
 
         {errorMessage && (
-          <div className="mb-5 p-3.5 bg-brick-soft border border-brick/30 rounded-xl text-brick text-xs font-semibold text-left">
+          <div className="mb-5 p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-xs font-bold text-left">
             {errorMessage}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2 text-left">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="text-left">
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
               {t("enterPasscode")}
             </label>
             <input
@@ -90,34 +95,27 @@ export default function FamilyLinkElderPage() {
               value={code}
               onChange={handleCodeChange}
               placeholder={t("passcodePlaceholder")}
-              className="w-full min-h-[58px] text-center font-mono text-2xl sm:text-3xl font-extrabold tracking-widest uppercase bg-paper border-2 border-line focus:border-forest rounded-2xl text-forest placeholder:text-ink-muted/30 transition-all select-all"
+              className="w-full min-h-[58px] text-center font-mono text-2xl sm:text-3xl font-extrabold tracking-widest uppercase bg-white/70 dark:bg-white/[0.05] border border-white/60 dark:border-white/10 focus:border-accent-blue rounded-2xl text-ink placeholder:text-ink-muted/30 focus:outline-none transition-all select-all shadow-inner"
             />
           </div>
 
-          <button
+          <PrimaryButton
             type="submit"
+            size="lg"
+            fullWidth
             disabled={redeemMutation.isPending || code.length < 9}
-            className="w-full min-h-[52px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+            loading={redeemMutation.isPending}
+            icon={<ArrowRight className="w-5 h-5" />}
           >
-            {redeemMutation.isPending ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>{t("verifying")}</span>
-              </>
-            ) : (
-              <>
-                <span>{t("linkBtn")}</span>
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
+            {t("linkBtn")}
+          </PrimaryButton>
         </form>
 
-        <div className="mt-6 pt-5 border-t border-line text-xs text-ink-muted flex items-center justify-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-ok" />
+        <div className="mt-6 pt-5 border-t border-white/40 dark:border-white/10 text-xs font-semibold text-ink-muted flex items-center justify-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-500" />
           <span>{t("secureAccess")}</span>
         </div>
-      </div>
+      </GlassPanel>
     </div>
   );
 }

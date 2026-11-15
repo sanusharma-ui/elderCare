@@ -8,6 +8,8 @@ import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import { SkeletonCard } from "@/components/shared/Skeleton";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import {
   Users,
   ShieldAlert,
@@ -71,92 +73,93 @@ export default function FamilyHomePage() {
   const alerts = alertsData?.items || [];
 
   return (
-    <div className="p-4 sm:p-5 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       {/* Header Banner */}
       <div>
-        <h1 className="font-display text-2xl font-bold text-ink">
+        <span className="text-xs uppercase font-extrabold tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+          Family Portal
+        </span>
+        <h1 className="font-display text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
           {t("title")}
         </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
           {t("subtitle")}
         </p>
       </div>
 
       {/* Linked Elders Section */}
-      <div className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+      <GlassPanel variant="default" className="rounded-[32px] p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-sm text-ink uppercase tracking-wider flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-forest" />
+          <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <span>{t("linkedElders")} ({elders.length})</span>
           </h2>
-          <Link
-            href="/family/link"
-            className="text-xs font-bold text-forest hover:underline flex items-center gap-1"
-          >
-            <PlusCircle className="w-3.5 h-3.5" />
-            <span>{t("linkElder")}</span>
+          <Link href="/family/link">
+            <PrimaryButton variant="ghost" size="sm" className="gap-1.5 text-blue-600 dark:text-blue-400">
+              <PlusCircle className="w-4 h-4" />
+              <span>{t("linkElder")}</span>
+            </PrimaryButton>
           </Link>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {eldersLoading ? (
             <SkeletonCard lines={1} />
           ) : (
             elders.map((elder) => (
-            <div
-              key={elder.id}
-              className="p-3 bg-paper rounded-xl border border-line flex items-center justify-between gap-3"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest font-bold flex items-center justify-center text-sm">
-                  {elder.name[0]}
-                </div>
-                <div>
-                  <span className="font-bold text-ink text-sm block">
-                    {elder.name}
-                  </span>
-                  <span className="text-[11px] text-ok font-semibold">
-                    ✓ {t("linkedStatus")}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  if (confirm(t("unlinkConfirm", { name: elder.name }))) {
-                    unlinkMutation.mutate(elder.id);
-                  }
-                }}
-                className="text-xs text-ink-muted hover:text-brick p-1 rounded-lg"
-                title="Unlink"
+              <div
+                key={elder.id}
+                className="p-4 bg-white/50 dark:bg-white/5 rounded-2xl border border-white/60 dark:border-white/10 flex items-center justify-between gap-3"
               >
-                <Unlink className="w-4 h-4" />
-              </button>
-            </div>
-          ))
-        )}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 font-black flex items-center justify-center text-base">
+                    {elder.name[0]}
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white text-base block">
+                      {elder.name}
+                    </span>
+                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                      ✓ {t("linkedStatus")}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (confirm(t("unlinkConfirm", { name: elder.name }))) {
+                      unlinkMutation.mutate(elder.id);
+                    }
+                  }}
+                  className="p-2 text-slate-400 hover:text-rose-600 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  title="Unlink"
+                >
+                  <Unlink className="w-4 h-4" />
+                </button>
+              </div>
+            ))
+          )}
 
           {elders.length === 0 && !eldersLoading && (
-            <div className="text-center py-6">
-              <p className="text-xs text-ink-muted mb-3">
+            <div className="text-center py-8 bg-white/40 dark:bg-white/5 rounded-2xl space-y-3">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 {t("notLinked")}
               </p>
-              <Link
-                href="/family/link"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-forest text-surface text-xs font-bold rounded-xl"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>{t("linkWithPasscode")}</span>
+              <Link href="/family/link">
+                <PrimaryButton variant="primary" size="md">
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  <span>{t("linkWithPasscode")}</span>
+                </PrimaryButton>
               </Link>
             </div>
           )}
         </div>
-      </div>
+      </GlassPanel>
 
       {/* Proactive Alerts Feed */}
-      <div className="space-y-3">
-        <h2 className="font-bold text-base text-ink px-1 flex items-center gap-1.5">
-          <Bell className="w-4 h-4 text-forest" />
+      <div className="space-y-4">
+        <h2 className="font-bold text-lg text-slate-900 dark:text-white px-1 flex items-center gap-2">
+          <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <span>{t("alertFeed")}</span>
         </h2>
 
@@ -167,44 +170,45 @@ export default function FamilyHomePage() {
           </>
         ) : (
           alerts.map((alert) => (
-          <div
-            key={alert.id}
-            className={`p-4 rounded-2xl border shadow-xs transition-all ${
-              alert.type === "MISSED_DOSE"
-                ? "bg-brick-soft/60 border-brick/40"
-                : "bg-surface border-line"
-            }`}
-          >
-            <div className="flex items-start justify-between gap-2 mb-1">
-              <span className="font-bold text-sm text-ink flex items-center gap-1.5">
-                {alert.type === "MISSED_DOSE" && (
-                  <ShieldAlert className="w-4 h-4 text-brick shrink-0" />
-                )}
-                <span>{alert.title}</span>
-              </span>
-              <span className="text-[11px] text-ink-muted shrink-0 tabular-nums">
-                {new Date(alert.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-              {alert.body}
-            </p>
-
-            {alert.type === "MISSED_DOSE" && (
-              <div className="mt-3 pt-2.5 border-t border-brick/20 flex items-center justify-between text-xs text-brick font-semibold">
-                <span className="flex items-center gap-1.5">
-                  <PhoneCall className="w-3.5 h-3.5" />
-                  <span>{t("callSuggestion")}</span>
+            <GlassPanel
+              key={alert.id}
+              variant="default"
+              className={`rounded-[28px] p-5 space-y-2.5 ${
+                alert.type === "MISSED_DOSE"
+                  ? "border-rose-400/60 dark:border-rose-800/40 bg-rose-50/20"
+                  : ""
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  {alert.type === "MISSED_DOSE" && (
+                    <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0" />
+                  )}
+                  <span>{alert.title}</span>
+                </span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0 tabular-nums">
+                  {new Date(alert.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </div>
-            )}
-          </div>
-        ))
-      )}
+
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                {alert.body}
+              </p>
+
+              {alert.type === "MISSED_DOSE" && (
+                <div className="pt-2.5 border-t border-rose-200/50 dark:border-rose-900/30 flex items-center justify-between text-xs text-rose-600 dark:text-rose-400 font-bold">
+                  <span className="flex items-center gap-1.5">
+                    <PhoneCall className="w-4 h-4" />
+                    <span>{t("callSuggestion")}</span>
+                  </span>
+                </div>
+              )}
+            </GlassPanel>
+          ))
+        )}
 
         {alerts.length === 0 && !alertsLoading && (
           <EmptyState

@@ -14,6 +14,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn, formatTime24to12 } from "@/lib/utils";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 export interface TodayDoseItem {
   scheduleId: string;
@@ -62,56 +64,51 @@ export function DoseCard({
   const isPending = dose.status === "PENDING";
   const isSkipped = dose.status === "SKIPPED";
 
-  // Form icon
-  const renderFormIcon = () => {
-    return <Pill className="w-5 h-5 text-forest" />;
-  };
-
   return (
-    <div
+    <GlassPanel
+      variant="elder"
       className={cn(
-        "relative bg-surface border rounded-2xl p-4 sm:p-5 transition-all shadow-xs overflow-hidden",
-        isTaken && "border-ok/30 bg-ok/5",
-        isMissed && "border-brick/40 bg-brick/5",
-        isPending && "border-line",
-        isSkipped && "border-line bg-paper-2/50"
+        "rounded-[28px] p-5 sm:p-6 transition-all relative overflow-hidden",
+        isTaken && "border-emerald-500/40 bg-emerald-500/5",
+        isMissed && "border-rose-500/40 bg-rose-500/5",
+        isSkipped && "opacity-75"
       )}
     >
       {/* Left status color bar */}
       <div
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-1.5",
-          isTaken && "bg-ok",
-          isMissed && "bg-brick",
-          isPending && "bg-saffron",
-          isSkipped && "bg-ink-muted"
+          "absolute left-0 top-0 bottom-0 w-2",
+          isTaken && "bg-emerald-500",
+          isMissed && "bg-rose-500",
+          isPending && "bg-blue-600 dark:bg-sky-400",
+          isSkipped && "bg-slate-400"
         )}
       />
 
       {/* Top row: Medicine Name, Local Name & Scheduled Time */}
       <div className="flex items-start justify-between gap-3 pl-2">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-forest-soft flex items-center justify-center shrink-0 mt-0.5">
-            {renderFormIcon()}
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+            <Pill className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <h3 className="font-bold text-ink text-lg sm:text-xl leading-snug">
+            <div className="flex items-baseline gap-2.5 flex-wrap">
+              <h3 className="font-bold text-slate-900 dark:text-white text-xl sm:text-2xl leading-snug">
                 {dose.medicineName}
               </h3>
               {dose.nameLocal && (
-                <span className="font-displayDeva text-base font-semibold text-forest">
+                <span className="font-displayDeva text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
                   ({dose.nameLocal})
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2 mt-1 text-xs text-ink-muted flex-wrap">
-              <span className="font-semibold text-ink px-2 py-0.5 bg-paper-2 rounded-md">
+            <div className="flex items-center gap-2.5 mt-1.5 text-sm sm:text-base text-slate-600 dark:text-slate-300 flex-wrap">
+              <span className="font-extrabold text-slate-900 dark:text-white px-2.5 py-0.5 bg-white/70 dark:bg-white/10 rounded-full border border-slate-200/60 dark:border-white/10 text-xs sm:text-sm">
                 {dose.doseQuantity}
               </span>
-              <span className="flex items-center gap-1">
-                <Utensils className="w-3.5 h-3.5 text-forest" />
+              <span className="flex items-center gap-1.5 font-bold">
+                <Utensils className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>{tFood(dose.foodRelation)}</span>
               </span>
             </div>
@@ -120,13 +117,13 @@ export function DoseCard({
 
         {/* Time Badge */}
         <div className="flex flex-col items-end shrink-0">
-          <div className="flex items-center gap-1 text-sm font-semibold text-ink bg-paper-2 px-2.5 py-1 rounded-lg border border-line tabular-nums">
-            <Clock className="w-3.5 h-3.5 text-forest" />
+          <div className="flex items-center gap-1.5 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white bg-white/80 dark:bg-white/10 px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-white/10 tabular-nums shadow-xs">
+            <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <span>{formatTime24to12(dose.timeOfDay)}</span>
           </div>
           {isTaken && dose.takenAt && (
-            <span className="text-[11px] font-medium text-ok mt-1">
-              {new Date(dose.takenAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+              ✓ {new Date(dose.takenAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </span>
           )}
         </div>
@@ -134,19 +131,19 @@ export function DoseCard({
 
       {/* Instructions if present */}
       {dose.instructions && (
-        <div className="mt-3 pl-2 text-xs text-ink-muted leading-relaxed">
-          <span className="font-semibold text-ink">{t("instructions")}: </span>
+        <div className="mt-3.5 pl-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+          <span className="font-bold text-slate-900 dark:text-white">{t("instructions")}: </span>
           <span>{dose.instructions}</span>
         </div>
       )}
 
-      {/* PROMINENT WARNING CALLOUT ("what NOT to do") */}
+      {/* PROMINENT WARNING CALLOUT */}
       {dose.warnings && (
-        <div className="mt-3 ml-2 p-2.5 bg-saffron-soft/70 border border-saffron/40 rounded-xl flex items-start gap-2.5 text-ink text-xs sm:text-sm">
-          <AlertTriangle className="w-4 h-4 text-saffron shrink-0 mt-0.5" />
+        <div className="mt-3.5 ml-2 p-3 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300/60 dark:border-amber-700/40 rounded-2xl flex items-start gap-3 text-slate-900 dark:text-slate-100 text-sm sm:text-base">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold text-ink">{t("warningNotice")}: </span>
-            <span className="text-ink font-medium leading-tight">
+            <span className="font-bold text-amber-800 dark:text-amber-300">{t("warningNotice")}: </span>
+            <span className="font-semibold leading-tight">
               {dose.warnings}
             </span>
           </div>
@@ -154,22 +151,24 @@ export function DoseCard({
       )}
 
       {/* Action Bar */}
-      <div className="mt-4 pt-3 border-t border-line/60 pl-2">
+      <div className="mt-4 pt-3.5 border-t border-slate-200/50 dark:border-white/10 pl-2">
         {isElderView ? (
-          // Elder: Huge min 56px primary button
+          // Elder: Generous min 58px primary button
           <div>
             {isPending && (
-              <button
+              <PrimaryButton
+                variant="primary"
+                size="elder"
                 onClick={() => {
                   if ("vibrate" in navigator) navigator.vibrate([40, 20, 40]);
                   onMarkTaken?.(dose);
                 }}
                 disabled={isLoading}
-                className="w-full min-h-[56px] bg-forest hover:bg-forest-hover active:scale-[0.98] text-surface text-lg sm:text-xl font-bold rounded-2xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-75"
+                className="w-full gap-2.5 text-lg sm:text-xl font-black"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                     <span>{tCommon("loading")}</span>
                   </div>
                 ) : (
@@ -178,22 +177,24 @@ export function DoseCard({
                     <span>{t("takeNow")}</span>
                   </>
                 )}
-              </button>
+              </PrimaryButton>
             )}
 
             {isMissed && (
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-brick flex items-center gap-1.5">
-                  <XCircle className="w-4 h-4" />
+                <span className="text-sm sm:text-base font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                  <XCircle className="w-5 h-5" />
                   <span>{tDose("MISSED")}</span>
                 </span>
-                <button
+                <PrimaryButton
+                  variant="danger"
+                  size="md"
                   onClick={() => {
                     if ("vibrate" in navigator) navigator.vibrate([40, 20, 40]);
                     onMarkTaken?.(dose);
                   }}
                   disabled={isLoading}
-                  className="px-4 min-h-[48px] bg-brick hover:bg-brick/90 text-surface text-sm sm:text-base font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-75"
+                  className="gap-2"
                 >
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -201,79 +202,87 @@ export function DoseCard({
                     <CheckCircle2 className="w-4 h-4" />
                   )}
                   <span>{t("takeLate")}</span>
-                </button>
+                </PrimaryButton>
               </div>
             )}
 
             {isTaken && (
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-ok font-bold text-sm sm:text-base">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-extrabold text-base sm:text-lg">
                   <CheckCircle2 className="w-5 h-5" />
                   <span>{tDose("TAKEN")}</span>
                 </div>
                 {onUndo && (
-                  <button
+                  <PrimaryButton
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onUndo(dose)}
                     disabled={isLoading}
-                    className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line bg-surface active:bg-paper-2"
+                    className="gap-1.5 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>{tCommon("undo")}</span>
-                  </button>
+                  </PrimaryButton>
                 )}
               </div>
             )}
 
             {isSkipped && (
-              <div className="text-sm font-semibold text-ink-muted flex items-center gap-2">
-                <HelpCircle className="w-4 h-4" />
+              <div className="text-sm sm:text-base font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <HelpCircle className="w-5 h-5" />
                 <span>{tDose("SKIPPED")}</span>
               </div>
             )}
           </div>
         ) : (
           // Caretaker: Given / Skip controls
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2.5">
             {isPending ? (
               <>
-                <button
+                <PrimaryButton
+                  variant="primary"
+                  size="md"
                   onClick={() => onMarkGiven?.(dose)}
                   disabled={isLoading}
-                  className="flex-1 min-h-[48px] bg-forest text-surface font-semibold rounded-xl text-sm flex items-center justify-center gap-1.5 hover:bg-forest-hover active:scale-95"
+                  className="flex-1 gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Mark Given</span>
-                </button>
-                <button
+                </PrimaryButton>
+                <PrimaryButton
+                  variant="secondary"
+                  size="md"
                   onClick={() => onMarkSkipped?.(dose)}
                   disabled={isLoading}
-                  className="px-3 min-h-[48px] bg-paper-2 border border-line text-ink-muted hover:text-ink font-semibold rounded-xl text-sm flex items-center justify-center gap-1 active:scale-95"
+                  className="gap-1.5"
                 >
                   <XCircle className="w-4 h-4" />
                   <span>Skip</span>
-                </button>
+                </PrimaryButton>
               </>
             ) : (
               <div className="flex items-center justify-between w-full">
-                <span className="text-xs font-semibold text-ink-muted">
-                  Status: <strong className="text-ink">{tDose(dose.status)}</strong>
+                <span className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400">
+                  Status: <strong className="text-slate-900 dark:text-white">{tDose(dose.status)}</strong>
                   {dose.markedByRole && ` (${dose.markedByRole})`}
                 </span>
                 {onUndo && isTaken && (
-                  <button
+                  <PrimaryButton
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onUndo(dose)}
                     disabled={isLoading}
-                    className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line bg-surface"
+                    className="gap-1 text-xs"
                   >
-                    <RotateCcw className="w-3 h-3" />
+                    <RotateCcw className="w-3.5 h-3.5" />
                     <span>Undo</span>
-                  </button>
+                  </PrimaryButton>
                 )}
               </div>
             )}
           </div>
         )}
       </div>
-    </div>
+    </GlassPanel>
   );
 }

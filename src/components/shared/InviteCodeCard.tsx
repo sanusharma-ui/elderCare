@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Copy, Check, Share2, Clock } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 export function InviteCodeCard({
   code,
@@ -29,41 +31,39 @@ export function InviteCodeCard({
   const waUrl = `https://wa.me/?text=${shareText}`;
 
   return (
-    <div className="bg-surface border-2 border-forest/30 rounded-2xl p-5 shadow-smriti text-center relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-forest" />
-
+    <GlassPanel variant="default" className="rounded-3xl p-6 text-center relative overflow-hidden space-y-4">
       {role && (
-        <span className="inline-block px-3 py-1 bg-forest-soft text-forest text-xs font-bold uppercase rounded-full mb-3">
+        <span className="inline-block px-3.5 py-1 bg-accent-blue/15 text-accent-blue text-xs font-bold uppercase rounded-full border border-accent-blue/20">
           {tRoles(role as any)} Passcode
         </span>
       )}
 
-      <div className="my-2 py-3 px-4 bg-paper-2 border border-line rounded-xl inline-block">
-        <span className="font-mono text-3xl font-extrabold tracking-widest text-forest select-all">
+      <div className="py-3 px-6 bg-white/70 dark:bg-white/[0.05] border border-white/60 dark:border-white/10 rounded-2xl inline-block shadow-inner">
+        <span className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-ink select-all">
           {code}
         </span>
       </div>
 
       {expiresAt && (
-        <p className="text-xs text-ink-muted flex items-center justify-center gap-1.5 mt-2">
-          <Clock className="w-3.5 h-3.5 text-saffron" />
+        <p className="text-xs font-semibold text-ink-muted flex items-center justify-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-amber-500" />
           <span>Valid for 48 hours</span>
         </p>
       )}
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 pt-2">
         <button
           onClick={handleCopy}
-          className="flex items-center justify-center gap-2 py-2.5 px-4 bg-surface border border-line hover:bg-paper rounded-xl text-sm font-semibold text-ink active:scale-95 transition-all"
+          className="flex items-center justify-center gap-2 py-3 px-4 bg-white/60 dark:bg-white/[0.06] hover:bg-white/80 dark:hover:bg-white/10 border border-white/60 dark:border-white/10 rounded-full text-xs sm:text-sm font-bold text-ink active:scale-95 transition-all shadow-xs"
         >
           {copied ? (
             <>
-              <Check className="w-4 h-4 text-ok" />
+              <Check className="w-4 h-4 text-emerald-500" />
               <span>{t("copied")}</span>
             </>
           ) : (
             <>
-              <Copy className="w-4 h-4 text-forest" />
+              <Copy className="w-4 h-4 text-accent-blue" />
               <span>{t("copy")}</span>
             </>
           )}
@@ -73,12 +73,12 @@ export function InviteCodeCard({
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 py-2.5 px-4 bg-[#25D366] text-white rounded-xl text-sm font-semibold hover:opacity-95 active:scale-95 transition-all shadow-xs"
+          className="flex items-center justify-center gap-2 py-3 px-4 bg-[#25D366] text-white rounded-full text-xs sm:text-sm font-bold hover:opacity-95 active:scale-95 transition-all shadow-sm"
         >
           <Share2 className="w-4 h-4" />
           <span>{t("shareWhatsApp")}</span>
         </a>
       </div>
-    </div>
+    </GlassPanel>
   );
 }

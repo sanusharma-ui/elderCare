@@ -18,12 +18,12 @@ export function NotificationBell({ href = "/notifications" }: { href?: string })
   return (
     <Link
       href={href}
-      className="relative p-2.5 rounded-xl bg-surface border border-line text-ink hover:bg-paper active:scale-95 transition-all flex items-center justify-center shadow-xs"
+      className="relative p-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur-md border border-white/60 dark:border-white/10 text-ink hover:bg-white/90 dark:hover:bg-white/20 active:scale-95 transition-all flex items-center justify-center shadow-xs"
       aria-label={`Notifications ${count > 0 ? `(${count} unread)` : ""}`}
     >
-      <Bell className="w-5 h-5 text-forest" />
+      <Bell className="w-4 h-4 text-ink" />
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-brick text-surface text-[11px] font-bold rounded-full flex items-center justify-center border-2 border-surface">
+        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-black shadow-xs animate-pulse">
           {count > 9 ? "9+" : count}
         </span>
       )}

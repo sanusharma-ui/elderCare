@@ -8,6 +8,8 @@ import { DoseCard, TodayDoseItem } from "@/components/elder/DoseCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import { SkeletonSchedule } from "@/components/shared/Skeleton";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { ProgressRing } from "@/components/ui/ProgressRing";
 import { apiClient } from "@/lib/api-client";
 import { Activity, Clock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -156,80 +158,77 @@ export default function CaretakerTodayPage() {
   const missStreak = adherenceData?.overall.missStreak ?? 0;
 
   return (
-    <div className="p-4 sm:p-5 space-y-4">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       {/* Elder Switcher Header */}
       <ElderSwitcher />
 
       {/* Mini Adherence Summary Card */}
       {selectedElderId && (
-        <div className="bg-surface border border-line rounded-2xl p-4 shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-forest-soft text-forest flex items-center justify-center">
-              <Activity className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-semibold text-ink-muted uppercase block">
-                {t("adherence7d")}
-              </span>
-              <span className="text-xl font-bold text-ink">{adherenceRate}%</span>
-            </div>
+        <GlassPanel variant="default" className="rounded-[28px] p-5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <ProgressRing
+              value={adherenceRate}
+              size={64}
+              strokeWidth={6}
+              label={t("adherence7d")}
+            />
           </div>
 
           {missStreak > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brick-soft text-brick text-xs font-bold rounded-xl border border-brick/20">
+            <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-black rounded-full border border-rose-200/50 dark:border-rose-800/40">
               <AlertCircle className="w-4 h-4" />
               <span>{t("missStreak", { count: missStreak })}</span>
             </div>
           )}
-        </div>
+        </GlassPanel>
       )}
 
       {/* Schedule Grouped by Slot */}
       {isLoading ? (
         <SkeletonSchedule />
       ) : (
-        <div className="space-y-4 pt-1">
-          <h2 className="font-bold text-lg text-ink px-1">
+        <div className="space-y-5 pt-1">
+          <h2 className="font-bold text-xl text-slate-900 dark:text-white px-1">
             {t("dailyDoses")}
           </h2>
 
           {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
-          const slotDoses = data?.slots[slotKey] || [];
-          if (slotDoses.length === 0) return null;
+            const slotDoses = data?.slots[slotKey] || [];
+            if (slotDoses.length === 0) return null;
 
-          return (
-            <div key={slotKey} className="space-y-3">
-              <div className="flex items-center gap-2 px-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-forest" />
-                <h3 className="font-bold text-sm text-ink capitalize">
-                  {tSlots(slotKey)} ({slotDoses.length})
-                </h3>
+            return (
+              <div key={slotKey} className="space-y-3">
+                <div className="flex items-center gap-2 px-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-sky-400" />
+                  <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white capitalize">
+                    {tSlots(slotKey)} ({slotDoses.length})
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {slotDoses.map((dose) => (
+                    <DoseCard
+                      key={dose.scheduleId}
+                      dose={dose}
+                      isElderView={false}
+                      isLoading={activeDoseActionId === dose.scheduleId}
+                      onMarkGiven={(d) => markGivenMutation.mutate(d)}
+                      onMarkSkipped={(d) => markSkippedMutation.mutate(d)}
+                      onUndo={(d) => d.doseLogId && undoMutation.mutate(d.doseLogId)}
+                    />
+                  ))}
+                </div>
               </div>
+            );
+          })}
 
-              <div className="space-y-3">
-                {slotDoses.map((dose) => (
-                  <DoseCard
-                    key={dose.scheduleId}
-                    dose={dose}
-                    isElderView={false}
-                    isLoading={activeDoseActionId === dose.scheduleId}
-                    onMarkGiven={(d) => markGivenMutation.mutate(d)}
-                    onMarkSkipped={(d) => markSkippedMutation.mutate(d)}
-                    onUndo={(d) => d.doseLogId && undoMutation.mutate(d.doseLogId)}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-
-        {data?.summary.total === 0 && !isLoading && (
-          <EmptyState
-            title={t("noDoses")}
-            description={t("noDosesDescription")}
-          />
-        )}
-      </div>
+          {data?.summary.total === 0 && !isLoading && (
+            <EmptyState
+              title={t("noDoses")}
+              description={t("noDosesDescription")}
+            />
+          )}
+        </div>
       )}
 
       <InstallPrompt />

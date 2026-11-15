@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, X, Share } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -62,51 +64,51 @@ export function InstallPrompt() {
   if (isStandalone || dismissed) return null;
 
   return (
-    <div className="mx-4 my-3 p-4 bg-surface border border-line rounded-2xl shadow-smriti relative overflow-hidden transition-all">
+    <GlassPanel variant="default" className="mx-4 my-3 p-4 rounded-2xl relative overflow-hidden transition-all">
       <button
         onClick={handleDismiss}
-        className="absolute top-3 right-3 text-ink-muted hover:text-ink p-1 rounded-full active:bg-paper-2"
+        className="absolute top-3 right-3 text-ink-muted hover:text-ink p-1 rounded-full active:bg-white/20"
         aria-label="Dismiss install prompt"
       >
-        <X className="w-5 h-5" />
+        <X className="w-4 h-4" />
       </button>
 
       <div className="flex items-start gap-3.5 pr-6">
-        <div className="w-10 h-10 rounded-xl bg-forest-soft text-forest flex items-center justify-center shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-accent-blue/15 text-accent-blue border border-accent-blue/20 flex items-center justify-center shrink-0">
           <Download className="w-5 h-5" />
         </div>
         <div>
-          <h4 className="font-semibold text-ink text-base leading-tight">
+          <h4 className="font-bold text-ink text-base leading-tight">
             {t("installTitle")}
           </h4>
-          <p className="text-ink-muted text-sm mt-1 leading-snug">
+          <p className="text-ink-muted text-xs sm:text-sm mt-1 leading-snug">
             {isIos ? t("iosInstructions") : t("installDesc")}
           </p>
 
           <div className="mt-3 flex items-center gap-3">
             {!isIos && deferredPrompt && (
-              <button
+              <PrimaryButton
+                size="sm"
                 onClick={handleInstallClick}
-                className="px-4 py-2 bg-forest text-surface text-sm font-semibold rounded-xl hover:bg-forest-hover active:scale-95 transition-all shadow-sm"
               >
                 {t("installBtn")}
-              </button>
+              </PrimaryButton>
             )}
             {isIos && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-paper-2 text-ink text-xs font-medium rounded-lg">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/60 dark:bg-white/10 text-ink text-xs font-semibold rounded-full border border-white/60 dark:border-white/10">
                 <Share className="w-3.5 h-3.5" />
                 <span>Share &gt; Add to Home Screen</span>
               </span>
             )}
             <button
               onClick={handleDismiss}
-              className="text-xs font-medium text-ink-muted hover:text-ink underline py-1"
+              className="text-xs font-semibold text-ink-muted hover:text-ink underline py-1"
             >
               {t("dismiss")}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </GlassPanel>
   );
 }

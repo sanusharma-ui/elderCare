@@ -45,7 +45,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       // 2. Sync PWA theme-color meta tag for status bar in both modes
       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      const targetColor = isDark ? "#070B14" : "#DCEAFE";
+      const targetColor = isDark ? "#09090B" : "#F8FAFC";
       if (themeColorMeta) {
         themeColorMeta.setAttribute("content", targetColor);
       } else {

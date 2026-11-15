@@ -6,6 +6,7 @@ import { useCaretaker } from "@/components/caretaker/CaretakerContext";
 import { ElderSwitcher } from "@/components/caretaker/ElderSwitcher";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Pill, AlertTriangle, Package, AlertCircle, Clock, Utensils } from "lucide-react";
 import { formatTime24to12 } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -40,34 +41,39 @@ export default function CaretakerMedicinesPage() {
   );
 
   return (
-    <div className="p-4 sm:p-5 space-y-4">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       <ElderSwitcher />
 
       {/* Low Stock Warning Banner if any */}
       {lowStockMedicines.length > 0 && (
-        <div className="p-4 bg-saffron-soft border-2 border-saffron rounded-2xl flex items-start gap-3 shadow-xs">
-          <AlertCircle className="w-5 h-5 text-saffron shrink-0 mt-0.5" />
-          <div>
-            <h4 className="font-bold text-ink text-sm">
-              {t("lowStockTitle")}
-            </h4>
-            <p className="text-xs text-ink-muted mt-1">
-              {t("lowStockDescription")}
-            </p>
-            <ul className="mt-2 space-y-1 text-xs font-semibold text-ink">
-              {lowStockMedicines.map((m) => (
-                <li key={m.id}>
-                  • {m.name}: <strong>{t("remaining", { count: m.stockCount || 0, threshold: m.refillThreshold || 0 })}</strong>
-                </li>
-              ))}
-            </ul>
+        <GlassPanel
+          variant="default"
+          className="rounded-[28px] p-5 border-amber-400/60 dark:border-amber-500/40 bg-amber-500/10 space-y-3"
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-bold text-slate-900 dark:text-white text-base">
+                {t("lowStockTitle")}
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
+                {t("lowStockDescription")}
+              </p>
+              <ul className="mt-2.5 space-y-1 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
+                {lowStockMedicines.map((m) => (
+                  <li key={m.id}>
+                    • {m.name}: <strong className="text-amber-600 dark:text-amber-400">{t("remaining", { count: m.stockCount || 0, threshold: m.refillThreshold || 0 })}</strong>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        </GlassPanel>
       )}
 
       {/* Medicines List */}
       <div className="space-y-4 pt-1">
-        <h2 className="font-bold text-lg text-ink px-1">
+        <h2 className="font-bold text-xl text-slate-900 dark:text-white px-1">
           {t("activePrescriptions")}
         </h2>
 
@@ -78,25 +84,26 @@ export default function CaretakerMedicinesPage() {
             med.stockCount <= med.refillThreshold;
 
           return (
-            <div
+            <GlassPanel
               key={med.id}
-              className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs relative overflow-hidden"
+              variant="default"
+              className="rounded-[28px] p-5 sm:p-6 space-y-4"
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-forest-soft flex items-center justify-center shrink-0">
-                    <Pill className="w-5 h-5 text-forest" />
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <Pill className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-ink text-lg leading-snug">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-lg sm:text-xl leading-snug">
                       {med.name}
                     </h3>
                     {med.nameLocal && (
-                      <span className="font-displayDeva text-sm font-semibold text-forest block">
+                      <span className="font-displayDeva text-sm font-bold text-blue-600 dark:text-blue-400 block">
                         {med.nameLocal}
                       </span>
                     )}
-                    <span className="text-xs font-medium text-ink-muted mt-1 block">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1 block">
                       {med.dosage} • {med.form} • {med.foodRelation}
                     </span>
                   </div>
@@ -104,10 +111,10 @@ export default function CaretakerMedicinesPage() {
 
                 {med.stockCount !== null && (
                   <div
-                    className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg border ${
+                    className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border ${
                       isLow
-                        ? "bg-brick-soft text-brick border-brick/30"
-                        : "bg-paper-2 text-ink border-line"
+                        ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200/50 dark:border-rose-800/40"
+                        : "bg-white/70 dark:bg-white/10 text-slate-800 dark:text-slate-200 border-slate-200/60 dark:border-white/10"
                     }`}
                   >
                     <Package className="w-3.5 h-3.5" />
@@ -117,36 +124,36 @@ export default function CaretakerMedicinesPage() {
               </div>
 
               {/* Schedules */}
-              <div className="mt-3 pt-3 border-t border-line/60 flex flex-wrap gap-2">
+              <div className="pt-3 border-t border-slate-200/50 dark:border-white/10 flex flex-wrap gap-2">
                 {med.schedules.map((s) => (
                   <span
                     key={s.id}
-                    className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 bg-paper-2 rounded-md border border-line text-ink"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 bg-white/70 dark:bg-white/10 rounded-full border border-slate-200/60 dark:border-white/10 text-slate-900 dark:text-white tabular-nums"
                   >
-                    <Clock className="w-3 h-3 text-forest" />
+                    <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <span>{formatTime24to12(s.timeOfDay)}</span>
-                    <span className="text-ink-muted">({s.doseQuantity})</span>
+                    <span className="text-slate-500 dark:text-slate-400">({s.doseQuantity})</span>
                   </span>
                 ))}
               </div>
 
               {med.instructions && (
-                <div className="mt-2.5 text-xs text-ink-muted">
-                  <strong>{t("instructionsLabel")}: </strong>
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                  <strong className="text-slate-900 dark:text-white font-bold">{t("instructionsLabel")}: </strong>
                   <span>{med.instructions}</span>
                 </div>
               )}
 
               {med.warnings && (
-                <div className="mt-2.5 p-2.5 bg-saffron-soft/70 border border-saffron/30 rounded-xl flex items-start gap-2 text-xs text-ink">
-                  <AlertTriangle className="w-4 h-4 text-saffron shrink-0 mt-0.5" />
+                <div className="p-3 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300/60 dark:border-amber-700/40 rounded-2xl flex items-start gap-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <strong>{t("warningLabel")}: </strong>
-                    <span>{med.warnings}</span>
+                    <strong className="font-bold text-amber-800 dark:text-amber-300">{t("warningLabel")}: </strong>
+                    <span className="font-semibold">{med.warnings}</span>
                   </div>
                 </div>
               )}
-            </div>
+            </GlassPanel>
           );
         })}
 

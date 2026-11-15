@@ -8,6 +8,7 @@ interface ProgressRingProps {
   size?: number; // Diameter in px, default 76
   strokeWidth?: number; // default 6
   label?: string; // e.g. "Overall progress"
+  sublabel?: string; // e.g. "7-day"
   showValueInside?: boolean;
   className?: string;
 }
@@ -17,6 +18,7 @@ export function ProgressRing({
   size = 76,
   strokeWidth = 5.5,
   label = "Overall adherence",
+  sublabel,
   showValueInside = true,
   className = "",
 }: ProgressRingProps) {

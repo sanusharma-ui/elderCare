@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { apiClient, ApiError } from "@/lib/api-client";
 import { getRoleHome } from "@/lib/routes";
 import {
@@ -58,25 +61,25 @@ export default function RegisterPage() {
       type: "ELDER",
       title: tRoles("ELDER"),
       desc: tLanding("elderCardDesc"),
-      icon: <User className="w-8 h-8 text-forest" />,
+      icon: <User className="w-7 h-7 text-blue-600 dark:text-blue-400" />,
     },
     {
       type: "CARETAKER",
       title: tRoles("CARETAKER"),
       desc: tLanding("caretakerCardDesc"),
-      icon: <HeartHandshake className="w-8 h-8 text-forest" />,
+      icon: <HeartHandshake className="w-7 h-7 text-blue-600 dark:text-blue-400" />,
     },
     {
       type: "FAMILY",
       title: tRoles("FAMILY"),
       desc: tLanding("familyCardDesc"),
-      icon: <ShieldAlert className="w-8 h-8 text-forest" />,
+      icon: <ShieldAlert className="w-7 h-7 text-blue-600 dark:text-blue-400" />,
     },
     {
       type: "DOCTOR",
       title: tRoles("DOCTOR"),
       desc: tLanding("doctorCardDesc"),
-      icon: <Stethoscope className="w-8 h-8 text-forest" />,
+      icon: <Stethoscope className="w-7 h-7 text-blue-600 dark:text-blue-400" />,
     },
   ];
 
@@ -128,43 +131,46 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-forest-soft">
+    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 sm:p-6">
       {/* Top Header */}
       <div className="w-full max-w-xl flex items-center justify-between mb-6">
         <BrandLogo size="md" href="/" />
-        <LanguageSwitcher compact />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LanguageSwitcher compact />
+        </div>
       </div>
 
-      <div className="w-full max-w-xl bg-surface/90 backdrop-blur-xl border border-line rounded-3xl p-6 sm:p-8 shadow-smriti-float">
+      <GlassPanel variant="default" className="w-full max-w-xl rounded-[32px] p-7 sm:p-9 shadow-2xl">
         {/* Step Indicator */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-line">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200/50 dark:border-white/10">
           <div>
-            <h1 className="font-display text-2xl font-bold text-ink">
+            <h1 className="font-display text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
               {t("register")}
             </h1>
-            <p className="text-xs text-ink-muted mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {step === 1 ? t("stepRole") : t("stepDetails")}
             </p>
           </div>
-          <span className="text-xs font-bold text-forest bg-forest-soft px-3 py-1 rounded-full">
+          <span className="text-xs font-black text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 px-3.5 py-1 rounded-full border border-blue-200/50 dark:border-blue-800/40">
             {step} / 2
           </span>
         </div>
 
         {errorMessage && (
-          <div className="mb-5 p-3.5 bg-brick-soft border border-brick/30 rounded-xl text-brick text-sm font-medium">
+          <div className="mb-5 p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 rounded-2xl text-rose-600 dark:text-rose-400 text-sm font-bold">
             {errorMessage}
           </div>
         )}
 
         {/* STEP 1: PICK ROLE */}
         {step === 1 && (
-          <div>
-            <p className="text-sm text-ink-muted mb-4 font-medium">
+          <div className="space-y-6">
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
               {t("chooseRolePrompt")}
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {roleCards.map((rc) => {
                 const selected = role === rc.type;
                 return (
@@ -172,40 +178,42 @@ export default function RegisterPage() {
                     key={rc.type}
                     type="button"
                     onClick={() => setRole(rc.type)}
-                    className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
+                    className={`p-5 rounded-3xl border text-left transition-all relative flex flex-col justify-between ${
                       selected
-                        ? "border-forest bg-forest-soft/30 shadow-xs ring-1 ring-forest"
-                        : "border-line bg-paper-2 hover:bg-surface"
+                        ? "border-blue-600 bg-blue-50/80 dark:bg-blue-950/40 shadow-sm ring-1 ring-blue-600"
+                        : "border-slate-200/70 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10"
                     }`}
                   >
                     <div>
-                      <div className="w-12 h-12 rounded-xl bg-surface border border-line flex items-center justify-center mb-3">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-3">
                         {rc.icon}
                       </div>
-                      <h3 className="font-bold text-ink text-base">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
                         {rc.title}
                       </h3>
-                      <p className="text-xs text-ink-muted mt-1 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                         {rc.desc}
                       </p>
                     </div>
 
                     {selected && (
-                      <CheckCircle2 className="w-5 h-5 text-forest absolute top-4 right-4" />
+                      <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 absolute top-4 right-4" />
                     )}
                   </button>
                 );
               })}
             </div>
 
-            <button
+            <PrimaryButton
               type="button"
+              variant="primary"
+              size="lg"
               onClick={() => setStep(2)}
-              className="w-full min-h-[52px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all"
+              className="w-full gap-2"
             >
               <span>{t("continue")}</span>
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </PrimaryButton>
           </div>
         )}
 
@@ -213,7 +221,7 @@ export default function RegisterPage() {
         {step === 2 && (
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-ink mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                 {tCommon("name")} *
               </label>
               <input
@@ -222,12 +230,12 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Ramesh Sharma"
-                className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
+                className="w-full min-h-[48px] px-4 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-ink mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                 {tCommon("phone")} / {tCommon("email")} *
               </label>
               <input
@@ -236,15 +244,15 @@ export default function RegisterPage() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="e.g. 9811122332 or name@example.com"
-                className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
+                className="w-full min-h-[48px] px-4 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               />
-              <span className="text-[11px] text-ink-muted mt-1 block">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
                 {t("elderPhoneHint")}
               </span>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-ink mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                 {t("passwordLabel")} (min. 8 characters) *
               </label>
               <input
@@ -254,34 +262,34 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t("passwordPlaceholder")}
-                className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
+                className="w-full min-h-[48px] px-4 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               />
             </div>
 
             {/* Language preference */}
             <div>
-              <label className="block text-sm font-semibold text-ink mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                 {tCommon("language")}
               </label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as any)}
-                className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
+                className="w-full min-h-[48px] px-4 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-base text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               >
-                <option value="hi">Hindi</option>
-                <option value="mr">Marathi</option>
-                <option value="en">English</option>
+                <option value="hi" className="dark:bg-slate-900">Hindi</option>
+                <option value="mr" className="dark:bg-slate-900">Marathi</option>
+                <option value="en" className="dark:bg-slate-900">English</option>
               </select>
             </div>
 
             {/* Doctor specific */}
             {role === "DOCTOR" && (
-              <div className="pt-3 border-t border-line space-y-3">
-                <span className="text-xs font-bold text-forest uppercase tracking-wider block">
+              <div className="pt-3 border-t border-slate-200/50 dark:border-white/10 space-y-3">
+                <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
                   Doctor Profile Information
                 </span>
                 <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                     Specialization *
                   </label>
                   <input
@@ -290,12 +298,12 @@ export default function RegisterPage() {
                     value={specialization}
                     onChange={(e) => setSpecialization(e.target.value)}
                     placeholder="e.g. Geriatric Medicine / General Physician"
-                    className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+                    className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                       Registration No. *
                     </label>
                     <input
@@ -304,11 +312,11 @@ export default function RegisterPage() {
                       value={registrationNumber}
                       onChange={(e) => setRegistrationNumber(e.target.value)}
                       placeholder="MCI-12345"
-                      className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+                      className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                       Clinic / Hospital *
                     </label>
                     <input
@@ -317,7 +325,7 @@ export default function RegisterPage() {
                       value={clinicName}
                       onChange={(e) => setClinicName(e.target.value)}
                       placeholder="Apollo Clinic"
-                      className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+                      className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                     />
                   </div>
                 </div>
@@ -326,39 +334,39 @@ export default function RegisterPage() {
 
             {/* Elder specific */}
             {role === "ELDER" && (
-              <div className="pt-3 border-t border-line space-y-3">
-                <span className="text-xs font-bold text-forest uppercase tracking-wider block">
+              <div className="pt-3 border-t border-slate-200/50 dark:border-white/10 space-y-3">
+                <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
                   {t("elderHealthOptional")}
                 </span>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                       {t("dateOfBirth")}
                     </label>
                     <input
                       type="date"
                       value={dateOfBirth}
                       onChange={(e) => setDateOfBirth(e.target.value)}
-                      className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+                      className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                       {t("gender")}
                     </label>
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+                      className="w-full min-h-[44px] px-3.5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                     >
-                      <option value="MALE">{t("male")}</option>
-                      <option value="FEMALE">{t("female")}</option>
-                      <option value="OTHER">{t("other")}</option>
+                      <option value="MALE" className="dark:bg-slate-900">{t("male")}</option>
+                      <option value="FEMALE" className="dark:bg-slate-900">{t("female")}</option>
+                      <option value="OTHER" className="dark:bg-slate-900">{t("other")}</option>
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                     {t("conditions")}
                   </label>
                   <input
@@ -366,40 +374,44 @@ export default function RegisterPage() {
                     value={medicalConditions}
                     onChange={(e) => setMedicalConditions(e.target.value)}
                     placeholder={t("conditionsPlaceholder")}
-                    className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
+                    className="w-full min-h-[44px] px-4 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                   />
                 </div>
               </div>
             )}
 
             <div className="flex items-center gap-3 pt-4">
-              <button
+              <PrimaryButton
                 type="button"
+                variant="secondary"
+                size="md"
                 onClick={() => setStep(1)}
-                className="px-4 min-h-[50px] bg-paper border border-line rounded-xl text-ink font-semibold text-sm flex items-center gap-1.5 hover:bg-paper-2"
+                className="gap-1.5"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>{t("back")}</span>
-              </button>
+              </PrimaryButton>
 
-              <button
+              <PrimaryButton
                 type="submit"
+                variant="primary"
+                size="md"
                 disabled={loading}
-                className="flex-1 min-h-[50px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-60"
+                className="flex-1"
               >
                 {loading ? t("registerLoading") : t("completeRegistration")}
-              </button>
+              </PrimaryButton>
             </div>
           </form>
         )}
 
-        <div className="mt-6 text-center text-sm text-ink-muted">
+        <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           <span>{t("alreadyHaveAccount")} </span>
-          <Link href="/login" className="font-bold text-forest hover:underline">
+          <Link href="/login" className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
             {t("login")}
           </Link>
         </div>
-      </div>
+      </GlassPanel>
     </div>
   );
 }

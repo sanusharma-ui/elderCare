@@ -6,6 +6,8 @@ import { useCaretaker } from "@/components/caretaker/CaretakerContext";
 import { ElderSwitcher } from "@/components/caretaker/ElderSwitcher";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { apiClient } from "@/lib/api-client";
 import { FileText, Send, AlertTriangle, Info, ShieldAlert, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -68,39 +70,39 @@ export default function CaretakerNotesPage() {
   const notes = data?.items || [];
 
   return (
-    <div className="p-4 sm:p-5 space-y-5">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       <ElderSwitcher />
 
       {/* Quick Composer */}
-      <div className="bg-surface border border-line rounded-3xl p-5 shadow-xs space-y-4">
-        <h2 className="font-bold text-base text-ink flex items-center gap-2">
-          <FileText className="w-5 h-5 text-forest" />
+      <GlassPanel variant="default" className="rounded-[32px] p-6 space-y-4">
+        <h2 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2.5">
+          <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <span>{t("newNote")}</span>
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <textarea
             required
             rows={3}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t("notePlaceholder")}
-            className="w-full p-3.5 bg-paper border border-line rounded-2xl text-sm text-ink placeholder:text-ink-muted/70 focus:bg-surface focus:border-forest"
+            className="w-full p-4 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-2xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
           />
 
           {/* Severity Radio Tiles */}
           <div>
-            <span className="text-xs font-semibold text-ink-muted block mb-1.5">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">
               {t("severity")}:
             </span>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               <button
                 type="button"
                 onClick={() => setSeverity("INFO")}
-                className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`py-2.5 px-3 rounded-full border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                   severity === "INFO"
-                    ? "bg-forest-soft text-forest border-forest ring-1 ring-forest"
-                    : "bg-paper-2 border-line text-ink"
+                    ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                    : "bg-white/60 dark:bg-white/5 border-slate-200/70 dark:border-white/10 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 <Info className="w-3.5 h-3.5" />
@@ -110,23 +112,23 @@ export default function CaretakerNotesPage() {
               <button
                 type="button"
                 onClick={() => setSeverity("WARNING")}
-                className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`py-2.5 px-3 rounded-full border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                   severity === "WARNING"
-                    ? "bg-saffron-soft text-ink border-saffron ring-1 ring-saffron"
-                    : "bg-paper-2 border-line text-ink"
+                    ? "bg-amber-500 text-white border-amber-500 shadow-xs"
+                    : "bg-white/60 dark:bg-white/5 border-slate-200/70 dark:border-white/10 text-slate-700 dark:text-slate-300"
                 }`}
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-saffron" />
+                <AlertTriangle className="w-3.5 h-3.5" />
                 <span>{t("warning")}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setSeverity("URGENT")}
-                className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`py-2.5 px-3 rounded-full border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                   severity === "URGENT"
-                    ? "bg-brick text-surface border-brick ring-1 ring-brick"
-                    : "bg-paper-2 border-line text-brick"
+                    ? "bg-rose-600 text-white border-rose-600 shadow-xs"
+                    : "bg-white/60 dark:bg-white/5 border-slate-200/70 dark:border-white/10 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
@@ -136,15 +138,16 @@ export default function CaretakerNotesPage() {
           </div>
 
           {severity === "URGENT" && (
-            <div className="p-3 bg-brick-soft border border-brick/30 rounded-xl text-xs text-brick font-semibold">
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 rounded-2xl text-xs text-rose-600 dark:text-rose-400 font-bold">
               ⚠️ {t("urgentWarning")}
             </div>
           )}
 
-          <button
+          <PrimaryButton
             type="submit"
+            variant="primary"
             disabled={createNoteMutation.isPending || !content.trim()}
-            className="w-full min-h-[48px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+            className="w-full gap-2"
           >
             {createNoteMutation.isPending ? (
               <>
@@ -157,28 +160,29 @@ export default function CaretakerNotesPage() {
                 <span>{t("submitNote")}</span>
               </>
             )}
-          </button>
+          </PrimaryButton>
         </form>
-      </div>
+      </GlassPanel>
 
       {/* Recent Notes Feed */}
-      <div className="space-y-3 pt-2">
-        <h3 className="font-bold text-base text-ink px-1">
+      <div className="space-y-4 pt-1">
+        <h3 className="font-bold text-lg text-slate-900 dark:text-white px-1">
           {t("recentNotes")} ({notes.length})
         </h3>
 
         {notes.map((note) => (
-          <div
+          <GlassPanel
             key={note.id}
-            className={`p-4 rounded-2xl border transition-all shadow-xs ${
+            variant="default"
+            className={`rounded-[28px] p-5 space-y-3 ${
               note.severity === "URGENT"
-                ? "bg-brick-soft/50 border-brick/40"
+                ? "border-rose-300 dark:border-rose-900/40 bg-rose-50/20"
                 : note.severity === "WARNING"
-                ? "bg-saffron-soft/40 border-saffron/40"
-                : "bg-surface border-line"
+                ? "border-amber-300 dark:border-amber-900/40 bg-amber-50/20"
+                : ""
             }`}
           >
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <StatusBadge
                 variant={
                   note.severity === "URGENT"
@@ -189,7 +193,7 @@ export default function CaretakerNotesPage() {
                 }
                 label={note.severity}
               />
-              <span className="text-[11px] text-ink-muted">
+              <span className="text-xs text-slate-400 dark:text-slate-500">
                 {new Date(note.createdAt).toLocaleString("en-IN", {
                   month: "short",
                   day: "numeric",
@@ -199,22 +203,22 @@ export default function CaretakerNotesPage() {
               </span>
             </div>
 
-            <p className="text-sm text-ink leading-relaxed font-normal">
+            <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-normal">
               {note.content}
             </p>
 
-            <div className="mt-3 pt-2.5 border-t border-line/60 flex items-center justify-between text-xs text-ink-muted">
+            <div className="pt-2.5 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>{t("recordedBy", { name: note.caretakerName || "Caretaker" })}</span>
               {note.seenAt ? (
-                <span className="flex items-center gap-1 text-ok font-semibold">
+                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
                   <Check className="w-3.5 h-3.5" />
                   <span>{t("seenByDoctor")}</span>
                 </span>
               ) : (
-                <span className="text-ink-muted">{t("unseen")}</span>
+                <span className="text-slate-400 dark:text-slate-500">{t("unseen")}</span>
               )}
             </div>
-          </div>
+          </GlassPanel>
         ))}
 
         {notes.length === 0 && !isLoading && (

@@ -8,6 +8,8 @@ import { apiClient } from "@/lib/api-client";
 import { InviteCodeCard } from "@/components/shared/InviteCodeCard";
 import { BottomSheet } from "@/components/shared/BottomSheet";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import {
   Users,
   Plus,
@@ -15,6 +17,7 @@ import {
   Lock,
   LogOut,
   HeartHandshake,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -48,85 +51,86 @@ export default function CaretakerMePage() {
   });
 
   return (
-    <div className="p-4 sm:p-5 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
       {/* Caretaker Profile Banner */}
-      <div className="bg-surface border border-line rounded-3xl p-5 shadow-smriti flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-forest-soft flex items-center justify-center text-forest font-bold text-2xl">
+      <GlassPanel variant="default" className="rounded-[32px] p-6 flex items-center gap-5">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl flex items-center justify-center shadow-md shrink-0">
           <HeartHandshake className="w-8 h-8" />
         </div>
         <div className="flex-1">
-          <h1 className="font-bold text-ink text-xl leading-tight">
+          <h1 className="font-bold text-slate-900 dark:text-white text-xl sm:text-2xl leading-tight">
             {user?.name}
           </h1>
-          <p className="text-xs text-ink-muted mt-0.5">
+          <p className="text-sm font-bold text-blue-600 dark:text-blue-400 mt-1">
             {tCaretaker("role")} • {user?.email || user?.phone}
           </p>
         </div>
-      </div>
+      </GlassPanel>
 
       {/* Invite Family Member for Current Elder */}
       {selectedElder && (
-        <div className="bg-surface border border-line rounded-2xl p-5 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold text-base text-ink">
-                {tFamily("linkElder")}
-              </h2>
-              <p className="text-xs text-ink-muted mt-0.5">
-                {tFamily("linkDescription")}
-              </p>
-            </div>
+        <GlassPanel variant="default" className="rounded-[32px] p-6 space-y-4">
+          <div>
+            <h2 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              {tFamily("linkElder")}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {tFamily("linkDescription")}
+            </p>
           </div>
 
-          <button
+          <PrimaryButton
+            variant="primary"
             onClick={() => {
               setCreatedInvite(null);
               setInviteSheetOpen(true);
             }}
-            className="w-full min-h-[46px] bg-forest text-surface font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-forest-hover active:scale-95 transition-all shadow-xs"
+            className="w-full gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>{tFamily("linkWithPasscode")}</span>
-          </button>
-        </div>
+          </PrimaryButton>
+        </GlassPanel>
       )}
 
       {/* Language Preference */}
-      <div className="bg-surface border border-line rounded-2xl p-4 shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center">
+      <GlassPanel variant="default" className="rounded-2xl p-4 sm:p-5 flex items-center justify-between">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
             <Globe className="w-5 h-5" />
           </div>
-          <span className="font-semibold text-ink text-sm">{t("language")}</span>
+          <span className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">{t("language")}</span>
         </div>
         <LanguageSwitcher compact />
-      </div>
+      </GlassPanel>
 
       {/* Install Card */}
       <InstallPrompt />
 
       {/* Links & Logout */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Link
           href="/me/change-password"
-          className="w-full p-4 bg-surface border border-line hover:bg-paper-2 rounded-2xl flex items-center justify-between text-ink text-sm font-semibold transition-all shadow-xs"
+          className="w-full p-4 sm:p-5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 rounded-2xl flex items-center justify-between text-slate-900 dark:text-white text-base font-bold transition-all shadow-xs"
         >
-          <div className="flex items-center gap-3">
-            <Lock className="w-5 h-5 text-forest" />
+          <div className="flex items-center gap-3.5">
+            <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <span>{t("changePassword")}</span>
           </div>
-          <span>&gt;</span>
+          <ChevronRight className="w-5 h-5 text-slate-400" />
         </Link>
 
         <button
           onClick={() => logout()}
-          className="w-full p-4 bg-surface border border-line hover:bg-brick-soft hover:text-brick rounded-2xl flex items-center justify-between text-ink text-sm font-semibold transition-all shadow-xs"
+          className="w-full p-4 sm:p-5 bg-white/60 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-2xl flex items-center justify-between text-slate-900 dark:text-white text-base font-bold transition-all shadow-xs group"
         >
-          <div className="flex items-center gap-3">
-            <LogOut className="w-5 h-5 text-brick" />
-            <span>{t("logout")}</span>
+          <div className="flex items-center gap-3.5">
+            <LogOut className="w-5 h-5 text-rose-500 group-hover:scale-110 transition-transform" />
+            <span className="group-hover:text-rose-600 dark:group-hover:text-rose-400">
+              {t("logout")}
+            </span>
           </div>
-          <span>&gt;</span>
+          <ChevronRight className="w-5 h-5 text-slate-400" />
         </button>
       </div>
 
@@ -138,16 +142,18 @@ export default function CaretakerMePage() {
       >
         {!createdInvite ? (
           <div className="space-y-4">
-            <p className="text-sm text-ink-muted leading-relaxed">
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               {tFamily("callSuggestion")}
             </p>
-            <button
+            <PrimaryButton
+              variant="primary"
+              size="lg"
               onClick={() => createFamilyInviteMutation.mutate()}
               disabled={createFamilyInviteMutation.isPending}
-              className="w-full min-h-[50px] bg-forest text-surface font-bold rounded-xl hover:bg-forest-hover shadow-xs active:scale-95 transition-all"
+              className="w-full"
             >
               {createFamilyInviteMutation.isPending ? tFamily("verifying") : tFamily("linkBtn")}
-            </button>
+            </PrimaryButton>
           </div>
         ) : (
           <div className="space-y-4">
@@ -156,12 +162,13 @@ export default function CaretakerMePage() {
               role="FAMILY"
               expiresAt={createdInvite.expiresAt}
             />
-            <button
+            <PrimaryButton
+              variant="secondary"
               onClick={() => setInviteSheetOpen(false)}
-              className="w-full min-h-[46px] bg-paper-2 border border-line rounded-xl text-ink font-semibold"
+              className="w-full"
             >
               {t("close")}
-            </button>
+            </PrimaryButton>
           </div>
         )}
       </BottomSheet>

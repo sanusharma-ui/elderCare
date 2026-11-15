@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BrandLogo } from "@/components/shared/BrandLogo";
 import { apiClient, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/hooks/use-auth";
 import { getRoleHome } from "@/lib/routes";
 import { Lock, ArrowRight, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 export default function ChangePasswordPage() {
   const t = useTranslations("auth");
@@ -63,80 +65,94 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 selection:bg-forest-soft">
-      <div className="w-full max-w-md bg-surface border border-line rounded-3xl p-6 sm:p-8 shadow-smriti">
-        <div className="flex justify-center mb-4">
-          <div className="w-12 h-12 bg-forest-soft rounded-2xl flex items-center justify-center text-forest">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-        </div>
+    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 relative">
+      <div className="absolute top-6 right-6">
+        <ThemeToggle />
+      </div>
 
-        <h1 className="font-display text-2xl font-bold text-center text-ink mb-1">
-          {t("changePasswordTitle")}
-        </h1>
-        <p className="text-xs text-center text-ink-muted mb-6">
-          {t("changePasswordSubtitle")}
-        </p>
-
-        {errorMessage && (
-          <div className="mb-5 p-3.5 bg-brick-soft border border-brick/30 rounded-xl text-brick text-sm font-medium">
-            {errorMessage}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-ink mb-1">
-              {t("currentPassword")}
-            </label>
-            <input
-              type="password"
-              required
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Enter current password"
-              className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
-            />
+      <div className="w-full max-w-md">
+        <GlassPanel variant="default" className="p-6 sm:p-8 rounded-[32px] text-center">
+          <div className="flex justify-center mb-4">
+            <div className="w-14 h-14 bg-accent-blue/15 text-accent-blue rounded-2xl flex items-center justify-center border border-accent-blue/20">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-ink mb-1">
-              {t("newPassword")} (min 8 characters)
-            </label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new strong password"
-              className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
-            />
-          </div>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-accent-blue">
+            Security & Access
+          </span>
+          <h1 className="text-2xl font-black text-ink mt-1 mb-2">
+            {t("changePasswordTitle")}
+          </h1>
+          <p className="text-xs sm:text-sm text-ink-muted mb-6 leading-relaxed">
+            {t("changePasswordSubtitle")}
+          </p>
 
-          <div>
-            <label className="block text-sm font-semibold text-ink mb-1">
-              {t("confirmPassword")}
-            </label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter new password"
-              className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
-            />
-          </div>
+          {errorMessage && (
+            <div className="mb-5 p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-xs font-bold text-left">
+              {errorMessage}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full min-h-[52px] mt-4 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-60"
-          >
-            {loading ? "Updating..." : t("updatePasswordBtn")}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4 text-left">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-muted mb-1.5">
+                {t("currentPassword")}
+              </label>
+              <input
+                type="password"
+                required
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                className="w-full min-h-[50px] px-4 bg-white/70 dark:bg-white/[0.05] border border-white/60 dark:border-white/10 focus:border-accent-blue rounded-2xl text-sm font-semibold text-ink placeholder:text-ink-muted/40 focus:outline-none transition-all shadow-inner"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-muted mb-1.5">
+                {t("newPassword")} (min 8 characters)
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new strong password"
+                className="w-full min-h-[50px] px-4 bg-white/70 dark:bg-white/[0.05] border border-white/60 dark:border-white/10 focus:border-accent-blue rounded-2xl text-sm font-semibold text-ink placeholder:text-ink-muted/40 focus:outline-none transition-all shadow-inner"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-muted mb-1.5">
+                {t("confirmPassword")}
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter new password"
+                className="w-full min-h-[50px] px-4 bg-white/70 dark:bg-white/[0.05] border border-white/60 dark:border-white/10 focus:border-accent-blue rounded-2xl text-sm font-semibold text-ink placeholder:text-ink-muted/40 focus:outline-none transition-all shadow-inner"
+              />
+            </div>
+
+            <div className="pt-2">
+              <PrimaryButton
+                type="submit"
+                size="lg"
+                fullWidth
+                disabled={loading}
+                loading={loading}
+                icon={<ArrowRight className="w-5 h-5" />}
+              >
+                {t("updatePasswordBtn")}
+              </PrimaryButton>
+            </div>
+          </form>
+        </GlassPanel>
       </div>
     </div>
   );
