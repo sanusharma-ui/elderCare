@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { Reveal } from "@/components/shared/Reveal";
 import { useAuth } from "@/hooks/use-auth";
 import { getRoleHome } from "@/lib/routes";
@@ -54,27 +53,27 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-transparent flex flex-col selection:bg-blue-500/20">
       {/* 1. ULTRA-SLEEK, THIN STICKY HEADER */}
-      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-white/80 dark:bg-slate-900/80 border-b border-white/60 dark:border-white/10 shadow-xs transition-all h-16 flex items-center">
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm transition-all h-16 flex items-center">
         <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
           <BrandLogo size="md" href="/" />
 
           {/* Desktop Nav Items */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600 dark:text-slate-300">
+          <nav className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-600">
             <a
               href="#how-it-works"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="px-3 py-2 rounded-xl hover:text-blue-600 hover:bg-slate-50 transition-colors"
             >
               {t("howItWorks")}
             </a>
             <a
               href="#roles"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="px-3 py-2 rounded-xl hover:text-blue-600 hover:bg-slate-50 transition-colors"
             >
               {t("navRoles")}
             </a>
             <a
               href="#features"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="px-3 py-2 rounded-xl hover:text-blue-600 hover:bg-slate-50 transition-colors"
             >
               {t("navFeatures")}
             </a>
@@ -82,7 +81,6 @@ export default function HomePage() {
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <ThemeToggle />
             <LanguageSwitcher compact />
 
             <Link href="/login" className="hidden md:inline-flex">
@@ -101,7 +99,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-10 h-10 flex items-center justify-center text-slate-800 dark:text-slate-200 hover:bg-black/5 dark:hover:bg-white/10 rounded-full border border-slate-200/60 dark:border-white/10 transition-colors"
+              className="md:hidden w-10 h-10 flex items-center justify-center text-slate-800 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -111,7 +109,7 @@ export default function HomePage() {
 
         {/* Mobile Dropdown Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed top-16 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 px-6 py-6 flex flex-col gap-4 shadow-xl animate-in slide-in-from-top-4 duration-200 z-50">
+          <div className="md:hidden fixed top-16 left-0 right-0 bg-white border-b border-slate-200 px-6 py-6 flex flex-col gap-4 shadow-xl animate-in slide-in-from-top-4 duration-200 z-50">
             <a
               href="#how-it-works"
               onClick={() => setMobileMenuOpen(false)}

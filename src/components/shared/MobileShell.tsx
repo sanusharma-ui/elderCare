@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { BrandLogo } from "./BrandLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationBell } from "./NotificationBell";
-import { ThemeToggle } from "./ThemeToggle";
 import { Smartphone, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -82,7 +81,7 @@ export function MobileShell({
         {/* Main Phone / Fluid Container */}
         <div
           className={cn(
-            "w-full h-[100dvh] sm:h-[844px] bg-white/40 dark:bg-white/[0.03] backdrop-blur-3xl sm:border sm:border-white/70 dark:sm:border-white/10 sm:rounded-[36px] sm:shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ease-out",
+            "w-full h-[100dvh] sm:h-[844px] bg-slate-50 sm:border sm:border-slate-200 sm:rounded-[36px] sm:shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ease-out",
             viewMode === "phone" ? "max-w-[430px]" : "max-w-[720px]"
           )}
         >
@@ -98,7 +97,7 @@ export function MobileShell({
 
           {/* Sticky Header with Frosted Glass */}
           {!hideHeader && (
-            <header className="pt-safe shrink-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 px-4 py-3 flex items-center justify-between z-20 sticky top-0">
+            <header className="pt-safe shrink-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-20 sticky top-0 shadow-sm">
               <div className="flex items-center gap-2">
                 <BrandLogo size="sm" href="/" />
                 {roleBadge && (
@@ -109,7 +108,6 @@ export function MobileShell({
               </div>
 
               <div className="flex items-center gap-2">
-                <ThemeToggle compact />
                 <LanguageSwitcher compact />
                 <NotificationBell />
               </div>
@@ -123,7 +121,7 @@ export function MobileShell({
 
           {/* Bottom Nav Container */}
           {bottomNav && (
-            <nav className="shrink-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border-t border-white/60 dark:border-white/10 pb-safe z-30 shadow-lg">
+            <nav className="shrink-0 bg-white border-t border-slate-200 pb-safe z-30 shadow-[0_-8px_24px_rgba(15,23,42,0.06)]">
               {bottomNav}
             </nav>
           )}

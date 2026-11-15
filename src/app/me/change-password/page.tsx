@@ -10,7 +10,6 @@ import { Lock, ArrowRight, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 export default function ChangePasswordPage() {
   const t = useTranslations("auth");
@@ -66,10 +65,6 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 relative">
-      <div className="absolute top-6 right-6">
-        <ThemeToggle />
-      </div>
-
       <div className="w-full max-w-md">
         <GlassPanel variant="default" className="p-6 sm:p-8 rounded-[32px] text-center">
           <div className="flex justify-center mb-4">

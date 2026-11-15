@@ -56,8 +56,8 @@ export function BottomNav({ items }: { items: NavItem[] }) {
               className={cn(
                 "p-1.5 rounded-full transition-all duration-200",
                 isActive
-                  ? "bg-black text-white dark:bg-white dark:text-black shadow-md scale-105"
-                  : "text-ink-muted hover:bg-white/40 dark:hover:bg-white/10"
+                  ? "bg-slate-900 text-white shadow-md scale-105"
+                  : "text-ink-muted hover:bg-slate-100"
               )}
             >
               {getIcon(item.icon)}

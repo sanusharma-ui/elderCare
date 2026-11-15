@@ -24,10 +24,7 @@ const notoSerifDeva = Noto_Serif_Devanagari({
 });
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#DCEAFE" },
-    { media: "(prefers-color-scheme: dark)", color: "#070B14" },
-  ],
+  themeColor: "#F8FAFC",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -58,25 +55,6 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${mukta.variable} ${fraunces.variable} ${notoSerifDeva.variable}`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var t = localStorage.getItem('caresaathi_theme');
-                  var isDark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                  if (isDark) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
       <body className="text-ink antialiased selection:bg-accent-blue/20">
         <Providers>{children}</Providers>
       </body>

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { apiClient, ApiError } from "@/lib/api-client";
@@ -136,7 +135,6 @@ export default function RegisterPage() {
       <div className="w-full max-w-xl flex items-center justify-between mb-6">
         <BrandLogo size="md" href="/" />
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           <LanguageSwitcher compact />
         </div>
       </div>

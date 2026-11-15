@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useTranslations } from "next-intl";
-import { Users, Globe, Lock, LogOut, ChevronRight, Moon, Shield } from "lucide-react";
+import { Users, Globe, Lock, LogOut, ChevronRight, Shield } from "lucide-react";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 
 export default function FamilyMePage() {
@@ -40,20 +39,6 @@ export default function FamilyMePage() {
         <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted px-1">
           Preferences & Appearance
         </h2>
-
-        {/* Theme Toggle */}
-        <GlassPanel variant="subtle" className="p-4 rounded-2xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/60 dark:bg-white/10 text-ink flex items-center justify-center border border-white/60 dark:border-white/10">
-              <Moon className="w-4 h-4 text-accent-blue" />
-            </div>
-            <div>
-              <span className="font-bold text-ink text-sm block">Theme Mode</span>
-              <span className="text-[11px] text-ink-muted">Light / Dark theme</span>
-            </div>
-          </div>
-          <ThemeToggle />
-        </GlassPanel>
 
         {/* Language Preference */}
         <GlassPanel variant="subtle" className="p-4 rounded-2xl flex items-center justify-between">

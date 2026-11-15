@@ -4,15 +4,10 @@ import Link from "next/link";
 import { WifiOff, RefreshCw, ArrowLeft } from "lucide-react";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 export default function OfflinePage() {
   return (
     <main className="min-h-screen bg-transparent flex flex-col items-center justify-center p-6 text-ink relative">
-      <div className="absolute top-6 right-6">
-        <ThemeToggle />
-      </div>
-
       <div className="max-w-md w-full">
         <GlassPanel variant="default" className="p-8 text-center rounded-[32px] space-y-6">
           <div className="w-16 h-16 bg-accent-blue/15 text-accent-blue rounded-2xl flex items-center justify-center mx-auto border border-accent-blue/20">

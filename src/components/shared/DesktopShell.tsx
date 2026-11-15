@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { BrandLogo } from "./BrandLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationBell } from "./NotificationBell";
-import { ThemeToggle } from "./ThemeToggle";
 import {
   LayoutDashboard,
   Users,
@@ -61,7 +60,7 @@ export function DesktopShell({
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
       {/* Top Glass Header */}
-      <header className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
+      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-6">
           <BrandLogo size="md" href="/doctor/dashboard" />
           <div className="hidden md:flex items-center gap-2 pl-4 border-l border-white/40 dark:border-white/10 text-xs">
@@ -78,7 +77,7 @@ export function DesktopShell({
         </div>
 
         {/* Desktop Nav Items in Frosted Glass Pills */}
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav className="hidden lg:flex items-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
           {navLinks.map((link) => {
             const isActive = pathname.startsWith(link.href);
             return (
@@ -88,8 +87,8 @@ export function DesktopShell({
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all",
                   isActive
-                    ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
-                    : "text-ink-muted hover:text-ink hover:bg-white/40 dark:hover:bg-white/10"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-950 hover:bg-white"
                 )}
               >
                 {link.icon}
@@ -101,7 +100,6 @@ export function DesktopShell({
 
         {/* Actions & Controls */}
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <LanguageSwitcher compact />
           <NotificationBell />
 
@@ -129,7 +127,7 @@ export function DesktopShell({
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-ink rounded-full border border-white/60 dark:border-white/10 bg-white/40 dark:bg-white/10"
+            className="lg:hidden p-2 text-slate-900 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -139,7 +137,7 @@ export function DesktopShell({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 px-6 py-4 flex flex-col gap-2.5 shadow-xl">
+        <div className="lg:hidden bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col gap-2.5 shadow-xl">
           {navLinks.map((link) => {
             const isActive = pathname.startsWith(link.href);
             return (
@@ -150,8 +148,8 @@ export function DesktopShell({
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold",
                   isActive
-                    ? "bg-black text-white dark:bg-white dark:text-black shadow-xs"
-                    : "text-ink hover:bg-white/50 dark:hover:bg-white/10"
+                    ? "bg-slate-900 text-white shadow-xs"
+                    : "text-slate-700 hover:bg-slate-100"
                 )}
               >
                 {link.icon}
