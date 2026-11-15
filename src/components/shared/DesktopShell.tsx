@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { BrandLogo } from "./BrandLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
 import {
   LayoutDashboard,
   Users,
@@ -14,7 +15,6 @@ import {
   Menu,
   X,
   Stethoscope,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
@@ -44,40 +44,40 @@ export function DesktopShell({
     {
       href: "/doctor/dashboard",
       label: "Clinical Dashboard",
-      icon: <LayoutDashboard className="w-5 h-5" />,
+      icon: <LayoutDashboard className="w-4 h-4" />,
     },
     {
       href: "/doctor/patients",
       label: "Patients Directory",
-      icon: <Users className="w-5 h-5" />,
+      icon: <Users className="w-4 h-4" />,
     },
     {
       href: "/doctor/appointments",
       label: "Appointments",
-      icon: <Calendar className="w-5 h-5" />,
+      icon: <Calendar className="w-4 h-4" />,
     },
   ];
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
-      {/* Top Ledger Header */}
-      <header className="bg-surface/90 backdrop-blur-md border-b border-line px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
+      {/* Top Glass Header */}
+      <header className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
         <div className="flex items-center gap-6">
           <BrandLogo size="md" href="/doctor/dashboard" />
-          <div className="hidden md:flex items-center gap-2 pl-4 border-l border-line text-xs">
-            <span className="font-semibold text-forest flex items-center gap-1.5 bg-forest-soft px-2.5 py-1 rounded-full">
+          <div className="hidden md:flex items-center gap-2 pl-4 border-l border-white/40 dark:border-white/10 text-xs">
+            <span className="font-bold text-accent-blue flex items-center gap-1.5 bg-accent-blue/10 px-2.5 py-1 rounded-full border border-accent-blue/20">
               <Stethoscope className="w-3.5 h-3.5" />
               <span>Doctor Console</span>
             </span>
             {clinicName && (
-              <span className="text-ink-muted truncate max-w-[200px]">
+              <span className="text-ink-muted font-semibold truncate max-w-[200px]">
                 {clinicName}
               </span>
             )}
           </div>
         </div>
 
-        {/* Desktop Nav Items */}
+        {/* Desktop Nav Items in Frosted Glass Pills */}
         <nav className="hidden lg:flex items-center gap-2">
           {navLinks.map((link) => {
             const isActive = pathname.startsWith(link.href);
@@ -86,10 +86,10 @@ export function DesktopShell({
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all",
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all",
                   isActive
-                    ? "bg-forest text-surface shadow-xs"
-                    : "text-ink-muted hover:text-ink hover:bg-paper"
+                    ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
+                    : "text-ink-muted hover:text-ink hover:bg-white/40 dark:hover:bg-white/10"
                 )}
               >
                 {link.icon}
@@ -101,16 +101,17 @@ export function DesktopShell({
 
         {/* Actions & Controls */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <LanguageSwitcher compact />
           <NotificationBell />
 
           {/* Doctor Profile Info */}
           {doctorName && (
-            <div className="hidden sm:flex flex-col text-right pl-3 border-l border-line">
-              <span className="text-sm font-bold text-ink leading-tight">
+            <div className="hidden sm:flex flex-col text-right pl-3 border-l border-white/40 dark:border-white/10">
+              <span className="text-sm font-black text-ink leading-tight">
                 {doctorName}
               </span>
-              <span className="text-xs text-ink-muted leading-tight">
+              <span className="text-xs font-semibold text-ink-muted leading-tight">
                 Senior Physician
               </span>
             </div>
@@ -118,27 +119,27 @@ export function DesktopShell({
 
           <button
             onClick={handleLogout}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-sm text-ink-muted hover:text-brick rounded-xl hover:bg-paper border border-transparent hover:border-line transition-all active:scale-95"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-ink-muted hover:text-rose-500 rounded-full hover:bg-white/40 dark:hover:bg-white/10 transition-all active:scale-95"
             title="Log out"
           >
             <LogOut className="w-4 h-4" />
-            <span className="text-xs font-semibold">Exit</span>
+            <span>Exit</span>
           </button>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-ink rounded-xl border border-line bg-surface"
+            className="lg:hidden p-2 text-ink rounded-full border border-white/60 dark:border-white/10 bg-white/40 dark:bg-white/10"
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </header>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-surface border-b border-line px-6 py-4 flex flex-col gap-3 shadow-smriti-float">
+        <div className="lg:hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 px-6 py-4 flex flex-col gap-2.5 shadow-xl">
           {navLinks.map((link) => {
             const isActive = pathname.startsWith(link.href);
             return (
@@ -147,10 +148,10 @@ export function DesktopShell({
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium",
+                  "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold",
                   isActive
-                    ? "bg-forest text-surface font-semibold"
-                    : "text-ink hover:bg-paper"
+                    ? "bg-black text-white dark:bg-white dark:text-black shadow-xs"
+                    : "text-ink hover:bg-white/50 dark:hover:bg-white/10"
                 )}
               >
                 {link.icon}
@@ -158,11 +159,11 @@ export function DesktopShell({
               </Link>
             );
           })}
-          <div className="pt-3 border-t border-line flex items-center justify-between">
-            <span className="text-sm text-ink-muted">{doctorName}</span>
+          <div className="pt-3 border-t border-white/40 dark:border-white/10 flex items-center justify-between">
+            <span className="text-xs font-bold text-ink-muted">{doctorName}</span>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 text-sm text-brick font-semibold py-1 px-3"
+              className="flex items-center gap-1.5 text-xs text-rose-500 font-bold py-1 px-3"
             >
               <LogOut className="w-4 h-4" />
               <span>Log out</span>
@@ -171,7 +172,7 @@ export function DesktopShell({
         </div>
       )}
 
-      {/* Desktop Main Content Canvas */}
+      {/* Desktop Main Content Canvas (Cardless open layout directly on ambient background) */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         {children}
       </main>

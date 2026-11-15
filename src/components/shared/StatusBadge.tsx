@@ -19,18 +19,18 @@ export function StatusBadge({
   className?: string;
 }) {
   const styles: Record<StatusVariant, string> = {
-    ok: "bg-ok/10 text-ok border-ok/20",
-    pending: "bg-forest-soft text-forest border-forest/20",
-    missed: "bg-brick-soft text-brick border-brick/20",
-    urgent: "bg-brick text-surface border-brick font-bold",
-    warning: "bg-saffron-soft text-saffron border-saffron/20",
-    neutral: "bg-paper-2 text-ink-muted border-line",
+    ok: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/25",
+    pending: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/25",
+    missed: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/25",
+    urgent: "bg-rose-600 text-white border-rose-600 font-black shadow-xs",
+    warning: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/25",
+    neutral: "glass-pill text-ink-muted border-white/60 dark:border-white/10",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border",
+        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition-colors select-none",
         styles[variant],
         className
       )}
@@ -38,11 +38,11 @@ export function StatusBadge({
       {variant !== "urgent" && (
         <span
           className={cn(
-            "w-1.5 h-1.5 rounded-full",
-            variant === "ok" && "bg-ok",
-            variant === "pending" && "bg-forest",
-            variant === "missed" && "bg-brick",
-            variant === "warning" && "bg-saffron",
+            "w-1.5 h-1.5 rounded-full shrink-0",
+            variant === "ok" && "bg-emerald-500",
+            variant === "pending" && "bg-blue-500",
+            variant === "missed" && "bg-rose-500",
+            variant === "warning" && "bg-amber-500",
             variant === "neutral" && "bg-ink-muted"
           )}
         />

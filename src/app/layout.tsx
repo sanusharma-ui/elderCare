@@ -24,7 +24,10 @@ const notoSerifDeva = Noto_Serif_Devanagari({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#1F5C4A",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#DCEAFE" },
+    { media: "(prefers-color-scheme: dark)", color: "#070B14" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -35,7 +38,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "CareSaathi — Elderly Care & Medication Management",
   description:
-    "A shared healthcare ecosystem for elders, caretakers, family, and doctors across India.",
+    "A calm, shared healthcare ecosystem for elders, caretakers, family, and doctors across India.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -52,9 +55,29 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${mukta.variable} ${fraunces.variable} ${notoSerifDeva.variable}`}
     >
-      <body className="text-ink selection:bg-forest-soft">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('caresaathi_theme');
+                  var isDark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="text-ink antialiased selection:bg-accent-blue/20">
         <Providers>{children}</Providers>
       </body>
     </html>

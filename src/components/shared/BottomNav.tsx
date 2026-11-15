@@ -20,46 +20,54 @@ export function BottomNav({ items }: { items: NavItem[] }) {
     switch (iconName) {
       case "today":
       case "home":
-        return <Calendar className="w-6 h-6" />;
+        return <Calendar className="w-5 h-5" />;
       case "medicines":
-        return <Pill className="w-6 h-6" />;
+        return <Pill className="w-5 h-5" />;
       case "doctor":
-        return <Stethoscope className="w-6 h-6" />;
+        return <Stethoscope className="w-5 h-5" />;
       case "notes":
-        return <FileText className="w-6 h-6" />;
+        return <FileText className="w-5 h-5" />;
       case "link":
-        return <PlusCircle className="w-6 h-6" />;
+        return <PlusCircle className="w-5 h-5" />;
       case "me":
       default:
-        return <User className="w-6 h-6" />;
+        return <User className="w-5 h-5" />;
     }
   };
 
   return (
-    <div className="flex items-center justify-around px-2 py-2 select-none">
+    <div className="flex items-center justify-around px-2 py-1.5 select-none">
       {items.map((item) => {
-        const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+        const isActive =
+          pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
 
         return (
           <Link
             key={item.key}
             href={item.href}
             className={cn(
-              "flex flex-col items-center justify-center flex-1 min-h-[52px] py-1 px-1 rounded-xl transition-all active:scale-95",
+              "flex flex-col items-center justify-center flex-1 min-h-[56px] py-1 px-1 rounded-2xl transition-all duration-150 active:scale-95 cursor-pointer",
               isActive
-                ? "text-forest font-bold"
-                : "text-ink-muted hover:text-ink font-medium"
+                ? "text-ink font-black"
+                : "text-ink-muted hover:text-ink font-semibold"
             )}
           >
             <div
               className={cn(
-                "p-1 rounded-xl transition-colors",
-                isActive ? "bg-forest-soft text-forest" : "text-ink-muted"
+                "p-1.5 rounded-full transition-all duration-200",
+                isActive
+                  ? "bg-black text-white dark:bg-white dark:text-black shadow-md scale-105"
+                  : "text-ink-muted hover:bg-white/40 dark:hover:bg-white/10"
               )}
             >
               {getIcon(item.icon)}
             </div>
-            <span className="text-[12px] leading-tight mt-0.5 truncate max-w-[80px]">
+            <span
+              className={cn(
+                "text-[11px] sm:text-xs leading-tight mt-1 truncate max-w-[80px]",
+                isActive ? "font-extrabold text-accent-blue" : "font-bold"
+              )}
+            >
               {item.label}
             </span>
           </Link>
