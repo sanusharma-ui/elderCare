@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 
-/**
- * Stage 2 Placeholder: Cron Webhook Endpoint
- * In Stage 2, scheduled jobs (Vercel Cron / external runners) ping this endpoint
- * with Authorization: Bearer CRON_SECRET to trigger email reminders and AI summaries.
- */
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    message: "Smriti cron runner placeholder for Stage 2",
+    message: "Smriti Cron Engine Active",
+    endpoints: {
+      tick: "/api/cron/tick (Runs every 1 minute: materialization, escalation, reminders, email outbox)",
+      daily: "/api/cron/daily (Runs daily at 07:00 IST: AI doctor briefings)",
+    },
+    auth: "Requires 'Authorization: Bearer <CRON_SECRET>'",
   });
 }

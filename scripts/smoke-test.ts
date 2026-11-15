@@ -1,23 +1,7 @@
 /**
  * SMRITI PLATFORM - END-TO-END AUTOMATED SMOKE TEST
- * 
- * Verifies core Stage 1 architectural requirements against a running server:
- * 1. Health check
- * 2. Doctor authentication
- * 3. Doctor creates elder account directly (returns temp password)
- * 4. Elder logs in with temporary password via phone
- * 5. Caretaker and Family registration
- * 6. Elder generates single-use passcode invite
- * 7. Caretaker redeems invite
- * 8. Reused invite code fails (INVITE_ALREADY_USED)
- * 9. Doctor prescribes medicine with schedules
- * 10. Caretaker reads /today (expanded in elder's timezone)
- * 11. Caretaker is rejected when modifying medicine (403)
- * 12. Family member is rejected when accessing medicines (403)
- * 13. IDOR protection: accessing unlinked elder returns 404
- * 14. Elder revokes caretaker access
- * 15. Revoked caretaker loses access immediately (404)
  */
+export {};
 
 const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3000/api";
 

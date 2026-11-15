@@ -126,6 +126,8 @@ model User {
   elderAuditLogs      AuditLog[]      @relation("ElderAuditLogs")
 
   aiBriefs            AiBrief[]
+  elderAiSummaries    AiPatientSummary[] @relation("ElderAiSummaries")
+  doctorAiSummaries   AiPatientSummary[] @relation("DoctorAiSummaries")
 
   @@map("users")
 }
@@ -337,21 +339,26 @@ model CaretakerNote {
 }
 
 model Notification {
-  id          String           @id @default(uuid()) @db.Uuid
-  userId      String           @db.Uuid
-  elderId     String?          @db.Uuid
-  type        NotificationType
-  title       String
-  body        String           @db.Text
-  data        Json?
-  readAt      DateTime?
-  emailSentAt DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @db.Uuid
+  elderId        String?          @db.Uuid
+  type           NotificationType
+  title          String
+  body           String           @db.Text
+  data           Json?
+  readAt         DateTime?
+  emailSentAt    DateTime?
+  emailAttempts  Int              @default(0)
+  emailError     String?          @db.Text
+  dedupeKey      String?
+  emailRequested Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
-  user        User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  elder       User?            @relation("ElderNotifications", fields: [elderId], references: [id], onDelete: Cascade)
+  user           User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  elder          User?            @relation("ElderNotifications", fields: [elderId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, dedupeKey])
   @@index([userId, readAt])
   @@map("notifications")
 }
@@ -387,4 +394,21 @@ model AiBrief {
 
   @@unique([doctorId, briefDate])
   @@map("ai_briefs")
+}
+
+model AiPatientSummary {
+  id        String   @id @default(uuid()) @db.Uuid
+  elderId   String   @db.Uuid
+  doctorId  String   @db.Uuid
+  forDate   DateTime @db.Date
+  content   String   @db.Text
+  stats     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  elder     User     @relation("ElderAiSummaries", fields: [elderId], references: [id], onDelete: Cascade)
+  doctor    User     @relation("DoctorAiSummaries", fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([elderId, doctorId, forDate])
+  @@map("ai_patient_summaries")
 }

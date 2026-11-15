@@ -138,6 +138,12 @@ export async function GET(
       const key = `${item.scheduleId}_${item.scheduledFor.toISOString()}`;
       const log = logMap.get(key);
 
+      const isMarkableRole = access === "SELF" || access === "CARETAKER";
+      const windowStart = new Date(item.scheduledFor.getTime() - 60 * 60 * 1000);
+      const windowEnd = new Date(item.scheduledFor.getTime() + 12 * 60 * 60 * 1000);
+      const inWindow = now >= windowStart && now <= windowEnd;
+      const canMark = isMarkableRole && inWindow;
+
       return {
         scheduleId: item.scheduleId,
         medicineId: item.medicineId,
@@ -159,6 +165,7 @@ export async function GET(
         markedAt: log?.markedAt ? log.markedAt.toISOString() : null,
         markedByRole: log?.markedByRole ?? null,
         note: log?.note ?? null,
+        canMark,
       };
     });
 

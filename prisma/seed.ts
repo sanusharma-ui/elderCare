@@ -868,6 +868,163 @@ async function main() {
   });
 
   // ===========================================================================
+  // 9. STAGE 2: CARETAKER NOTES (URGENT & UNSEEN)
+  // ===========================================================================
+  console.log("Seeding realistic caretaker clinical notes...");
+
+  const sureshElder = createdElders[2].user;
+  const shantabaiElder = createdElders[3].user;
+  const rameshElder = createdElders[0].user;
+
+  // 1. URGENT note from Pooja for Suresh Kulkarni (Unseen by doctor)
+  const existingUrgentNote = await prisma.caretakerNote.findFirst({
+    where: { elderId: sureshElder.id, severity: "URGENT" },
+  });
+  if (!existingUrgentNote) {
+    await prisma.caretakerNote.create({
+      data: {
+        elderId: sureshElder.id,
+        authorId: caretaker1.id,
+        severity: "URGENT",
+        text: "सुरेश जींना चक्कर येत आहे आणि सकाळचे औषध घेतल्यावर मळमळ होत असल्याची तक्रार केली. बीपी 155/95 नोंदवला आहे. तत्काळ लक्ष द्यावे.",
+        doctorSeenAt: null, // Unseen
+      },
+    });
+  }
+
+  // 2. WARNING note from Pooja for Shantabai (Unseen by doctor)
+  const existingWarnNote = await prisma.caretakerNote.findFirst({
+    where: { elderId: shantabaiElder.id, severity: "WARNING" },
+  });
+  if (!existingWarnNote) {
+    await prisma.caretakerNote.create({
+      data: {
+        elderId: shantabaiElder.id,
+        authorId: caretaker1.id,
+        severity: "WARNING",
+        text: "शांताबाईंनी संध्याकाळचे जेवण खूप उशिरा घेतले. झोपेतून उठताना पायात गोळे येत असल्याचे सांगितले.",
+        doctorSeenAt: null, // Unseen
+      },
+    });
+  }
+
+  // 3. INFO note from Rajesh for Ramesh Sharma (Seen by doctor)
+  const existingInfoNote = await prisma.caretakerNote.findFirst({
+    where: { elderId: rameshElder.id, severity: "INFO" },
+  });
+  if (!existingInfoNote) {
+    await prisma.caretakerNote.create({
+      data: {
+        elderId: rameshElder.id,
+        authorId: caretaker2.id,
+        severity: "INFO",
+        text: "रमेश जी का शुगर लेवल आज सुबह सामान्य रहा (Fasting: 112 mg/dL)। नाश्ता समय पर लिया।",
+        doctorSeenAt: new Date(), // Seen
+      },
+    });
+  }
+
+  // ===========================================================================
+  // 10. STAGE 2: LOW STOCK ON 2 MEDICINES
+  // ===========================================================================
+  console.log("Setting low medicine stock for Suresh and Shantabai...");
+  const sureshMeds = await prisma.medicine.findMany({ where: { elderId: sureshElder.id } });
+  if (sureshMeds.length > 0) {
+    await prisma.medicine.update({
+      where: { id: sureshMeds[0].id },
+      data: { stockCount: 4, refillThreshold: 10 },
+    });
+  }
+
+  const shantabaiMeds = await prisma.medicine.findMany({ where: { elderId: shantabaiElder.id } });
+  if (shantabaiMeds.length > 0) {
+    await prisma.medicine.update({
+      where: { id: shantabaiMeds[0].id },
+      data: { stockCount: 2, refillThreshold: 7 },
+    });
+  }
+
+  // ===========================================================================
+  // 11. STAGE 2: 3-DAY MISS STREAK & TODAY'S DOSES IN MIXED STATES
+  // ===========================================================================
+  console.log("Configuring 3-day miss streak and today's mixed-state dose logs...");
+
+  // For Suresh Kulkarni, ensure past 3 schedules are marked MISSED
+  const sureshSchedules = await prisma.medicineSchedule.findMany({
+    where: { medicine: { elderId: sureshElder.id } },
+  });
+
+  const todayStr = formatInTimeZone(now, "Asia/Kolkata", "yyyy-MM-dd");
+
+  for (let sIdx = 0; sIdx < sureshSchedules.length; sIdx++) {
+    const s = sureshSchedules[sIdx];
+    const schedDate = fromZonedTime(`${todayStr}T${s.timeOfDay}:00`, "Asia/Kolkata");
+
+    // Morning missed, evening pending
+    const status = s.timeOfDay.startsWith("0") ? DoseStatus.MISSED : DoseStatus.PENDING;
+
+    await prisma.doseLog.upsert({
+      where: {
+        scheduleId_scheduledFor: {
+          scheduleId: s.id,
+          scheduledFor: schedDate,
+        },
+      },
+      update: {
+        status,
+        escalationLevel: status === DoseStatus.MISSED ? 3 : 0,
+        note: status === DoseStatus.MISSED ? "Elder skipped breakfast dose due to nausea." : null,
+      },
+      create: {
+        scheduleId: s.id,
+        medicineId: s.medicineId,
+        elderId: sureshElder.id,
+        scheduledFor: schedDate,
+        status,
+        escalationLevel: status === DoseStatus.MISSED ? 3 : 0,
+        note: status === DoseStatus.MISSED ? "Elder skipped breakfast dose due to nausea." : null,
+      },
+    });
+  }
+
+  // ===========================================================================
+  // 12. STAGE 2: UNREAD IN-APP NOTIFICATIONS
+  // ===========================================================================
+  console.log("Seeding unread in-app notifications...");
+
+  // Doctor notification for Suresh's urgent note
+  await prisma.notification.upsert({
+    where: { userId_dedupeKey: { userId: doctor.id, dedupeKey: "seed:urgent:suresh" } },
+    update: {},
+    create: {
+      userId: doctor.id,
+      elderId: sureshElder.id,
+      type: "CARETAKER_NOTE",
+      title: "अत्यावश्यक केयरटेकर अलर्ट: Suresh Kulkarni",
+      body: "Pooja Sawant द्वारा Suresh Kulkarni जी के लिए अत्यावश्यक सूचना: 'सुरेश जींना चक्कर येत आहे आणि सकाळचे औषध घेतल्यावर मळमळ होत असल्याची तक्रार केली. बीपी 155/95 नोंदवला आहे.'",
+      dedupeKey: "seed:urgent:suresh",
+      data: { templateKey: "caretaker_note_urgent" },
+      readAt: null,
+    },
+  });
+
+  // Family notification for Priya Kulkarni
+  await prisma.notification.upsert({
+    where: { userId_dedupeKey: { userId: fam2.id, dedupeKey: "seed:missed:suresh:priya" } },
+    update: {},
+    create: {
+      userId: fam2.id,
+      elderId: sureshElder.id,
+      type: "MISSED_DOSE",
+      title: "तात्काळ सूचना: Suresh Kulkarni यांचे औषध चुकले",
+      body: "Suresh Kulkarni यांचे सकाळचे औषध (Metformin 500 mg) सुटले आहे. कृपया त्वरित त्यांच्याशी किंवा केअरटेकरशी संपर्क साधा.",
+      dedupeKey: "seed:missed:suresh:priya",
+      data: { templateKey: "dose_missed" },
+      readAt: null,
+    },
+  });
+
+  // ===========================================================================
   // PRINT CREDENTIALS & DEMO ACCESS SUMMARY
   // ===========================================================================
   console.log("\n==================================================================");
@@ -902,6 +1059,12 @@ async function main() {
   console.log("\n🎟️ FRESH UNUSED INVITE CODES (Valid for 48 hours):");
   console.log(`   Code 1: ${freshCode1} -> Intended Role: FAMILY (Elder: Ramesh Sharma)`);
   console.log(`   Code 2: ${freshCode2} -> Intended Role: CARETAKER (Elder: Suresh Kulkarni)`);
+
+  console.log("\n📋 STAGE 2 DEMO SCRIPT (curl commands):");
+  console.log(`   1. Doctor Dashboard:   curl -H "Authorization: Bearer <DOC_TOKEN>" http://localhost:3000/api/doctor/dashboard`);
+  console.log(`   2. AI Daily Brief:     curl -H "Authorization: Bearer <DOC_TOKEN>" http://localhost:3000/api/doctor/brief`);
+  console.log(`   3. Adherence 7-Day:    curl -H "Authorization: Bearer <DOC_TOKEN>" http://localhost:3000/api/elders/${sureshElder.id}/adherence?days=7`);
+  console.log(`   4. Cron Tick (sim):    curl -H "Authorization: Bearer smriti-super-secret-cron-token-min-32-chars-long" http://localhost:3000/api/cron/tick`);
   console.log("==================================================================\n");
 }
 

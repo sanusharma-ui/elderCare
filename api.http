@@ -425,3 +425,170 @@ Authorization: Bearer {{doctorToken}}
 # @name getAuditLog
 GET {{baseUrl}}/elders/{{testElderId}}/audit-log?page=1&limit=20 HTTP/1.1
 Authorization: Bearer {{doctorToken}}
+
+
+### ==============================================================================
+### 10. STAGE 2: DOSE TRACKING & COMPLETION
+### ==============================================================================
+
+@testScheduleId = SCHEDULE_UUID_HERE
+@testDoseLogId = DOSELOG_UUID_HERE
+@testScheduledFor = 2026-11-15T04:30:00.000Z
+
+### 10.1 Caretaker Marks Dose as GIVEN
+# @name caretakerMarkDose
+POST {{baseUrl}}/elders/{{testElderId}}/doses/mark HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+Content-Type: {{contentType}}
+
+{
+  "scheduleId": "{{testScheduleId}}",
+  "scheduledFor": "{{testScheduledFor}}",
+  "status": "GIVEN",
+  "note": "Elder took dose with warm milk after breakfast."
+}
+
+### 10.2 Elder Marks Own Dose as TAKEN
+# @name elderMarkDose
+POST {{baseUrl}}/elders/{{testElderId}}/doses/mark HTTP/1.1
+Authorization: Bearer {{elderToken}}
+Content-Type: {{contentType}}
+
+{
+  "scheduleId": "{{testScheduleId}}",
+  "scheduledFor": "{{testScheduledFor}}",
+  "status": "TAKEN"
+}
+
+### 10.3 Undo Dose Marking (Within 10 minutes of marking)
+# @name undoDoseMark
+POST {{baseUrl}}/doses/{{testDoseLogId}}/undo HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+
+### 10.4 Query Elder Dose History Logs
+# @name queryDoseHistory
+GET {{baseUrl}}/elders/{{testElderId}}/doses?page=1&limit=20 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 11. STAGE 2: CARETAKER CLINICAL NOTES
+### ==============================================================================
+
+@testNoteId = NOTE_UUID_HERE
+
+### 11.1 Caretaker Creates Note (INFO / WARNING / URGENT)
+# @name createCaretakerNote
+POST {{baseUrl}}/elders/{{testElderId}}/notes HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Elder complained of slight dizziness after morning medicine. Blood pressure recorded at 155/95 mmHg.",
+  "severity": "URGENT"
+}
+
+### 11.2 List Caretaker Notes for Elder
+# @name listCaretakerNotes
+GET {{baseUrl}}/elders/{{testElderId}}/notes?page=1&limit=10 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 11.3 Doctor Acknowledges Note as Seen
+# @name markNoteSeen
+PATCH {{baseUrl}}/notes/{{testNoteId}}/seen HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 12. STAGE 2: IN-APP NOTIFICATIONS
+### ==============================================================================
+
+@testNotificationId = NOTIFICATION_UUID_HERE
+
+### 12.1 List My Notifications
+# @name listNotifications
+GET {{baseUrl}}/notifications?page=1&limit=20 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 12.2 Get Unread Notification Count
+# @name getUnreadCount
+GET {{baseUrl}}/notifications/unread-count HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 12.3 Mark Single Notification as Read
+# @name markNotificationRead
+PATCH {{baseUrl}}/notifications/{{testNotificationId}}/read HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 12.4 Mark All Notifications as Read
+# @name markAllNotificationsRead
+POST {{baseUrl}}/notifications/read-all HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 13. STAGE 2: ADHERENCE ANALYTICS & DOCTOR DASHBOARD
+### ==============================================================================
+
+### 13.1 Get Elder Adherence Analytics (7 or 30 Days)
+# @name getElderAdherence
+GET {{baseUrl}}/elders/{{testElderId}}/adherence?days=7 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 13.2 Doctor Clinical Dashboard (Grouped Query & Ranked Risk Attention List)
+# @name getDoctorDashboard
+GET {{baseUrl}}/doctor/dashboard HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 13.3 Doctor Alerts Feed
+# @name getDoctorAlerts
+GET {{baseUrl}}/doctor/alerts?page=1&limit=20 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 14. STAGE 2: AI CLINICAL ENGINE (GEMINI)
+### ==============================================================================
+
+### 14.1 Get Doctor Daily AI Briefing (Cached or Generated)
+# @name getDoctorAiBrief
+GET {{baseUrl}}/doctor/brief HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 14.2 Force Refresh Doctor Daily AI Briefing
+# @name refreshDoctorAiBrief
+POST {{baseUrl}}/doctor/brief/refresh HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 14.3 Get 7-Day AI Patient Summary
+# @name getPatientAiSummary
+GET {{baseUrl}}/doctor/elders/{{testElderId}}/summary?days=7 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 14.4 Doctor Query Assistant (Function Calling with Patient Scope)
+# @name askDoctorQuery
+POST {{baseUrl}}/doctor/ask HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "question": "Which of my linked patients have missed doses in the last 7 days?"
+}
+
+### ==============================================================================
+### 15. STAGE 2: CRON ENGINE & DEV TIME TRAVEL
+### ==============================================================================
+
+@cronSecret = smriti-super-secret-cron-token-min-32-chars-long
+
+### 15.1 Cron Tick (Regular 1-minute execution)
+# @name cronTick
+GET {{baseUrl}}/cron/tick HTTP/1.1
+Authorization: Bearer {{cronSecret}}
+
+### 15.2 Cron Tick with Dev Time Travel Simulation (?now=<ISO>)
+# Simulates 10:31 IST (05:01 UTC) on 2026-11-15 to trigger missed dose escalation
+# @name cronTickSimulated
+GET {{baseUrl}}/cron/tick?now=2026-11-15T05:01:00.000Z HTTP/1.1
+Authorization: Bearer {{cronSecret}}
+
+### 15.3 Cron Daily Briefing Dispatch (Daily 07:00 IST trigger)
+# @name cronDaily
+POST {{baseUrl}}/cron/daily?force=1 HTTP/1.1
+Authorization: Bearer {{cronSecret}}

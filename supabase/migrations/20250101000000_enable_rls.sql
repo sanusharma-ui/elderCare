@@ -39,3 +39,4 @@ ALTER TABLE IF EXISTS public.ai_briefs ENABLE ROW LEVEL SECURITY;
 -- Note: We intentionally do NOT create any POLICY for 'anon' or 'authenticated' roles.
 -- In PostgreSQL, when RLS is ENABLED and no policies exist, only table owners,
 -- superusers, and bypassrls roles can query or modify the tables.
+ALTER TABLE IF EXISTS public.ai_patient_summaries ENABLE ROW LEVEL SECURITY;
