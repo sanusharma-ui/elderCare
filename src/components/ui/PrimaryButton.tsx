@@ -25,30 +25,28 @@ export function PrimaryButton({
   ...props
 }: PrimaryButtonProps) {
   const sizeStyles = {
-    sm: "px-4 py-2 text-xs font-bold min-h-[38px]",
-    md: "px-6 py-3.5 text-sm font-bold min-h-[46px]",
-    lg: "px-8 py-4 text-base font-bold min-h-[52px]",
-    // Senior accessible 56px minimum touch target
-    elder: "px-8 py-4 text-lg font-bold min-h-[58px] tracking-wide",
+    sm: "px-3.5 py-1.5 text-xs font-bold min-h-[34px]",
+    md: "px-5 py-2.5 text-sm font-bold min-h-[40px]",
+    lg: "px-6 py-3 text-base font-bold min-h-[44px]",
+    elder: "px-7 py-3.5 text-lg font-bold min-h-[52px] tracking-wide",
   };
 
   const variantStyles = {
-    // Reference signature: Solid black pill in light mode, solid white pill in dark mode
     primary:
-      "bg-black text-white hover:bg-neutral-800 active:scale-97 dark:bg-white dark:text-black dark:hover:bg-neutral-200 shadow-lg shadow-black/15 dark:shadow-white/10",
+      "bg-slate-900 text-white border border-slate-900 hover:bg-slate-800 active:scale-[0.99] shadow-sm",
     secondary:
-      "glass-pill text-ink hover:border-accent-blue/40 active:scale-97 shadow-sm",
+      "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]",
     danger:
-      "bg-rose-600 text-white hover:bg-rose-700 active:scale-97 shadow-md",
+      "bg-rose-600 text-white border border-rose-600 hover:bg-rose-700 active:scale-[0.99] shadow-sm",
     ghost:
-      "bg-transparent text-ink hover:bg-white/30 dark:hover:bg-white/10 active:scale-97",
+      "bg-transparent text-ink border border-transparent hover:bg-slate-100 hover:border-slate-200 active:scale-[0.99]",
   };
 
   return (
     <button
       disabled={disabled || loading}
       className={cn(
-        "rounded-full inline-flex items-center justify-center gap-2.5 transition-all duration-150 select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100",
+        "rounded-lg inline-flex items-center justify-center gap-2 transition-colors duration-150 select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100",
         fullWidth && "w-full",
         sizeStyles[size],
         variantStyles[variant],
