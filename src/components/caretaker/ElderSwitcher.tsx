@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { useCaretaker } from "./CaretakerContext";
 import { Users, ChevronDown, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function ElderSwitcher() {
   const { elders, selectedElder, setSelectedElderId } = useCaretaker();
+  const t = useTranslations("caretaker");
   const [open, setOpen] = useState(false);
 
   if (elders.length <= 1) {
@@ -16,10 +18,10 @@ export function ElderSwitcher() {
         </div>
         <div className="flex-1 min-w-0">
           <span className="text-[10px] text-ink-muted uppercase tracking-wider block font-semibold">
-            बुजुर्ग • Patient
+            {t("switchElder")}
           </span>
           <span className="text-sm font-bold text-ink truncate block">
-            {selectedElder?.name || "कोई बुजुर्ग नहीं"}
+            {selectedElder?.name || t("switchElder")}
           </span>
         </div>
       </div>
@@ -38,7 +40,7 @@ export function ElderSwitcher() {
           </div>
           <div className="text-left min-w-0">
             <span className="text-[10px] text-ink-muted uppercase tracking-wider block font-semibold">
-              चयनित बुजुर्ग • Select Patient ({elders.length})
+              {t("switchElder")} ({elders.length})
             </span>
             <span className="text-sm font-bold text-ink truncate block">
               {selectedElder?.name}

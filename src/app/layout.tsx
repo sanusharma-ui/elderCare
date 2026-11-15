@@ -33,7 +33,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "CareSaathi (केयर साथी) — Elderly Care & Medication Management",
+  title: "CareSaathi — Elderly Care & Medication Management",
   description:
     "A shared healthcare ecosystem for elders, caretakers, family, and doctors across India.",
   manifest: "/manifest.webmanifest",

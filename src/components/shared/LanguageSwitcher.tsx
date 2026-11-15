@@ -8,11 +8,14 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { locale, setLocale } = useI18n();
   const [open, setOpen] = useState(false);
 
-  const languages: { code: Locale; name: string }[] = [
-    { code: "hi", name: "हिन्दी" },
-    { code: "mr", name: "मराठी" },
-    { code: "en", name: "English" },
-  ];
+  const languageNames: Record<Locale, Record<Locale, string>> = {
+    en: { en: "English", hi: "Hindi", mr: "Marathi" },
+    hi: { en: "अंग्रेज़ी", hi: "हिन्दी", mr: "मराठी" },
+    mr: { en: "इंग्रजी", hi: "हिंदी", mr: "मराठी" },
+  };
+  const languages: { code: Locale; name: string }[] = (["hi", "mr", "en"] as Locale[]).map(
+    (code) => ({ code, name: languageNames[locale][code] })
+  );
 
   if (compact) {
     return (
@@ -20,7 +23,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         <button
           onClick={() => setOpen(!open)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-surface/90 backdrop-blur-md border border-line rounded-xl text-xs sm:text-sm font-semibold text-ink hover:bg-paper active:scale-95 transition-all shadow-xs"
-          aria-label="Change language"
+          aria-label={locale === "en" ? "Change language" : locale === "hi" ? "भाषा बदलें" : "भाषा बदला"}
         >
           <Globe className="w-3.5 h-3.5 text-forest" />
           <span className="hidden sm:inline">{languages.find((l) => l.code === locale)?.name}</span>

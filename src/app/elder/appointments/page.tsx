@@ -39,7 +39,7 @@ export default function ElderAppointmentsPage() {
           {t("appointmentsTitle")}
         </h1>
         <p className="text-xs text-ink-muted mt-0.5">
-          डॉक्टर से मिलने का निर्धारित समय और क्लिनिक
+          {t("appointmentsSubtitle")}
         </p>
       </div>
 
@@ -101,7 +101,7 @@ export default function ElderAppointmentsPage() {
 
                   {apt.notes && (
                     <div className="mt-3 text-xs text-ink-muted p-2.5 bg-paper rounded-xl border border-line/60">
-                      <strong className="text-ink">नोट: </strong>
+                      <strong className="text-ink">{t("noteLabel")}: </strong>
                       <span>{apt.notes}</span>
                     </div>
                   )}
@@ -113,7 +113,7 @@ export default function ElderAppointmentsPage() {
 
         {appointments.length === 0 && !isLoading && (
           <EmptyState
-            title="कोई अपॉइंटमेंट नहीं है"
+            title={t("noAppointments")}
             description={t("noAppointments")}
           />
         )}

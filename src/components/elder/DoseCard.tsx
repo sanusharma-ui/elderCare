@@ -55,6 +55,7 @@ export function DoseCard({
   const t = useTranslations("elder");
   const tFood = useTranslations("foodRelation");
   const tDose = useTranslations("doseStatus");
+  const tCommon = useTranslations("common");
 
   const isTaken = dose.status === "TAKEN" || dose.status === "GIVEN";
   const isMissed = dose.status === "MISSED";
@@ -169,7 +170,7 @@ export function DoseCard({
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>अपडेट हो रहा है... • Updating...</span>
+                    <span>{tCommon("loading")}</span>
                   </div>
                 ) : (
                   <>
@@ -217,7 +218,7 @@ export function DoseCard({
                     className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line bg-surface active:bg-paper-2"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Undo</span>
+                    <span>{tCommon("undo")}</span>
                   </button>
                 )}
               </div>

@@ -60,7 +60,7 @@ export default function FamilyHomePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["family-elders"] });
       queryClient.invalidateQueries({ queryKey: ["family-alerts"] });
-      toast.success("संबद्धता हटा दी गई");
+      toast.success(t("unlinkElder"));
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to unlink");
@@ -116,7 +116,7 @@ export default function FamilyHomePage() {
                     {elder.name}
                   </span>
                   <span className="text-[11px] text-ok font-semibold">
-                    ✓ केयर सर्कल में जुड़े हैं
+                    ✓ {t("linkedStatus")}
                   </span>
                 </div>
               </div>
@@ -139,14 +139,14 @@ export default function FamilyHomePage() {
           {elders.length === 0 && !eldersLoading && (
             <div className="text-center py-6">
               <p className="text-xs text-ink-muted mb-3">
-                आपने अभी किसी बुजुर्ग को लिंक नहीं किया है।
+                {t("notLinked")}
               </p>
               <Link
                 href="/family/link"
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-forest text-surface text-xs font-bold rounded-xl"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>पासकोड से लिंक करें</span>
+                <span>{t("linkWithPasscode")}</span>
               </Link>
             </div>
           )}
@@ -208,7 +208,7 @@ export default function FamilyHomePage() {
 
         {alerts.length === 0 && !alertsLoading && (
           <EmptyState
-            title="सब कुछ सामान्य है"
+            title={t("allNormal")}
             description={t("noAlerts")}
           />
         )}

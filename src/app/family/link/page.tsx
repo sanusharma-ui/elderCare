@@ -37,7 +37,7 @@ export default function FamilyLinkElderPage() {
     onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["family-elders"] });
       queryClient.invalidateQueries({ queryKey: ["family-alerts"] });
-      toast.success("बुजुर्ग के साथ सफलतापूर्वक जुड़ गए!");
+      toast.success(t("linkedSuccess"));
       router.push("/family/home");
     },
     onError: (err: any) => {
@@ -69,7 +69,7 @@ export default function FamilyLinkElderPage() {
           {t("linkElder")}
         </h1>
         <p className="text-xs text-ink-muted mb-6 leading-relaxed">
-          बुजुर्ग या उनके केयरटेकर द्वारा दिया गया 9-अक्षरों का पासकोड दर्ज करें।
+          {t("linkDescription")}
         </p>
 
         {errorMessage && (
@@ -102,7 +102,7 @@ export default function FamilyLinkElderPage() {
             {redeemMutation.isPending ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>सत्यापित हो रहा है... • Verifying</span>
+                <span>{t("verifying")}</span>
               </>
             ) : (
               <>
@@ -115,7 +115,7 @@ export default function FamilyLinkElderPage() {
 
         <div className="mt-6 pt-5 border-t border-line text-xs text-ink-muted flex items-center justify-center gap-2">
           <ShieldCheck className="w-4 h-4 text-ok" />
-          <span>सिंगल-यूज़ पासकोड सुरक्षित एक्सेस सुनिश्चित करता है।</span>
+          <span>{t("secureAccess")}</span>
         </div>
       </div>
     </div>

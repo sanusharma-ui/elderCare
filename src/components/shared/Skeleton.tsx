@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -81,10 +82,11 @@ export function SkeletonSchedule() {
 }
 
 export function PageLoadingSpinner({
-  label = "डेटा लोड हो रहा है...",
+  label,
 }: {
   label?: string;
 }) {
+  const t = useTranslations("common");
   return (
     <div className="flex flex-col items-center justify-center p-12 space-y-3 text-ink select-none animate-fade-in">
       <div className="relative flex items-center justify-center">
@@ -92,7 +94,7 @@ export function PageLoadingSpinner({
         <Loader2 className="w-8 h-8 animate-spin text-forest" />
       </div>
       <span className="text-xs sm:text-sm font-semibold text-ink-muted">
-        {label}
+        {label || t("loading")}
       </span>
     </div>
   );

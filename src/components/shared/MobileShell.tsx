@@ -6,6 +6,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationBell } from "./NotificationBell";
 import { Smartphone, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export function MobileShell({
   children,
@@ -20,6 +21,7 @@ export function MobileShell({
   hideHeader?: boolean;
   roleBadge?: string;
 }) {
+  const t = useTranslations("shell");
   // Allow desktop testers to switch between realistic Phone frame and Expanded fluid view
   const [viewMode, setViewMode] = useState<"phone" | "wide">("phone");
 
@@ -27,7 +29,7 @@ export function MobileShell({
     <div className="min-h-screen bg-transparent flex flex-col justify-center items-center py-0 sm:py-6 relative selection:bg-forest-soft">
       {/* Desktop Tester Controls (Visible only on screens > 640px) */}
       <div className="hidden sm:flex items-center gap-3 mb-3 bg-surface/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-line shadow-xs z-30">
-        <span className="text-xs font-semibold text-ink-muted">View Mode:</span>
+        <span className="text-xs font-semibold text-ink-muted">{t("viewMode")}:</span>
         <button
           type="button"
           onClick={() => setViewMode("phone")}
@@ -39,7 +41,7 @@ export function MobileShell({
           )}
         >
           <Smartphone className="w-3.5 h-3.5" />
-          <span>Phone (430px)</span>
+          <span>{t("phone")}</span>
         </button>
         <button
           type="button"
@@ -52,7 +54,7 @@ export function MobileShell({
           )}
         >
           <Monitor className="w-3.5 h-3.5" />
-          <span>Wide Fluid (720px)</span>
+          <span>{t("wide")}</span>
         </button>
       </div>
 
@@ -66,14 +68,14 @@ export function MobileShell({
             CareSaathi Mobile
           </h2>
           <p className="text-ink-muted text-sm leading-relaxed mb-4">
-            Designed for mobile-first care. On large desktop screens, this frame renders the exact mobile experience used by elders, caretakers, and family members.
+            {t("mobileDescription")}
           </p>
           <div className="p-3 bg-surface border border-line rounded-xl text-xs text-ink-muted space-y-1.5">
             <div className="flex items-center gap-1.5 text-forest font-bold">
               <span className="w-2 h-2 rounded-full bg-forest animate-pulse" />
-              <span>PWA Ready & Responsive</span>
+              <span>{t("pwaReady")}</span>
             </div>
-            <p>Touch targets ≥56px, high contrast readability, and voice reminders.</p>
+            <p>{t("touchTargets")}</p>
           </div>
         </aside>
 

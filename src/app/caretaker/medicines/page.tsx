@@ -8,6 +8,7 @@ import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Pill, AlertTriangle, Package, AlertCircle, Clock, Utensils } from "lucide-react";
 import { formatTime24to12 } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface MedicineItem {
   id: string;
@@ -25,6 +26,7 @@ interface MedicineItem {
 
 export default function CaretakerMedicinesPage() {
   const { selectedElderId } = useCaretaker();
+  const t = useTranslations("caretaker");
 
   const { data, isLoading } = useQuery<{ items: MedicineItem[] }>({
     queryKey: ["caretaker-medicines", selectedElderId],
@@ -47,15 +49,15 @@ export default function CaretakerMedicinesPage() {
           <AlertCircle className="w-5 h-5 text-saffron shrink-0 mt-0.5" />
           <div>
             <h4 className="font-bold text-ink text-sm">
-              दवा का स्टॉक कम है • Low Medicine Stock Alert!
+              {t("lowStockTitle")}
             </h4>
             <p className="text-xs text-ink-muted mt-1">
-              निम्न दवाइयों का स्टॉक तुरंत पुनः भरने की आवश्यकता है:
+              {t("lowStockDescription")}
             </p>
             <ul className="mt-2 space-y-1 text-xs font-semibold text-ink">
               {lowStockMedicines.map((m) => (
                 <li key={m.id}>
-                  • {m.name}: केवल <strong>{m.stockCount}</strong> बाकी (न्यूनतम सीमा: {m.refillThreshold})
+                  • {m.name}: <strong>{t("remaining", { count: m.stockCount || 0, threshold: m.refillThreshold || 0 })}</strong>
                 </li>
               ))}
             </ul>
@@ -66,7 +68,7 @@ export default function CaretakerMedicinesPage() {
       {/* Medicines List */}
       <div className="space-y-4 pt-1">
         <h2 className="font-bold text-lg text-ink px-1">
-          दवाइयों की सूची • Active Prescriptions
+          {t("activePrescriptions")}
         </h2>
 
         {medicines.map((med) => {
@@ -109,7 +111,7 @@ export default function CaretakerMedicinesPage() {
                     }`}
                   >
                     <Package className="w-3.5 h-3.5" />
-                    <span>{med.stockCount} बाँकी</span>
+                    <span>{t("remaining", { count: med.stockCount, threshold: med.refillThreshold || 0 })}</span>
                   </div>
                 )}
               </div>
@@ -130,7 +132,7 @@ export default function CaretakerMedicinesPage() {
 
               {med.instructions && (
                 <div className="mt-2.5 text-xs text-ink-muted">
-                  <strong>निर्देश: </strong>
+                  <strong>{t("instructionsLabel")}: </strong>
                   <span>{med.instructions}</span>
                 </div>
               )}
@@ -139,7 +141,7 @@ export default function CaretakerMedicinesPage() {
                 <div className="mt-2.5 p-2.5 bg-saffron-soft/70 border border-saffron/30 rounded-xl flex items-start gap-2 text-xs text-ink">
                   <AlertTriangle className="w-4 h-4 text-saffron shrink-0 mt-0.5" />
                   <div>
-                    <strong>सावधानी: </strong>
+                    <strong>{t("warningLabel")}: </strong>
                     <span>{med.warnings}</span>
                   </div>
                 </div>
@@ -150,8 +152,8 @@ export default function CaretakerMedicinesPage() {
 
         {medicines.length === 0 && !isLoading && (
           <EmptyState
-            title="कोई दवा नहीं है"
-            description="इस बुजुर्ग के लिए कोई दवा निर्धारित नहीं है।"
+            title={t("noMedicines")}
+            description={t("noMedicinesDescription")}
           />
         )}
       </div>

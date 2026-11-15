@@ -64,10 +64,10 @@ export default function HomePage() {
               {t("howItWorks")}
             </a>
             <a href="#roles" className="hover:text-forest transition-colors">
-              {locale === "en" ? "Roles" : locale === "hi" ? "भूमिकाएं" : "भूमिका"}
+              {t("navRoles")}
             </a>
             <a href="#features" className="hover:text-forest transition-colors">
-              {locale === "en" ? "Features" : locale === "hi" ? "सुविधाएं" : "वैशिष्ट्ये"}
+              {t("navFeatures")}
             </a>
           </nav>
 
@@ -117,14 +117,14 @@ export default function HomePage() {
               onClick={() => setMobileMenuOpen(false)}
               className="py-2.5 text-base font-semibold text-ink hover:text-forest border-b border-line/30"
             >
-              {locale === "en" ? "Roles" : locale === "hi" ? "भूमिकाएं" : "भूमिका"}
+              {t("navRoles")}
             </a>
             <a
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2.5 text-base font-semibold text-ink hover:text-forest border-b border-line/30"
             >
-              {locale === "en" ? "Features" : locale === "hi" ? "सुविधाएं" : "वैशिष्ट्ये"}
+              {t("navFeatures")}
             </a>
 
             <div className="pt-2 flex flex-col gap-2.5">
@@ -223,11 +223,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-ink">
-                    {locale === "en"
-                      ? "Vernacular Voice Reminders"
-                      : locale === "hi"
-                      ? "आवाज़ में याद दिलाने की सुविधा"
-                      : "आवाजात आठवण करून देण्याची सोय"}
+                    {t("voiceTitle")}
                   </p>
                   <p className="text-xs text-ink-muted leading-relaxed mt-0.5">
                     {t("builtForElders")}
@@ -289,7 +285,7 @@ export default function HomePage() {
                     </div>
                     <span className="px-3 py-1.5 bg-ok text-surface text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>{locale === "en" ? "Taken" : "ले ली"}</span>
+                      <span>{t("taken")}</span>
                     </span>
                   </div>
                 </div>
@@ -360,7 +356,7 @@ export default function HomePage() {
 
                   <div>
                     <span className="inline-block px-3 py-1 bg-forest-soft text-forest text-xs font-bold rounded-full mb-3">
-                      {locale === "en" ? "Elder Role • Center of Care" : "Elder Role • मुख्य केंद्र"}
+                      {t("elderRole")}
                     </span>
                     <h3 className="font-displayDeva text-2xl font-bold text-ink">
                       {t("elderCardTitle")}
@@ -372,19 +368,19 @@ export default function HomePage() {
 
                   <div className="mt-6 p-4 bg-paper/90 rounded-2xl border border-line">
                     <div className="flex items-center justify-between text-xs text-ink-muted mb-2 font-medium">
-                      <span>{locale === "en" ? "Morning Dose" : "सुबह की खुराक"}</span>
+                      <span>{t("morningDose")}</span>
                       <span className="text-forest font-bold">08:00 AM</span>
                     </div>
                     <div className="flex items-center justify-between bg-surface p-3 rounded-xl border border-line">
                       <div>
                         <span className="font-bold text-ink text-base block">Metformin 500mg</span>
                         <span className="text-xs text-forest font-medium">
-                          {locale === "en" ? "After Food" : "खाने के बाद"}
+                          {t("afterFood")}
                         </span>
                       </div>
                       <span className="px-3 py-1.5 bg-forest text-surface text-xs font-bold rounded-lg flex items-center gap-1 shadow-xs">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>{locale === "en" ? "Taken" : "ले ली"}</span>
+                        <span>{t("taken")}</span>
                       </span>
                     </div>
                   </div>
@@ -398,7 +394,7 @@ export default function HomePage() {
                 <div className="h-full bg-surface/90 backdrop-blur-md border border-line rounded-3xl p-6 sm:p-7 relative overflow-hidden shadow-smriti flex flex-col justify-between hover:shadow-smriti-float transition-all">
                   <div>
                     <span className="inline-block px-3 py-1 bg-saffron-soft text-ink text-xs font-bold rounded-full mb-3">
-                      {locale === "en" ? "Doctor • Clinical Ledger" : "Doctor • क्लिनिकल लेजर"}
+                      {t("doctorRole")}
                     </span>
                     <h3 className="font-display text-xl sm:text-2xl font-bold text-ink">
                       {t("doctorCardTitle")}
@@ -422,7 +418,7 @@ export default function HomePage() {
                 <div className="h-full bg-surface/90 backdrop-blur-md border border-line rounded-3xl p-6 sm:p-7 shadow-smriti flex flex-col justify-between hover:shadow-smriti-float transition-all">
                   <div>
                     <span className="inline-block px-3 py-1 bg-paper-2 text-ink text-xs font-bold rounded-full mb-3">
-                      {locale === "en" ? "Caretaker • Daily Routine" : "Caretaker • दैनिक सेवा"}
+                      {t("caretakerRole")}
                     </span>
                     <h3 className="font-displayDeva text-xl sm:text-2xl font-bold text-ink">
                       {t("caretakerCardTitle")}
@@ -435,9 +431,7 @@ export default function HomePage() {
                   <div className="mt-6 flex items-center gap-2.5 text-xs text-ink-muted">
                     <HeartHandshake className="w-4 h-4 text-forest shrink-0" />
                     <span>
-                      {locale === "en"
-                        ? "Vitals, BP, and symptom notes sync immediately with the doctor ledger."
-                        : "लक्षण व बीपी नोट्स सीधे डॉक्टर के खाते से जुड़े हैं।"}
+                      {t("caretakerSync")}
                     </span>
                   </div>
                 </div>
@@ -450,7 +444,7 @@ export default function HomePage() {
                 <div className="h-full bg-surface/90 backdrop-blur-md border border-line rounded-3xl p-6 sm:p-7 shadow-smriti flex flex-col justify-between hover:shadow-smriti-float transition-all">
                   <div>
                     <span className="inline-block px-3 py-1 bg-brick-soft text-brick text-xs font-bold rounded-full mb-3">
-                      {locale === "en" ? "Family • Peace of Mind" : "Family • शांति और विश्वास"}
+                      {t("familyRole")}
                     </span>
                     <h3 className="font-display text-xl sm:text-2xl font-bold text-ink">
                       {t("familyCardTitle")}
@@ -463,9 +457,7 @@ export default function HomePage() {
                   <div className="mt-6 flex items-center gap-2.5 text-xs text-brick font-medium">
                     <ShieldAlert className="w-4 h-4 shrink-0" />
                     <span>
-                      {locale === "en"
-                        ? "Instant missed-dose alerts sent so you can call right away."
-                        : "दवा छूटने पर तुरंत अलर्ट, ताकि आप समय पर फोन कर सकें।"}
+                      {t("familyAlert")}
                     </span>
                   </div>
                 </div>
@@ -479,18 +471,12 @@ export default function HomePage() {
           <div className="mb-10 text-center max-w-2xl mx-auto">
             <Reveal direction="down" delay={0.1}>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">
-                {locale === "en"
-                  ? "Designed Specifically for Everyday Life in India"
-                  : locale === "hi"
-                  ? "भारतीय परिवारों के दैनिक जीवन के लिए तैयार"
-                  : "भारतीय कुटुंबांच्या दैनंदिन जीवनासाठी रचना"}
+                {t("indiaTitle")}
               </h2>
             </Reveal>
             <Reveal direction="down" delay={0.2}>
               <p className="text-sm sm:text-base text-ink-muted mt-2">
-                {locale === "en"
-                  ? "Zero tech friction, respectful dignity for seniors, and actionable peace of mind."
-                  : "बिना किसी तकनीकी झंझट के, बुजुर्गों के सम्मान और परिवार की शांति के लिए।"}
+                {t("indiaSubtitle")}
               </p>
             </Reveal>
           </div>
@@ -503,14 +489,10 @@ export default function HomePage() {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-ink text-base">
-                  {locale === "en"
-                    ? "Passcode-Based Family Linking"
-                    : "पासकोड आधारित फैमिली लिंकिंग"}
+                  {t("passcodeFeature")}
                 </h3>
                 <p className="text-xs text-ink-muted mt-1 leading-relaxed">
-                  {locale === "en"
-                    ? "No complex account setups for elders. Connect caretakers and family with a single-use 6-digit passcode."
-                    : "बुजुर्गों के लिए कोई जटिल पासवर्ड नहीं। केवल 6-अंकों के पासकोड से केयरटेकर और बच्चों को जोड़ें।"}
+                  {t("passcodeDescription")}
                 </p>
               </div>
             </Reveal>
@@ -522,14 +504,10 @@ export default function HomePage() {
                   <Smartphone className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-ink text-base">
-                  {locale === "en"
-                    ? "Installable Mobile PWA"
-                    : "मोबाइल होम-स्क्रीन ऐप"}
+                  {t("pwaFeature")}
                 </h3>
                 <p className="text-xs text-ink-muted mt-1 leading-relaxed">
-                  {locale === "en"
-                    ? "Feels like a native phone app. Instant loading, haptic buttons, and offline cached schedule view."
-                    : "एक असली मोबाइल ऐप की तरह काम करता है। फोन के होम-स्क्रीन पर एक टैप में इंस्टॉल करें।"}
+                  {t("pwaDescription")}
                 </p>
               </div>
             </Reveal>
@@ -541,14 +519,10 @@ export default function HomePage() {
                   <Languages className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-ink text-base">
-                  {locale === "en"
-                    ? "Hindi, Marathi & English"
-                    : "हिंदी, मराठी और अंग्रेजी"}
+                  {t("languageFeature")}
                 </h3>
                 <p className="text-xs text-ink-muted mt-1 leading-relaxed">
-                  {locale === "en"
-                    ? "Switch between languages seamlessly anytime. Clear typography with Mukta and Fraunces."
-                    : "अपनी पसंदीदा भाषा में चलाएं। बड़े अक्षर, स्पष्ट रंग और बुजुर्गों के अनुकूल शांत इंटरफ़ेस।"}
+                  {t("languageDescription")}
                 </p>
               </div>
             </Reveal>
@@ -561,14 +535,10 @@ export default function HomePage() {
             <div className="bg-[#0D4436] text-surface rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden shadow-smriti-float">
               <div className="max-w-2xl mx-auto relative z-10">
                 <h2 className="font-displayDeva text-3xl sm:text-4xl font-extrabold text-surface leading-tight">
-                  {locale === "en"
-                    ? "Give Your Loved Ones the Care They Deserve"
-                    : "आज ही अपने परिवार के बुजुर्गों के लिए शुरू करें"}
+                  {t("ctaTitle")}
                 </h2>
                 <p className="mt-3 text-surface/85 text-base sm:text-lg">
-                  {locale === "en"
-                    ? "Join thousands of families ensuring medication adherence with dignity."
-                    : "दवा की हर खुराक समय पर। कोई चिंता नहीं, कोई चूक नहीं।"}
+                  {t("ctaDescription")}
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
                   <Link
@@ -593,7 +563,7 @@ export default function HomePage() {
 
       {/* 6. FOOTER */}
       <footer className="border-t border-line/60 bg-surface/50 backdrop-blur-md py-6 px-6 text-center text-xs text-ink-muted mt-12">
-        <p>© 2026 CareSaathi (केयर साथी). Built for Indian families with care and dignity.</p>
+        <p>© 2026 CareSaathi. Built for Indian families with care and dignity.</p>
       </footer>
     </div>
   );

@@ -3,13 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
-import { useI18n } from "@/lib/i18n-provider";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { useTranslations } from "next-intl";
 import { Users, Globe, Lock, LogOut } from "lucide-react";
 
 export default function FamilyMePage() {
   const { user, logout } = useAuth();
-  const { locale, setLocale } = useI18n();
+  const t = useTranslations("common");
+  const tRoles = useTranslations("roles");
 
   return (
     <div className="p-4 sm:p-5 space-y-6">
@@ -23,7 +25,7 @@ export default function FamilyMePage() {
             {user?.name}
           </h1>
           <p className="text-xs text-ink-muted mt-0.5">
-            परिवार खाता • {user?.email || user?.phone}
+            {tRoles("FAMILY")} • {user?.email || user?.phone}
           </p>
         </div>
       </div>
@@ -34,21 +36,9 @@ export default function FamilyMePage() {
           <div className="w-9 h-9 rounded-xl bg-forest-soft text-forest flex items-center justify-center">
             <Globe className="w-5 h-5" />
           </div>
-          <span className="font-semibold text-ink text-sm">भाषा • App Language</span>
+          <span className="font-semibold text-ink text-sm">{t("language")}</span>
         </div>
-        <div className="flex gap-1 bg-paper-2 p-1 rounded-xl border border-line">
-          {(["hi", "mr", "en"] as const).map((l) => (
-            <button
-              key={l}
-              onClick={() => setLocale(l)}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
-                locale === l ? "bg-surface text-forest shadow-xs" : "text-ink-muted"
-              }`}
-            >
-              {l === "hi" ? "हिन्दी" : l === "mr" ? "मराठी" : "Eng"}
-            </button>
-          ))}
-        </div>
+        <LanguageSwitcher compact />
       </div>
 
       {/* Install Card */}
@@ -62,7 +52,7 @@ export default function FamilyMePage() {
         >
           <div className="flex items-center gap-3">
             <Lock className="w-5 h-5 text-forest" />
-            <span>पासवर्ड बदलें • Change Password</span>
+            <span>{t("changePassword")}</span>
           </div>
           <span>&gt;</span>
         </Link>
@@ -73,7 +63,7 @@ export default function FamilyMePage() {
         >
           <div className="flex items-center gap-3">
             <LogOut className="w-5 h-5 text-brick" />
-            <span>लॉग आउट • Sign Out</span>
+            <span>{t("logout")}</span>
           </div>
           <span>&gt;</span>
         </button>

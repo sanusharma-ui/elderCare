@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 
 export default function ElderLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("elder.tabs");
+  const tRoles = useTranslations("roles");
   const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -40,7 +41,7 @@ export default function ElderLayout({ children }: { children: React.ReactNode })
 
   return (
     <MobileShell
-      roleBadge="बुजुर्ग • Elder"
+      roleBadge={tRoles("ELDER")}
       bottomNav={<BottomNav items={navItems} />}
     >
       {children}

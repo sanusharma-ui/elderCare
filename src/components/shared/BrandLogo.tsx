@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function BrandLogo({
   size = "md",
@@ -8,6 +11,7 @@ export function BrandLogo({
   size?: "sm" | "md" | "lg";
   href?: string;
 }) {
+  const t = useTranslations("common");
   const iconSizes = {
     sm: "w-7 h-7",
     md: "w-8 h-8",
@@ -50,7 +54,7 @@ export function BrandLogo({
           Care<span className="text-forest">Saathi</span>
         </span>
         <span className="hidden xs:inline-block text-[11px] font-semibold text-ink-muted/80 bg-forest-soft/70 px-1.5 py-0.5 rounded-md leading-none border border-forest/15">
-          केयर साथी
+          {t("brandHindi")}
         </span>
       </div>
     </div>

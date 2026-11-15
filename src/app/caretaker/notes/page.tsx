@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { apiClient } from "@/lib/api-client";
 import { FileText, Send, AlertTriangle, Info, ShieldAlert, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface NoteItem {
   id: string;
@@ -23,6 +24,7 @@ interface NoteItem {
 
 export default function CaretakerNotesPage() {
   const { selectedElderId } = useCaretaker();
+  const t = useTranslations("caretaker");
   const queryClient = useQueryClient();
 
   const [content, setContent] = useState("");
@@ -48,8 +50,8 @@ export default function CaretakerNotesPage() {
       setSeverity("INFO");
       toast.success(
         severity === "URGENT"
-          ? "अति आवश्यक नोट दर्ज! डॉक्टर को तुरंत ईमेल भेजा गया।"
-          : "स्वास्थ्य नोट सफलतापूर्वक दर्ज किया गया।"
+          ? t("urgentNoteSaved")
+          : t("noteSaved")
       );
     },
     onError: (err: any) => {
@@ -73,7 +75,7 @@ export default function CaretakerNotesPage() {
       <div className="bg-surface border border-line rounded-3xl p-5 shadow-xs space-y-4">
         <h2 className="font-bold text-base text-ink flex items-center gap-2">
           <FileText className="w-5 h-5 text-forest" />
-          <span>नया स्वास्थ्य नोट लिखें • Add Clinical Note</span>
+          <span>{t("newNote")}</span>
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -82,14 +84,14 @@ export default function CaretakerNotesPage() {
             rows={3}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="मरीज के लक्षण, भूख, ब्लड प्रेशर या कोई असामान्य बात यहाँ लिखें..."
+            placeholder={t("notePlaceholder")}
             className="w-full p-3.5 bg-paper border border-line rounded-2xl text-sm text-ink placeholder:text-ink-muted/70 focus:bg-surface focus:border-forest"
           />
 
           {/* Severity Radio Tiles */}
           <div>
             <span className="text-xs font-semibold text-ink-muted block mb-1.5">
-              गंभीरता स्तर • Severity:
+              {t("severity")}:
             </span>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -102,7 +104,7 @@ export default function CaretakerNotesPage() {
                 }`}
               >
                 <Info className="w-3.5 h-3.5" />
-                <span>सामान्य • Info</span>
+                <span>{t("info")}</span>
               </button>
 
               <button
@@ -115,7 +117,7 @@ export default function CaretakerNotesPage() {
                 }`}
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-saffron" />
-                <span>चेतावनी</span>
+                <span>{t("warning")}</span>
               </button>
 
               <button
@@ -128,14 +130,14 @@ export default function CaretakerNotesPage() {
                 }`}
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
-                <span>अति आवश्यक</span>
+                <span>{t("urgent")}</span>
               </button>
             </div>
           </div>
 
           {severity === "URGENT" && (
             <div className="p-3 bg-brick-soft border border-brick/30 rounded-xl text-xs text-brick font-semibold">
-              ⚠️ ध्यान दें: अति आवश्यक नोट दर्ज होते ही सभी संबंधित डॉक्टरों को तुरंत ईमेल और अलर्ट भेजा जाएगा।
+              ⚠️ {t("urgentWarning")}
             </div>
           )}
 
@@ -147,12 +149,12 @@ export default function CaretakerNotesPage() {
             {createNoteMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>दर्ज हो रहा है... • Submitting...</span>
+                <span>{t("submitting")}</span>
               </>
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                <span>नोट सहेजें • Submit Note</span>
+                <span>{t("submitNote")}</span>
               </>
             )}
           </button>
@@ -162,7 +164,7 @@ export default function CaretakerNotesPage() {
       {/* Recent Notes Feed */}
       <div className="space-y-3 pt-2">
         <h3 className="font-bold text-base text-ink px-1">
-          हाल के नोट्स • Recent Notes ({notes.length})
+          {t("recentNotes")} ({notes.length})
         </h3>
 
         {notes.map((note) => (
@@ -202,14 +204,14 @@ export default function CaretakerNotesPage() {
             </p>
 
             <div className="mt-3 pt-2.5 border-t border-line/60 flex items-center justify-between text-xs text-ink-muted">
-              <span>{note.caretakerName || "केयरटेकर"} द्वारा दर्ज</span>
+              <span>{t("recordedBy", { name: note.caretakerName || "Caretaker" })}</span>
               {note.seenAt ? (
                 <span className="flex items-center gap-1 text-ok font-semibold">
                   <Check className="w-3.5 h-3.5" />
-                  <span>डॉक्टर द्वारा देखा गया</span>
+                  <span>{t("seenByDoctor")}</span>
                 </span>
               ) : (
-                <span className="text-ink-muted">अभी अनदेखा</span>
+                <span className="text-ink-muted">{t("unseen")}</span>
               )}
             </div>
           </div>
@@ -217,8 +219,8 @@ export default function CaretakerNotesPage() {
 
         {notes.length === 0 && !isLoading && (
           <EmptyState
-            title="कोई नोट नहीं है"
-            description="इस बुजुर्ग के लिए अभी तक कोई क्लिनिकल नोट नहीं लिखा गया है।"
+            title={t("noNotes")}
+            description={t("noNotesDescription")}
           />
         )}
       </div>

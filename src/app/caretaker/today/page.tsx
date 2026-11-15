@@ -11,6 +11,7 @@ import { SkeletonSchedule } from "@/components/shared/Skeleton";
 import { apiClient } from "@/lib/api-client";
 import { Activity, Clock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface TodayResponse {
   date: string;
@@ -41,6 +42,8 @@ interface AdherenceResponse {
 
 export default function CaretakerTodayPage() {
   const { selectedElder, selectedElderId } = useCaretaker();
+  const t = useTranslations("caretaker");
+  const tSlots = useTranslations("timeSlots");
   const queryClient = useQueryClient();
   const [activeDoseActionId, setActiveDoseActionId] = useState<string | null>(null);
 
@@ -100,7 +103,7 @@ export default function CaretakerTodayPage() {
       setActiveDoseActionId(null);
       queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
       const doseLogId = result?.id;
-      toast.success("दवा दे दी गई (Marked as Given)", {
+      toast.success(t("markedGiven"), {
         action: doseLogId
           ? {
               label: "Undo",
@@ -132,7 +135,7 @@ export default function CaretakerTodayPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
-      toast.info("दवा छोड़ दी गई (Marked as Skipped)");
+      toast.info(t("markedSkipped"));
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to skip dose");
@@ -145,7 +148,7 @@ export default function CaretakerTodayPage() {
       apiClient(`/api/doses/${doseLogId}/undo`, { method: "POST" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
-      toast.success("खुराक पूर्ववत कर दी गई (Undo successful)");
+      toast.success(t("undoSuccess"));
     },
   });
 
@@ -166,7 +169,7 @@ export default function CaretakerTodayPage() {
             </div>
             <div>
               <span className="text-xs font-semibold text-ink-muted uppercase block">
-                7-दिन अनुपालन दर • 7d Adherence
+                {t("adherence7d")}
               </span>
               <span className="text-xl font-bold text-ink">{adherenceRate}%</span>
             </div>
@@ -175,7 +178,7 @@ export default function CaretakerTodayPage() {
           {missStreak > 0 && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brick-soft text-brick text-xs font-bold rounded-xl border border-brick/20">
               <AlertCircle className="w-4 h-4" />
-              <span>{missStreak} दिन लगातार छूटी!</span>
+              <span>{t("missStreak", { count: missStreak })}</span>
             </div>
           )}
         </div>
@@ -187,7 +190,7 @@ export default function CaretakerTodayPage() {
       ) : (
         <div className="space-y-4 pt-1">
           <h2 className="font-bold text-lg text-ink px-1">
-            आज की खुराक सूची • Daily Doses
+            {t("dailyDoses")}
           </h2>
 
           {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
@@ -199,7 +202,7 @@ export default function CaretakerTodayPage() {
               <div className="flex items-center gap-2 px-1">
                 <span className="w-2.5 h-2.5 rounded-full bg-forest" />
                 <h3 className="font-bold text-sm text-ink capitalize">
-                  {slotKey.toLowerCase()} ({slotDoses.length})
+                  {tSlots(slotKey)} ({slotDoses.length})
                 </h3>
               </div>
 
@@ -222,8 +225,8 @@ export default function CaretakerTodayPage() {
 
         {data?.summary.total === 0 && !isLoading && (
           <EmptyState
-            title="कोई खुराक निर्धारित नहीं"
-            description="इस बुजुर्ग के लिए आज कोई दवा तय नहीं है।"
+            title={t("noDoses")}
+            description={t("noDosesDescription")}
           />
         )}
       </div>

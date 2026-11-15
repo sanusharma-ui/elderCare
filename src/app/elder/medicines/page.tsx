@@ -53,7 +53,7 @@ export default function ElderMedicinesPage() {
           {t("medicinesTitle")}
         </h1>
         <p className="text-xs text-ink-muted mt-0.5">
-          डॉक्टर द्वारा निर्धारित आपकी सभी सक्रिय दवाइयां
+          {t("medicinesSubtitle")}
         </p>
       </div>
 
@@ -103,7 +103,7 @@ export default function ElderMedicinesPage() {
               {med.stockCount !== null && (
                 <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-paper-2 rounded-lg border border-line">
                   <Package className="w-3.5 h-3.5 text-forest" />
-                  <span>{med.stockCount} बाकी</span>
+                  <span>{t("stockRemaining", { count: med.stockCount })}</span>
                 </div>
               )}
             </div>
@@ -111,7 +111,7 @@ export default function ElderMedicinesPage() {
             {/* Timings / Schedules */}
             <div className="mt-3.5 pt-3 border-t border-line/60">
               <span className="text-xs font-semibold text-ink-muted block mb-1.5">
-                खुराक का समय • Timings:
+                {t("timings")}:
               </span>
               <div className="flex flex-wrap gap-2">
                 {med.schedules.map((sch) => (
@@ -130,7 +130,7 @@ export default function ElderMedicinesPage() {
             {/* Instructions */}
             {med.instructions && (
               <div className="mt-3 text-xs text-ink-muted">
-                <strong className="text-ink">निर्देश: </strong>
+                <strong className="text-ink">{t("instructionsLabel")}: </strong>
                 <span>{med.instructions}</span>
               </div>
             )}
@@ -140,7 +140,7 @@ export default function ElderMedicinesPage() {
               <div className="mt-3 p-3 bg-saffron-soft/70 border border-saffron/40 rounded-xl flex items-start gap-2.5 text-ink text-xs sm:text-sm">
                 <AlertTriangle className="w-4 h-4 text-saffron shrink-0 mt-0.5" />
                 <div>
-                  <strong className="font-bold text-ink">ज़रूरी सावधानी: </strong>
+                  <strong className="font-bold text-ink">{t("warningLabel")}: </strong>
                   <span>{med.warnings}</span>
                 </div>
               </div>
@@ -150,8 +150,8 @@ export default function ElderMedicinesPage() {
 
         {medicines.length === 0 && !isLoading && (
           <EmptyState
-            title="कोई दवा नहीं मिली"
-            description="आपके खाते में अभी कोई दवा पंजीकृत नहीं है।"
+            title={t("noMedicines")}
+            description={t("noMedicinesDescription")}
           />
         )}
       </div>

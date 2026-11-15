@@ -23,7 +23,9 @@ type RoleType = "ELDER" | "CARETAKER" | "FAMILY" | "DOCTOR";
 
 export default function RegisterPage() {
   const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const tLanding = useTranslations("landing");
+  const tRoles = useTranslations("roles");
   const router = useRouter();
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -54,25 +56,25 @@ export default function RegisterPage() {
   }[] = [
     {
       type: "ELDER",
-      title: "बुजुर्ग • Elder (Senior)",
+      title: tRoles("ELDER"),
       desc: tLanding("elderCardDesc"),
       icon: <User className="w-8 h-8 text-forest" />,
     },
     {
       type: "CARETAKER",
-      title: "केयरटेकर • Caretaker",
+      title: tRoles("CARETAKER"),
       desc: tLanding("caretakerCardDesc"),
       icon: <HeartHandshake className="w-8 h-8 text-forest" />,
     },
     {
       type: "FAMILY",
-      title: "परिवार • Family Member",
+      title: tRoles("FAMILY"),
       desc: tLanding("familyCardDesc"),
       icon: <ShieldAlert className="w-8 h-8 text-forest" />,
     },
     {
       type: "DOCTOR",
-      title: "डॉक्टर • Doctor / Physician",
+      title: tRoles("DOCTOR"),
       desc: tLanding("doctorCardDesc"),
       icon: <Stethoscope className="w-8 h-8 text-forest" />,
     },
@@ -118,7 +120,7 @@ export default function RegisterPage() {
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage("Registration failed. Please check the entered fields.");
+        setErrorMessage(t("registrationFailed"));
       }
     } finally {
       setLoading(false);
@@ -141,7 +143,7 @@ export default function RegisterPage() {
               {t("register")}
             </h1>
             <p className="text-xs text-ink-muted mt-0.5">
-              {step === 1 ? "Step 1: Choose Role • अपनी भूमिका चुनें" : "Step 2: Account Details • खाता जानकारी"}
+              {step === 1 ? t("stepRole") : t("stepDetails")}
             </p>
           </div>
           <span className="text-xs font-bold text-forest bg-forest-soft px-3 py-1 rounded-full">
@@ -159,7 +161,7 @@ export default function RegisterPage() {
         {step === 1 && (
           <div>
             <p className="text-sm text-ink-muted mb-4 font-medium">
-              स्मृति में आप किस रूप में जुड़ना चाहते हैं?
+              {t("chooseRolePrompt")}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
@@ -201,7 +203,7 @@ export default function RegisterPage() {
               onClick={() => setStep(2)}
               className="w-full min-h-[52px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all"
             >
-              <span>अगला चरण • Continue</span>
+              <span>{t("continue")}</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -212,38 +214,38 @@ export default function RegisterPage() {
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-ink mb-1">
-                पूरा नाम • Full Name *
+                {tCommon("name")} *
               </label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="जैसे: Ramesh Sharma"
+                placeholder="e.g. Ramesh Sharma"
                 className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
               />
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-ink mb-1">
-                फ़ोन नंबर या ईमेल • Phone or Email *
+                {tCommon("phone")} / {tCommon("email")} *
               </label>
               <input
                 type="text"
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="जैसे: 9811122332 या name@example.com"
+                placeholder="e.g. 9811122332 or name@example.com"
                 className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
               />
               <span className="text-[11px] text-ink-muted mt-1 block">
-                बुजुर्गों के लिए केवल फ़ोन नंबर पर्याप्त है।
+                {t("elderPhoneHint")}
               </span>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-ink mb-1">
-                पासवर्ड • Password (कम से कम 8 अक्षर) *
+                {t("passwordLabel")} (min. 8 characters) *
               </label>
               <input
                 type="password"
@@ -251,7 +253,7 @@ export default function RegisterPage() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="सुरक्षित पासवर्ड चुनें"
+                placeholder={t("passwordPlaceholder")}
                 className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
               />
             </div>
@@ -259,15 +261,15 @@ export default function RegisterPage() {
             {/* Language preference */}
             <div>
               <label className="block text-sm font-semibold text-ink mb-1">
-                पसंदीदा भाषा • App Language
+                {tCommon("language")}
               </label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as any)}
                 className="w-full min-h-[48px] px-4 bg-paper border border-line rounded-xl text-base text-ink"
               >
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="mr">मराठी (Marathi)</option>
+                <option value="hi">Hindi</option>
+                <option value="mr">Marathi</option>
                 <option value="en">English</option>
               </select>
             </div>
@@ -326,12 +328,12 @@ export default function RegisterPage() {
             {role === "ELDER" && (
               <div className="pt-3 border-t border-line space-y-3">
                 <span className="text-xs font-bold text-forest uppercase tracking-wider block">
-                  बुजुर्ग स्वास्थ्य जानकारी (वैकल्पिक)
+                  {t("elderHealthOptional")}
                 </span>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs font-semibold text-ink mb-1">
-                      जन्म तारीख • Date of Birth
+                      {t("dateOfBirth")}
                     </label>
                     <input
                       type="date"
@@ -342,28 +344,28 @@ export default function RegisterPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-ink mb-1">
-                      लिंग • Gender
+                      {t("gender")}
                     </label>
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
                       className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
                     >
-                      <option value="MALE">पुरुष (Male)</option>
-                      <option value="FEMALE">महिला (Female)</option>
-                      <option value="OTHER">अन्य (Other)</option>
+                      <option value="MALE">{t("male")}</option>
+                      <option value="FEMALE">{t("female")}</option>
+                      <option value="OTHER">{t("other")}</option>
                     </select>
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1">
-                    वर्तमान बीमारियां • Conditions (e.g. Diabetes, BP)
+                    {t("conditions")}
                   </label>
                   <input
                     type="text"
                     value={medicalConditions}
                     onChange={(e) => setMedicalConditions(e.target.value)}
-                    placeholder="जैसे: उच्च रक्तचाप, मधुमेह"
+                    placeholder={t("conditionsPlaceholder")}
                     className="w-full min-h-[44px] px-3 bg-paper border border-line rounded-xl text-sm"
                   />
                 </div>
@@ -377,7 +379,7 @@ export default function RegisterPage() {
                 className="px-4 min-h-[50px] bg-paper border border-line rounded-xl text-ink font-semibold text-sm flex items-center gap-1.5 hover:bg-paper-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>वापस</span>
+                <span>{t("back")}</span>
               </button>
 
               <button
@@ -385,7 +387,7 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="flex-1 min-h-[50px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-60"
               >
-                {loading ? "पंजीकरण हो रहा है..." : "खाता बनाएं • Complete Registration"}
+                {loading ? t("registerLoading") : t("completeRegistration")}
               </button>
             </div>
           </form>

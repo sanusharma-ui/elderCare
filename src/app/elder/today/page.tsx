@@ -231,7 +231,7 @@ export default function ElderTodayPage() {
             </h1>
             <p className="text-sm sm:text-base text-ink-muted mt-1 font-medium">
               {totalDoses === 0
-                ? (locale === "en" ? "No medicines scheduled for today." : "आज के लिए कोई दवा निर्धारित नहीं है।")
+                ? t("noMedicinesToday")
                 : t("progress", { taken: totalTaken, total: totalDoses })}
             </p>
           </div>
@@ -257,7 +257,7 @@ export default function ElderTodayPage() {
         {totalDoses > 0 && (
           <div className="mt-4 pt-4 border-t border-line/60">
             <div className="flex items-center justify-between text-xs font-semibold text-ink-muted mb-1.5">
-              <span>आज की प्रगति • Progress</span>
+              <span>{t("progress", { taken: totalTaken, total: totalDoses })}</span>
               <span className="text-forest font-bold">{progressPercent}%</span>
             </div>
             <div className="w-full h-3 bg-paper-2 rounded-full overflow-hidden border border-line/50">
@@ -287,10 +287,10 @@ export default function ElderTodayPage() {
         </div>
       )}
 
-      {/* SCHEDULE GROUPED BY TIME SLOTS: सुबह / दोपहर / शाम / रात */}
+      {/* Schedule grouped by time slots */}
       <div className="space-y-4 pt-2">
         <h2 className="font-displayDeva text-xl font-bold text-ink px-1">
-          {locale === "en" ? "Full Day Schedule" : "आज का पूरा समय पत्र • Schedule"}
+          {t("fullSchedule")}
         </h2>
 
         {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
@@ -324,12 +324,8 @@ export default function ElderTodayPage() {
 
         {totalDoses === 0 && !isLoading && (
           <EmptyState
-            title={locale === "en" ? "No medicines scheduled" : "कोई दवा निर्धारित नहीं है"}
-            description={
-              locale === "en"
-                ? "No medicines have been scheduled by your doctor for today."
-                : "आज के लिए आपके डॉक्टर द्वारा कोई दवा शेड्यूल नहीं की गई है।"
-            }
+            title={t("noSchedule")}
+            description={t("noMedicinesToday")}
           />
         )}
       </div>
