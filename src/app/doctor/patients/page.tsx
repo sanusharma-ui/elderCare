@@ -23,7 +23,8 @@ interface DoctorPatientItem {
   phone: string | null;
   language: string;
   activeMedicineCount: number;
-  nextAppointmentAt: string | null;
+  nextAppointment?: { scheduledAt: string; title: string; id: string } | null;
+  nextAppointmentAt?: string | null;
   linkedAt: string;
   elderProfile?: {
     gender?: string | null;
@@ -125,11 +126,18 @@ export default function DoctorPatientsPage() {
                   </span>
                 </div>
 
-                {/* Medical Conditions */}
+                {/* Medical Conditions or Next Appointment */}
                 {patient.elderProfile?.medicalConditions && (
                   <div className="mt-3 text-xs text-ink-muted line-clamp-1 bg-paper p-2 rounded-lg">
                     <strong className="text-ink">स्थितियां: </strong>
                     <span>{patient.elderProfile.medicalConditions}</span>
+                  </div>
+                )}
+
+                {patient.nextAppointment && (
+                  <div className="mt-2 text-[11px] text-forest font-semibold flex items-center gap-1.5 bg-forest-soft/60 px-2.5 py-1 rounded-lg">
+                    <Calendar className="w-3.5 h-3.5 text-forest" />
+                    <span>अगली भेंट: {new Date(patient.nextAppointment.scheduledAt).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>

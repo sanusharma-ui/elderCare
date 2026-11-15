@@ -7,7 +7,7 @@ import { ElderSwitcher } from "@/components/caretaker/ElderSwitcher";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { apiClient } from "@/lib/api-client";
-import { FileText, Send, AlertTriangle, Info, ShieldAlert, Check } from "lucide-react";
+import { FileText, Send, AlertTriangle, Info, ShieldAlert, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface NoteItem {
@@ -144,8 +144,17 @@ export default function CaretakerNotesPage() {
             disabled={createNoteMutation.isPending || !content.trim()}
             className="w-full min-h-[48px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
           >
-            <Send className="w-4 h-4" />
-            <span>{createNoteMutation.isPending ? "दर्ज हो रहा है..." : "नोट सहेजें • Submit Note"}</span>
+            {createNoteMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>दर्ज हो रहा है... • Submitting...</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                <span>नोट सहेजें • Submit Note</span>
+              </>
+            )}
           </button>
         </form>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCaretaker } from "@/components/caretaker/CaretakerContext";
 import { ElderSwitcher } from "@/components/caretaker/ElderSwitcher";
@@ -41,6 +41,7 @@ interface AdherenceResponse {
 export default function CaretakerTodayPage() {
   const { selectedElder, selectedElderId } = useCaretaker();
   const queryClient = useQueryClient();
+  const [activeDoseActionId, setActiveDoseActionId] = useState<string | null>(null);
 
   // Fetch today doses for selected elder
   const { data, isLoading } = useQuery<TodayResponse>({
@@ -57,7 +58,7 @@ export default function CaretakerTodayPage() {
     enabled: !!selectedElderId,
   });
 
-  // Mark Given Mutation
+  // Mark Given Mutation with Optimistic 0ms UI Update
   const markGivenMutation = useMutation({
     mutationFn: (dose: TodayDoseItem) =>
       apiClient(`/api/elders/${selectedElderId}/doses/mark`, {
@@ -68,7 +69,34 @@ export default function CaretakerTodayPage() {
           status: "GIVEN",
         }),
       }),
+    onMutate: async (dose: TodayDoseItem) => {
+      setActiveDoseActionId(dose.scheduleId);
+      await queryClient.cancelQueries({ queryKey: ["caretaker-today", selectedElderId] });
+      const previousData = queryClient.getQueryData<TodayResponse>(["caretaker-today", selectedElderId]);
+
+      if (previousData) {
+        queryClient.setQueryData<TodayResponse>(["caretaker-today", selectedElderId], {
+          ...previousData,
+          summary: {
+            ...previousData.summary,
+            pending: Math.max(0, previousData.summary.pending - 1),
+            given: previousData.summary.given + 1,
+          },
+          slots: {
+            ...previousData.slots,
+            [dose.timeSlot]: previousData.slots[dose.timeSlot].map((d) =>
+              d.scheduleId === dose.scheduleId
+                ? { ...d, status: "GIVEN" as const, takenAt: new Date().toISOString() }
+                : d
+            ),
+          },
+        });
+      }
+
+      return { previousData };
+    },
     onSuccess: (result: any) => {
+      setActiveDoseActionId(null);
       queryClient.invalidateQueries({ queryKey: ["caretaker-today"] });
       const doseLogId = result?.id;
       toast.success("दवा दे दी गई (Marked as Given)", {
@@ -80,7 +108,11 @@ export default function CaretakerTodayPage() {
           : undefined,
       });
     },
-    onError: (err: any) => {
+    onError: (err: any, _dose, context) => {
+      setActiveDoseActionId(null);
+      if (context?.previousData) {
+        queryClient.setQueryData(["caretaker-today", selectedElderId], context.previousData);
+      }
       toast.error(err.message || "Failed to mark dose");
     },
   });
@@ -173,6 +205,7 @@ export default function CaretakerTodayPage() {
                     key={dose.scheduleId}
                     dose={dose}
                     isElderView={false}
+                    isLoading={activeDoseActionId === dose.scheduleId}
                     onMarkGiven={(d) => markGivenMutation.mutate(d)}
                     onMarkSkipped={(d) => markSkippedMutation.mutate(d)}
                     onUndo={(d) => d.doseLogId && undoMutation.mutate(d.doseLogId)}

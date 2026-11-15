@@ -17,6 +17,7 @@ import {
   Pill,
   ArrowLeft,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -81,9 +82,13 @@ export default function NotificationsPage() {
             <button
               onClick={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-forest hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-forest hover:underline disabled:opacity-50"
             >
-              <CheckCheck className="w-4 h-4" />
+              {markAllReadMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCheck className="w-4 h-4" />
+              )}
               <span>सभी को पढ़ा हुआ मार्क करें • Mark All Read</span>
             </button>
           )}

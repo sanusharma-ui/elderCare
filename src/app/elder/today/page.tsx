@@ -50,6 +50,7 @@ export default function ElderTodayPage() {
 
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [markingScheduleId, setMarkingScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -65,7 +66,7 @@ export default function ElderTodayPage() {
     refetchInterval: 60000, // 60s auto refresh
   });
 
-  // Mark Dose Mutation
+  // Mark Dose Mutation with Optimistic 0ms UI Update
   const markDoseMutation = useMutation({
     mutationFn: (dose: TodayDoseItem) =>
       apiClient(`/api/elders/${user?.id}/doses/mark`, {
@@ -76,7 +77,34 @@ export default function ElderTodayPage() {
           status: "TAKEN",
         }),
       }),
+    onMutate: async (dose: TodayDoseItem) => {
+      setMarkingScheduleId(dose.scheduleId);
+      await queryClient.cancelQueries({ queryKey: ["elder-today", user?.id] });
+      const previousData = queryClient.getQueryData<TodayResponse>(["elder-today", user?.id]);
+
+      if (previousData) {
+        queryClient.setQueryData<TodayResponse>(["elder-today", user?.id], {
+          ...previousData,
+          summary: {
+            ...previousData.summary,
+            pending: Math.max(0, previousData.summary.pending - 1),
+            taken: previousData.summary.taken + 1,
+          },
+          slots: {
+            ...previousData.slots,
+            [dose.timeSlot]: previousData.slots[dose.timeSlot].map((d) =>
+              d.scheduleId === dose.scheduleId
+                ? { ...d, status: "TAKEN" as const, takenAt: new Date().toISOString() }
+                : d
+            ),
+          },
+        });
+      }
+
+      return { previousData };
+    },
     onSuccess: (result: any) => {
+      setMarkingScheduleId(null);
       queryClient.invalidateQueries({ queryKey: ["elder-today"] });
       const doseLogId = result?.id;
 
@@ -90,7 +118,11 @@ export default function ElderTodayPage() {
           : undefined,
       });
     },
-    onError: (err: any) => {
+    onError: (err: any, _dose, context) => {
+      setMarkingScheduleId(null);
+      if (context?.previousData) {
+        queryClient.setQueryData(["elder-today", user?.id], context.previousData);
+      }
       toast.error(err.message || "Failed to mark dose");
     },
   });
@@ -239,7 +271,7 @@ export default function ElderTodayPage() {
           <DoseCard
             dose={nextDose}
             isElderView={true}
-            isLoading={markDoseMutation.isPending}
+            isLoading={markingScheduleId === nextDose.scheduleId}
             onMarkTaken={(d) => markDoseMutation.mutate(d)}
             onUndo={(d) => d.doseLogId && undoMutation.mutate(d.doseLogId)}
           />
@@ -271,7 +303,7 @@ export default function ElderTodayPage() {
                     key={dose.scheduleId}
                     dose={dose}
                     isElderView={true}
-                    isLoading={markDoseMutation.isPending}
+                    isLoading={markingScheduleId === dose.scheduleId}
                     onMarkTaken={(d) => markDoseMutation.mutate(d)}
                     onUndo={(d) => d.doseLogId && undoMutation.mutate(d.doseLogId)}
                   />

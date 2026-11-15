@@ -22,6 +22,7 @@ import {
   Plus,
   HeartHandshake,
   Stethoscope,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -388,9 +389,16 @@ export default function ElderMePage() {
             <button
               onClick={() => createInviteMutation.mutate(selectedRole)}
               disabled={createInviteMutation.isPending}
-              className="w-full min-h-[50px] bg-forest text-surface font-bold rounded-xl mt-4 hover:bg-forest-hover active:scale-95 transition-all shadow-xs"
+              className="w-full min-h-[50px] bg-forest text-surface font-bold rounded-xl mt-4 hover:bg-forest-hover active:scale-95 transition-all shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {createInviteMutation.isPending ? "पासकोड बन रहा है..." : "पासकोड कोड बनाएं • Generate Code"}
+              {createInviteMutation.isPending ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>पासकोड बन रहा है... • Generating Code</span>
+                </>
+              ) : (
+                <span>पासकोड कोड बनाएं • Generate Code</span>
+              )}
             </button>
           </div>
         ) : (

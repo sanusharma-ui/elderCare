@@ -6,10 +6,27 @@ export async function middleware(request: NextRequest) {
     request,
   });
 
+  // 1. Never block /api routes with middleware auth calls.
+  // API route handlers perform their own fast, cryptographically validated requireAuth().
+  if (request.nextUrl.pathname.startsWith("/api")) {
+    return supabaseResponse;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
+    return supabaseResponse;
+  }
+
+  // 2. Only refresh token if Supabase auth cookies are actually present.
+  // Avoids redundant, blocking external HTTPS round-trips for anonymous visitors.
+  const allCookies = request.cookies.getAll();
+  const hasAuthToken = allCookies.some(
+    (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
+  );
+
+  if (!hasAuthToken) {
     return supabaseResponse;
   }
 
@@ -30,7 +47,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refresh auth token by reading user
+  // Refresh auth token by reading user only for authenticated page navigations
   await supabase.auth.getUser();
 
   return supabaseResponse;

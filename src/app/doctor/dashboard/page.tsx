@@ -20,6 +20,7 @@ import {
   Bot,
   Send,
   UserPlus,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -395,9 +396,19 @@ export default function DoctorDashboardPage() {
               ))}
             </div>
 
+            {/* Analyzing Indicator */}
+            {askMutation.isPending && (
+              <div className="p-4 bg-paper rounded-2xl border border-line text-xs text-ink mb-4 flex items-center gap-3 animate-pulse">
+                <Loader2 className="w-5 h-5 animate-spin text-forest shrink-0" />
+                <span className="font-medium">
+                  मरीजों के रिकॉर्ड और क्लिनिकल डेटा का विश्लेषण हो रहा है... (Analyzing patient cohort...)
+                </span>
+              </div>
+            )}
+
             {/* Answer Display */}
-            {askResult && (
-              <div className="p-4 bg-paper rounded-2xl border border-forest/20 text-xs sm:text-sm text-ink mb-4 space-y-2">
+            {askResult && !askMutation.isPending && (
+              <div className="p-4 bg-paper rounded-2xl border border-forest/20 text-xs sm:text-sm text-ink mb-4 space-y-2 animate-fade-in">
                 <div className="font-semibold text-forest flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-saffron" />
                   <span>क्लिनिकल उत्तर:</span>
@@ -426,15 +437,19 @@ export default function DoctorDashboardPage() {
                 value={askQuestion}
                 onChange={(e) => setAskQuestion(e.target.value)}
                 placeholder={t("askPlaceholder")}
-                className="w-full min-h-[46px] pl-3.5 pr-11 bg-paper border border-line rounded-xl text-xs sm:text-sm text-ink focus:bg-surface focus:border-forest"
+                className="w-full min-h-[46px] pl-3.5 pr-11 bg-paper border border-line rounded-xl text-xs sm:text-sm text-ink focus:bg-surface focus:border-forest transition-colors"
               />
               <button
                 type="submit"
                 disabled={askMutation.isPending || !askQuestion.trim()}
-                className="absolute right-1.5 top-1.5 p-2 bg-forest text-surface rounded-lg hover:bg-forest-hover active:scale-95 disabled:opacity-40 transition-all"
+                className="absolute right-1.5 top-1.5 p-2 bg-forest text-surface rounded-lg hover:bg-forest-hover active:scale-95 disabled:opacity-50 transition-all"
                 title="Send Question"
               >
-                <Send className="w-4 h-4" />
+                {askMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
               </button>
             </div>
           </form>

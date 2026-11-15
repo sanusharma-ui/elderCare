@@ -61,27 +61,20 @@ export async function apiClient<T>(
 
   const response = await fetch(url, config);
 
-  // Handle 401 Unauthorized
-  if (response.status === 401) {
-    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
-    }
-  }
-
   let body: any;
   try {
     body = await response.json();
   } catch {
     throw new ApiError(
-      "INTERNAL_SERVER_ERROR",
-      "Network error or invalid server response",
+      response.status === 401 ? "UNAUTHORIZED" : "INTERNAL_SERVER_ERROR",
+      response.status === 401 ? "Authentication required" : "Network error or invalid server response",
       response.status
     );
   }
 
   if (!body.ok) {
     const errObj = body.error || {};
-    const code = (errObj.code || "INTERNAL_SERVER_ERROR") as ApiErrorCode;
+    const code = (errObj.code || (response.status === 401 ? "UNAUTHORIZED" : "INTERNAL_SERVER_ERROR")) as ApiErrorCode;
     const msg = errObj.message || getLocalizedErrorMessage(code);
     throw new ApiError(code, msg, response.status, errObj.details);
   }

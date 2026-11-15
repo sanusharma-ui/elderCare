@@ -8,7 +8,7 @@ import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { apiClient, ApiError } from "@/lib/api-client";
 import { getRoleHome } from "@/lib/routes";
-import { ArrowRight, Lock, User, Sparkles } from "lucide-react";
+import { ArrowRight, Lock, User, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const dynamic = "force-dynamic";
@@ -23,11 +23,11 @@ function LoginForm() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeDemo, setActiveDemo] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!identifier || !password) return;
+  const executeLogin = async (idToUse: string, passToUse: string) => {
+    if (!idToUse || !passToUse) return;
 
     setLoading(true);
     setErrorMessage("");
@@ -37,10 +37,10 @@ function LoginForm() {
         user: { role: "ELDER" | "CARETAKER" | "FAMILY" | "DOCTOR"; mustChangePassword: boolean };
       }>("/api/auth/login", {
         method: "POST",
-        body: JSON.stringify({ identifier: identifier.trim(), password }),
+        body: JSON.stringify({ identifier: idToUse.trim(), password: passToUse }),
       });
 
-      toast.success("Welcome back!");
+      toast.success("सफलतापूर्वक लॉग इन हुआ! • Welcome back!");
 
       if (result.user.mustChangePassword) {
         router.push("/me/change-password");
@@ -53,16 +53,24 @@ function LoginForm() {
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage("Login failed. Please check your credentials.");
+        setErrorMessage("लॉग इन विफल हुआ। कृपया क्रेडेंशियल जांचें।");
       }
     } finally {
       setLoading(false);
+      setActiveDemo(null);
     }
   };
 
-  const handleDemoLogin = (demoId: string, demoPass: string) => {
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    executeLogin(identifier, password);
+  };
+
+  const handleDemoLogin = (demoId: string, demoPass: string, roleKey: string) => {
+    setActiveDemo(roleKey);
     setIdentifier(demoId);
     setPassword(demoPass);
+    executeLogin(demoId, demoPass);
   };
 
   return (
@@ -122,10 +130,13 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full min-h-[54px] mt-2 bg-forest hover:bg-forest-hover active:scale-[0.98] text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-60"
+          className="w-full min-h-[54px] mt-2 bg-forest hover:bg-forest-hover active:scale-[0.98] text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-75"
         >
-          {loading ? (
-            <span>{tCommon("loading")}</span>
+          {loading && !activeDemo ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>{tCommon("loading")}...</span>
+            </div>
           ) : (
             <>
               <span>{t("login")}</span>
@@ -138,65 +149,104 @@ function LoginForm() {
       {/* Quick Demo One-Tap Bar */}
       {process.env.NEXT_PUBLIC_DEMO_MODE !== "false" && (
         <div className="mt-6 pt-5 border-t border-line">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-forest mb-2.5">
-            <Sparkles className="w-3.5 h-3.5 text-saffron" />
-            <span>{t("demoTitle")}</span>
+          <div className="flex items-center justify-between text-xs font-semibold text-forest mb-2.5">
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-saffron" />
+              <span>{t("demoTitle")}</span>
+            </span>
+            <span className="text-[10px] text-ink-muted">1-Tap Instant Login</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
+              disabled={loading}
               onClick={() =>
                 handleDemoLogin(
                   process.env.NEXT_PUBLIC_DEMO_DOCTOR_ID || "dr.anjali@smriti.app",
-                  process.env.NEXT_PUBLIC_DEMO_DOCTOR_PASS || "Password@123"
+                  process.env.NEXT_PUBLIC_DEMO_DOCTOR_PASS || "Password@123",
+                  "DOCTOR"
                 )
               }
-              className="p-2.5 bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border border-line rounded-xl font-medium text-left transition-all active:scale-95"
+              className={`p-2.5 border rounded-xl font-medium text-left transition-all active:scale-95 disabled:opacity-70 ${
+                activeDemo === "DOCTOR"
+                  ? "bg-forest-soft border-forest text-forest shadow-sm"
+                  : "bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border-line"
+              }`}
             >
-              <div className="font-bold text-forest">डॉक्टर • Doctor</div>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-forest">डॉक्टर • Doctor</span>
+                {activeDemo === "DOCTOR" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
+              </div>
               <div className="text-[10px] text-ink-muted truncate">dr.anjali@smriti.app</div>
             </button>
 
             <button
               type="button"
+              disabled={loading}
               onClick={() =>
                 handleDemoLogin(
                   process.env.NEXT_PUBLIC_DEMO_ELDER_ID || "+919811122332",
-                  process.env.NEXT_PUBLIC_DEMO_ELDER_PASS || "Password@123"
+                  process.env.NEXT_PUBLIC_DEMO_ELDER_PASS || "Password@123",
+                  "ELDER"
                 )
               }
-              className="p-2.5 bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border border-line rounded-xl font-medium text-left transition-all active:scale-95"
+              className={`p-2.5 border rounded-xl font-medium text-left transition-all active:scale-95 disabled:opacity-70 ${
+                activeDemo === "ELDER"
+                  ? "bg-forest-soft border-forest text-forest shadow-sm"
+                  : "bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border-line"
+              }`}
             >
-              <div className="font-bold text-forest">बुजुर्ग • Elder (Ramesh)</div>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-forest">बुजुर्ग • Elder (Ramesh)</span>
+                {activeDemo === "ELDER" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
+              </div>
               <div className="text-[10px] text-ink-muted">+919811122332</div>
             </button>
 
             <button
               type="button"
+              disabled={loading}
               onClick={() =>
                 handleDemoLogin(
                   process.env.NEXT_PUBLIC_DEMO_CARETAKER_ID || "pooja.sawant@care.in",
-                  process.env.NEXT_PUBLIC_DEMO_CARETAKER_PASS || "Password@123"
+                  process.env.NEXT_PUBLIC_DEMO_CARETAKER_PASS || "Password@123",
+                  "CARETAKER"
                 )
               }
-              className="p-2.5 bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border border-line rounded-xl font-medium text-left transition-all active:scale-95"
+              className={`p-2.5 border rounded-xl font-medium text-left transition-all active:scale-95 disabled:opacity-70 ${
+                activeDemo === "CARETAKER"
+                  ? "bg-forest-soft border-forest text-forest shadow-sm"
+                  : "bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border-line"
+              }`}
             >
-              <div className="font-bold text-forest">केयरटेकर • Caretaker</div>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-forest">केयरटेकर • Caretaker</span>
+                {activeDemo === "CARETAKER" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
+              </div>
               <div className="text-[10px] text-ink-muted">pooja.sawant@care.in</div>
             </button>
 
             <button
               type="button"
+              disabled={loading}
               onClick={() =>
                 handleDemoLogin(
                   process.env.NEXT_PUBLIC_DEMO_FAMILY_ID || "amit.sharma@family.com",
-                  process.env.NEXT_PUBLIC_DEMO_FAMILY_PASS || "Password@123"
+                  process.env.NEXT_PUBLIC_DEMO_FAMILY_PASS || "Password@123",
+                  "FAMILY"
                 )
               }
-              className="p-2.5 bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border border-line rounded-xl font-medium text-left transition-all active:scale-95"
+              className={`p-2.5 border rounded-xl font-medium text-left transition-all active:scale-95 disabled:opacity-70 ${
+                activeDemo === "FAMILY"
+                  ? "bg-forest-soft border-forest text-forest shadow-sm"
+                  : "bg-paper-2 hover:bg-forest-soft hover:text-forest text-ink border-line"
+              }`}
             >
-              <div className="font-bold text-forest">परिवार • Family (Amit)</div>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-forest">परिवार • Family (Amit)</span>
+                {activeDemo === "FAMILY" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
+              </div>
               <div className="text-[10px] text-ink-muted">amit.sharma@family.com</div>
             </button>
           </div>

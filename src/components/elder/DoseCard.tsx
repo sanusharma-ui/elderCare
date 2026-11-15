@@ -11,6 +11,7 @@ import {
   XCircle,
   HelpCircle,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { cn, formatTime24to12 } from "@/lib/utils";
 
@@ -163,10 +164,19 @@ export function DoseCard({
                   onMarkTaken?.(dose);
                 }}
                 disabled={isLoading}
-                className="w-full min-h-[56px] bg-forest hover:bg-forest-hover active:scale-[0.98] text-surface text-lg sm:text-xl font-bold rounded-2xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+                className="w-full min-h-[56px] bg-forest hover:bg-forest-hover active:scale-[0.98] text-surface text-lg sm:text-xl font-bold rounded-2xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-75"
               >
-                <CheckCircle2 className="w-6 h-6" />
-                <span>{t("takeNow")}</span>
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>अपडेट हो रहा है... • Updating...</span>
+                  </div>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-6 h-6" />
+                    <span>{t("takeNow")}</span>
+                  </>
+                )}
               </button>
             )}
 
@@ -182,9 +192,13 @@ export function DoseCard({
                     onMarkTaken?.(dose);
                   }}
                   disabled={isLoading}
-                  className="px-4 min-h-[48px] bg-brick hover:bg-brick/90 text-surface text-sm sm:text-base font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
+                  className="px-4 min-h-[48px] bg-brick hover:bg-brick/90 text-surface text-sm sm:text-base font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-75"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
                   <span>{t("takeLate")}</span>
                 </button>
               </div>

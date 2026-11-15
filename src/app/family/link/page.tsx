@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { apiClient, ApiError } from "@/lib/api-client";
-import { KeyRound, ArrowRight, ShieldCheck } from "lucide-react";
+import { KeyRound, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function FamilyLinkElderPage() {
@@ -99,8 +99,17 @@ export default function FamilyLinkElderPage() {
             disabled={redeemMutation.isPending || code.length < 9}
             className="w-full min-h-[52px] bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
           >
-            <span>{redeemMutation.isPending ? "जोड़ा जा रहा है..." : t("linkBtn")}</span>
-            <ArrowRight className="w-5 h-5" />
+            {redeemMutation.isPending ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>सत्यापित हो रहा है... • Verifying</span>
+              </>
+            ) : (
+              <>
+                <span>{t("linkBtn")}</span>
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
           </button>
         </form>
 
