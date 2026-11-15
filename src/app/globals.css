@@ -26,12 +26,19 @@
     --safe-right: env(safe-area-inset-right, 0px);
   }
 
-  /* Elder large text scale override */
+  /* Elder large text & icon scale override */
+  html[data-text-size="large"],
   body[data-text-size="large"] {
-    --font-scale: 1.18;
+    --font-scale: 1.25;
+  }
+  html[data-text-size="large"] svg,
+  body[data-text-size="large"] svg {
+    transform: scale(1.18);
+    transform-origin: center;
+    transition: transform 0.15s ease;
   }
   body[data-text-size="xlarge"] {
-    --font-scale: 1.32;
+    --font-scale: 1.35;
   }
 
   html {
@@ -41,6 +48,7 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
     overscroll-behavior-y: contain;
+    transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   body {

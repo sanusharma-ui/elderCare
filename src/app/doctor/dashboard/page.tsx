@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { Skeleton, SkeletonCard } from "@/components/shared/Skeleton";
 import {
   Users,
   CheckCircle2,
@@ -153,9 +154,13 @@ export default function DoctorDashboardPage() {
           <span className="text-xs font-bold text-ink-muted uppercase tracking-wider block">
             {t("statTotalPatients")}
           </span>
-          <span className="text-3xl font-extrabold text-ink mt-1 block">
-            {metrics?.totalPatients ?? "—"}
-          </span>
+          {metricsLoading ? (
+            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
+          ) : (
+            <span className="text-3xl font-extrabold text-ink mt-1 block">
+              {metrics?.totalPatients ?? "—"}
+            </span>
+          )}
         </div>
 
         {/* On Track */}
@@ -164,9 +169,13 @@ export default function DoctorDashboardPage() {
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>{t("statOnTrack")}</span>
           </span>
-          <span className="text-3xl font-extrabold text-ok mt-1 block">
-            {metrics?.onTrack ?? "—"}
-          </span>
+          {metricsLoading ? (
+            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
+          ) : (
+            <span className="text-3xl font-extrabold text-ok mt-1 block">
+              {metrics?.onTrack ?? "—"}
+            </span>
+          )}
         </div>
 
         {/* Needs Attention */}
@@ -175,9 +184,13 @@ export default function DoctorDashboardPage() {
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>{t("statNeedsAttention")}</span>
           </span>
-          <span className="text-3xl font-extrabold text-saffron mt-1 block">
-            {metrics?.needsAttention ?? "—"}
-          </span>
+          {metricsLoading ? (
+            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
+          ) : (
+            <span className="text-3xl font-extrabold text-saffron mt-1 block">
+              {metrics?.needsAttention ?? "—"}
+            </span>
+          )}
         </div>
 
         {/* High Risk / Critical */}
@@ -186,9 +199,13 @@ export default function DoctorDashboardPage() {
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>{t("statCritical")}</span>
           </span>
-          <span className="text-3xl font-extrabold text-brick mt-1 block">
-            {metrics?.critical ?? "—"}
-          </span>
+          {metricsLoading ? (
+            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
+          ) : (
+            <span className="text-3xl font-extrabold text-brick mt-1 block">
+              {metrics?.critical ?? "—"}
+            </span>
+          )}
         </div>
 
         {/* Unseen Notes */}
@@ -197,9 +214,13 @@ export default function DoctorDashboardPage() {
             <FileText className="w-3.5 h-3.5 text-forest" />
             <span>{t("statUnseenNotes")}</span>
           </span>
-          <span className="text-3xl font-extrabold text-forest mt-1 block">
-            {metrics?.unseenNotesCount ?? "—"}
-          </span>
+          {metricsLoading ? (
+            <Skeleton className="h-9 w-16 mt-1 rounded-lg" />
+          ) : (
+            <span className="text-3xl font-extrabold text-forest mt-1 block">
+              {metrics?.unseenNotesCount ?? "—"}
+            </span>
+          )}
         </div>
       </div>
 
@@ -247,8 +268,19 @@ export default function DoctorDashboardPage() {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-5 bg-paper rounded-2xl border border-line text-sm sm:text-base text-ink leading-relaxed whitespace-pre-line font-normal">
-          {brief?.content || "लोड हो रहा है..."}
+        <div className="p-4 sm:p-5 bg-paper rounded-2xl border border-line text-sm sm:text-base text-ink leading-relaxed whitespace-pre-line font-normal min-h-[90px]">
+          {briefLoading ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-forest">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>दैनिक क्लिनिकल सारांश संकलित हो रहा है... (Generating AI brief...)</span>
+              </div>
+              <Skeleton className="h-4 w-5/6 rounded-md" />
+              <Skeleton className="h-4 w-4/6 rounded-md" />
+            </div>
+          ) : (
+            brief?.content || "आज के लिए कोई विशेष अलर्ट नहीं है।"
+          )}
         </div>
 
         {/* Clinical Disclaimer */}
@@ -280,7 +312,13 @@ export default function DoctorDashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {metrics?.attentionList.map((patient) => {
+            {metricsLoading ? (
+              <>
+                <SkeletonCard lines={2} />
+                <SkeletonCard lines={2} />
+              </>
+            ) : (
+              metrics?.attentionList.map((patient) => {
               const isHighRisk = patient.riskScore >= 50;
 
               return (
@@ -348,7 +386,7 @@ export default function DoctorDashboardPage() {
                   </div>
                 </Link>
               );
-            })}
+            }))}
 
             {(!metrics || metrics.attentionList.length === 0) && !metricsLoading && (
               <EmptyState

@@ -1,12 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { I18nProvider } from "@/lib/i18n-provider";
 import { PwaRegister } from "@/components/shared/PwaRegister";
 import { Toaster } from "sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Instant client-side restoration of large text preference from localStorage (0ms DB delay)
+    if (typeof window !== "undefined") {
+      const isLarge = localStorage.getItem("smriti_large_text") === "true";
+      if (isLarge) {
+        document.documentElement.setAttribute("data-text-size", "large");
+        document.body.setAttribute("data-text-size", "large");
+      }
+    }
+  }, []);
+
   const [queryClient] = useState(
     () =>
       new QueryClient({

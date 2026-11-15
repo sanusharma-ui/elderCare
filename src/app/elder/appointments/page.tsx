@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SkeletonCard } from "@/components/shared/Skeleton";
 import { Calendar, MapPin, Stethoscope, Clock } from "lucide-react";
 
 interface AppointmentItem {
@@ -43,14 +44,20 @@ export default function ElderAppointmentsPage() {
       </div>
 
       <div className="space-y-4">
-        {appointments.map((apt) => {
-          const aptDate = new Date(apt.scheduledAt);
+        {isLoading ? (
+          <>
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+          </>
+        ) : (
+          appointments.map((apt) => {
+            const aptDate = new Date(apt.scheduledAt);
 
-          return (
-            <div
-              key={apt.id}
-              className="bg-surface border border-line rounded-2xl p-5 shadow-xs relative overflow-hidden"
-            >
+            return (
+              <div
+                key={apt.id}
+                className="bg-surface border border-line rounded-2xl p-5 shadow-xs relative overflow-hidden"
+              >
               <div className="flex items-start gap-3.5">
                 <div className="w-12 h-12 rounded-2xl bg-forest-soft flex items-center justify-center shrink-0 text-forest">
                   <Stethoscope className="w-6 h-6" />
@@ -102,7 +109,7 @@ export default function ElderAppointmentsPage() {
               </div>
             </div>
           );
-        })}
+        }))}
 
         {appointments.length === 0 && !isLoading && (
           <EmptyState

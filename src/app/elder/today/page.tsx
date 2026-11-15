@@ -9,6 +9,7 @@ import { apiClient } from "@/lib/api-client";
 import { DoseCard, TodayDoseItem } from "@/components/elder/DoseCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
+import { SkeletonSchedule } from "@/components/shared/Skeleton";
 import {
   Volume2,
   VolumeX,
@@ -210,6 +211,14 @@ export default function ElderTodayPage() {
     setIsSpeaking(true);
     window.speechSynthesis.speak(utterance);
   };
+
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-5">
+        <SkeletonSchedule />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-5 space-y-5">

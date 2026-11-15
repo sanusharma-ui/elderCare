@@ -10,6 +10,17 @@ export type ElderAccessType = "SELF" | "DOCTOR" | "CARETAKER" | "FAMILY" | null;
 
 export interface AuthenticatedUser extends User {}
 
+// Short-lived (15s) in-memory session cache to avoid redundant Supabase Auth HTTPS roundtrips on rapid concurrent requests
+interface CachedAuth {
+  user: AuthenticatedUser;
+  expiresAt: number;
+}
+const authMemoryCache = new Map<string, CachedAuth>();
+
+export function clearAuthCache() {
+  authMemoryCache.clear();
+}
+
 /**
  * Strips internal and security-sensitive fields from user objects.
  */
@@ -30,6 +41,31 @@ export function sanitizeUser(user: Partial<User>) {
 export async function requireAuth(allowedRoles?: Role[]): Promise<AuthenticatedUser> {
   const headersList = await headers();
   const authHeader = headersList.get("authorization") || headersList.get("Authorization");
+  const cookieHeader = headersList.get("cookie") || "";
+
+  // Compute fast cache key
+  let cacheKey: string | null = null;
+  if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
+    cacheKey = `bearer:${authHeader.slice(7, 40)}`;
+  } else if (cookieHeader) {
+    const match = cookieHeader.match(/sb-[a-zA-Z0-9_-]+-auth-token=([^;]+)/);
+    if (match) {
+      cacheKey = `cookie:${match[1].slice(-32)}`;
+    }
+  }
+
+  // Check cache (instant 0ms return for concurrent requests on the same page)
+  if (cacheKey && authMemoryCache.has(cacheKey)) {
+    const cached = authMemoryCache.get(cacheKey)!;
+    if (Date.now() < cached.expiresAt && cached.user.isActive) {
+      if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(cached.user.role)) {
+        throw AppError.forbidden(
+          `Access denied: requires one of [${allowedRoles.join(", ")}] role`
+        );
+      }
+      return cached.user;
+    }
+  }
 
   let supabaseUserId: string | null = null;
 
@@ -82,6 +118,12 @@ export async function requireAuth(allowedRoles?: Role[]): Promise<AuthenticatedU
     throw AppError.forbidden(
       `Access denied: requires one of [${allowedRoles.join(", ")}] role`
     );
+  }
+
+  // Cache authenticated session for 15s
+  if (cacheKey) {
+    if (authMemoryCache.size > 500) authMemoryCache.clear();
+    authMemoryCache.set(cacheKey, { user, expiresAt: Date.now() + 15000 });
   }
 
   return user;

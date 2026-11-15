@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SkeletonCard } from "@/components/shared/Skeleton";
 import { Pill, AlertTriangle, Utensils, Clock, Package } from "lucide-react";
 import { formatTime24to12 } from "@/lib/utils";
 
@@ -57,7 +58,14 @@ export default function ElderMedicinesPage() {
       </div>
 
       <div className="space-y-4">
-        {medicines.map((med) => (
+        {isLoading ? (
+          <>
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+          </>
+        ) : (
+          medicines.map((med) => (
           <div
             key={med.id}
             className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-xs relative overflow-hidden"
@@ -138,7 +146,7 @@ export default function ElderMedicinesPage() {
               </div>
             )}
           </div>
-        ))}
+        )))}
 
         {medicines.length === 0 && !isLoading && (
           <EmptyState

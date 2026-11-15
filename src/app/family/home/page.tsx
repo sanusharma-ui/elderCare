@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
+import { SkeletonCard } from "@/components/shared/Skeleton";
 import {
   Users,
   ShieldAlert,
@@ -98,7 +99,10 @@ export default function FamilyHomePage() {
         </div>
 
         <div className="space-y-2">
-          {elders.map((elder) => (
+          {eldersLoading ? (
+            <SkeletonCard lines={1} />
+          ) : (
+            elders.map((elder) => (
             <div
               key={elder.id}
               className="p-3 bg-paper rounded-xl border border-line flex items-center justify-between gap-3"
@@ -129,7 +133,8 @@ export default function FamilyHomePage() {
                 <Unlink className="w-4 h-4" />
               </button>
             </div>
-          ))}
+          ))
+        )}
 
           {elders.length === 0 && !eldersLoading && (
             <div className="text-center py-6">
@@ -155,7 +160,13 @@ export default function FamilyHomePage() {
           <span>{t("alertFeed")}</span>
         </h2>
 
-        {alerts.map((alert) => (
+        {alertsLoading ? (
+          <>
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+          </>
+        ) : (
+          alerts.map((alert) => (
           <div
             key={alert.id}
             className={`p-4 rounded-2xl border shadow-xs transition-all ${
@@ -192,7 +203,8 @@ export default function FamilyHomePage() {
               </div>
             )}
           </div>
-        ))}
+        ))
+      )}
 
         {alerts.length === 0 && !alertsLoading && (
           <EmptyState

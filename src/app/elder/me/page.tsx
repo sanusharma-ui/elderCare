@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
@@ -56,6 +56,53 @@ export default function ElderMePage() {
   const [inviteSheetOpen, setInviteSheetOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<"DOCTOR" | "CARETAKER" | "FAMILY">("FAMILY");
   const [newInvite, setNewInvite] = useState<InviteItem | null>(null);
+
+  // Instant client-side state for Large Text & Voice Reminders (0ms lag, no DB blocking)
+  const [largeText, setLargeText] = useState<boolean>(false);
+  const [voiceReminders, setVoiceReminders] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isLarge = localStorage.getItem("smriti_large_text") === "true";
+      setLargeText(isLarge);
+      const isVoice = localStorage.getItem("smriti_voice_reminders") !== "false";
+      setVoiceReminders(isVoice);
+    }
+  }, []);
+
+  const handleToggleLargeText = () => {
+    const next = !largeText;
+    setLargeText(next);
+    localStorage.setItem("smriti_large_text", String(next));
+    if (next) {
+      document.documentElement.setAttribute("data-text-size", "large");
+      document.body.setAttribute("data-text-size", "large");
+    } else {
+      document.documentElement.removeAttribute("data-text-size");
+      document.body.removeAttribute("data-text-size");
+    }
+    toast.success(next ? "बड़ा फ़ॉन्ट और आइकन चालू (Large Size Enabled)" : "सामान्य आकार (Normal Size)");
+
+    // Fire-and-forget background sync without blocking or refetching
+    fetch("/api/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ largeTextMode: next }),
+    }).catch(() => {});
+  };
+
+  const handleToggleVoiceReminders = () => {
+    const next = !voiceReminders;
+    setVoiceReminders(next);
+    localStorage.setItem("smriti_voice_reminders", String(next));
+    toast.success(next ? "आवाज़ में याद दिलाना चालू" : "आवाज़ में याद दिलाना बंद");
+
+    fetch("/api/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ voiceReminders: next }),
+    }).catch(() => {});
+  };
 
   // Fetch Care Circle Members
   const { data: membersData } = useQuery<{ items: MemberItem[] }>({
@@ -153,18 +200,17 @@ export default function ElderMePage() {
             </div>
           </div>
           <button
-            onClick={() =>
-              updatePreferenceMutation.mutate({
-                largeTextMode: !user?.elderProfile?.largeTextMode,
-              })
-            }
-            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors ${
-              user?.elderProfile?.largeTextMode ? "bg-forest" : "bg-line"
+            type="button"
+            onClick={handleToggleLargeText}
+            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors active:scale-95 ${
+              largeText ? "bg-forest" : "bg-line"
             }`}
+            title="Toggle Large Text & Icons"
+            aria-label="Toggle Large Text"
           >
             <div
               className={`bg-surface w-6 h-6 rounded-full shadow-md transform transition-transform ${
-                user?.elderProfile?.largeTextMode ? "translate-x-6" : "translate-x-0"
+                largeText ? "translate-x-6" : "translate-x-0"
               }`}
             />
           </button>
@@ -184,18 +230,17 @@ export default function ElderMePage() {
             </div>
           </div>
           <button
-            onClick={() =>
-              updatePreferenceMutation.mutate({
-                voiceReminders: !user?.elderProfile?.voiceReminders,
-              })
-            }
-            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors ${
-              user?.elderProfile?.voiceReminders ? "bg-forest" : "bg-line"
+            type="button"
+            onClick={handleToggleVoiceReminders}
+            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors active:scale-95 ${
+              voiceReminders ? "bg-forest" : "bg-line"
             }`}
+            title="Toggle Voice Reminders"
+            aria-label="Toggle Voice Reminders"
           >
             <div
               className={`bg-surface w-6 h-6 rounded-full shadow-md transform transition-transform ${
-                user?.elderProfile?.voiceReminders ? "translate-x-6" : "translate-x-0"
+                voiceReminders ? "translate-x-6" : "translate-x-0"
               }`}
             />
           </button>

@@ -7,6 +7,7 @@ import { ElderSwitcher } from "@/components/caretaker/ElderSwitcher";
 import { DoseCard, TodayDoseItem } from "@/components/elder/DoseCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
+import { SkeletonSchedule } from "@/components/shared/Skeleton";
 import { apiClient } from "@/lib/api-client";
 import { Activity, Clock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -181,12 +182,15 @@ export default function CaretakerTodayPage() {
       )}
 
       {/* Schedule Grouped by Slot */}
-      <div className="space-y-4 pt-1">
-        <h2 className="font-bold text-lg text-ink px-1">
-          आज की खुराक सूची • Daily Doses
-        </h2>
+      {isLoading ? (
+        <SkeletonSchedule />
+      ) : (
+        <div className="space-y-4 pt-1">
+          <h2 className="font-bold text-lg text-ink px-1">
+            आज की खुराक सूची • Daily Doses
+          </h2>
 
-        {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
+          {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
           const slotDoses = data?.slots[slotKey] || [];
           if (slotDoses.length === 0) return null;
 
@@ -223,6 +227,7 @@ export default function CaretakerTodayPage() {
           />
         )}
       </div>
+      )}
 
       <InstallPrompt />
     </div>

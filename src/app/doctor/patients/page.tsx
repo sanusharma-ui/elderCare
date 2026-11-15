@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SkeletonCard } from "@/components/shared/Skeleton";
 import {
   Users,
   Search,
@@ -97,7 +98,17 @@ export default function DoctorPatientsPage() {
 
       {/* Ledger Table / Card Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {patients.map((patient) => (
+        {isLoading ? (
+          <>
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+            <SkeletonCard lines={3} />
+          </>
+        ) : (
+          patients.map((patient) => (
           <Link
             key={patient.id}
             href={`/doctor/patients/${patient.id}`}
@@ -156,7 +167,7 @@ export default function DoctorPatientsPage() {
               </div>
             </div>
           </Link>
-        ))}
+        )))}
       </div>
 
       {patients.length === 0 && !isLoading && (

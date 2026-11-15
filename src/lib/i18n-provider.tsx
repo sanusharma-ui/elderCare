@@ -51,16 +51,12 @@ export function I18nProvider({
     // Persist to cookie (1 year expiry)
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
 
-    // If user is authenticated, sync with /api/me
-    try {
-      await fetch("/api/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language: newLocale }),
-      });
-    } catch {
-      // Ignore background sync failure if not logged in
-    }
+    // Non-blocking fire-and-forget sync with /api/me (0ms UI delay)
+    fetch("/api/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: newLocale }),
+    }).catch(() => {});
   };
 
   const currentMessages = messagesMap[locale] || messagesMap.hi;
