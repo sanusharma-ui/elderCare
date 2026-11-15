@@ -151,7 +151,7 @@ function LoginForm() {
         <div className="mt-6 pt-5 border-t border-line">
           <div className="flex items-center justify-between text-xs font-semibold text-forest mb-2.5">
             <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-saffron" />
+              <span className="w-2 h-2 rounded-full bg-forest animate-pulse" />
               <span>{t("demoTitle")}</span>
             </span>
             <span className="text-[10px] text-ink-muted">1-Tap Instant Login</span>
@@ -163,7 +163,7 @@ function LoginForm() {
               disabled={loading}
               onClick={() =>
                 handleDemoLogin(
-                  process.env.NEXT_PUBLIC_DEMO_DOCTOR_ID || "dr.anjali@smriti.app",
+                  process.env.NEXT_PUBLIC_DEMO_DOCTOR_ID || "dr.anjali@caresaathi.app",
                   process.env.NEXT_PUBLIC_DEMO_DOCTOR_PASS || "Password@123",
                   "DOCTOR"
                 )
@@ -175,10 +175,10 @@ function LoginForm() {
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-forest">डॉक्टर • Doctor</span>
+                <span className="font-bold text-forest">Doctor (Dr. Anjali)</span>
                 {activeDemo === "DOCTOR" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
               </div>
-              <div className="text-[10px] text-ink-muted truncate">dr.anjali@smriti.app</div>
+              <div className="text-[10px] text-ink-muted truncate">dr.anjali@caresaathi.app</div>
             </button>
 
             <button
@@ -198,7 +198,7 @@ function LoginForm() {
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-forest">बुजुर्ग • Elder (Ramesh)</span>
+                <span className="font-bold text-forest">Elder (Ramesh)</span>
                 {activeDemo === "ELDER" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
               </div>
               <div className="text-[10px] text-ink-muted">+919811122332</div>
@@ -221,7 +221,7 @@ function LoginForm() {
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-forest">केयरटेकर • Caretaker</span>
+                <span className="font-bold text-forest">Caretaker (Pooja)</span>
                 {activeDemo === "CARETAKER" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
               </div>
               <div className="text-[10px] text-ink-muted">pooja.sawant@care.in</div>
@@ -244,7 +244,7 @@ function LoginForm() {
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-forest">परिवार • Family (Amit)</span>
+                <span className="font-bold text-forest">Family (Amit)</span>
                 {activeDemo === "FAMILY" && <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />}
               </div>
               <div className="text-[10px] text-ink-muted">amit.sharma@family.com</div>

@@ -12,7 +12,7 @@ export function ElderSwitcher() {
     return (
       <div className="flex items-center gap-2 p-2.5 bg-surface border border-line rounded-2xl shadow-xs">
         <div className="w-8 h-8 rounded-xl bg-forest-soft text-forest flex items-center justify-center font-bold text-sm">
-          {selectedElder?.name?.[0] || "बु"}
+          {selectedElder?.name?.[0] || "P"}
         </div>
         <div className="flex-1 min-w-0">
           <span className="text-[10px] text-ink-muted uppercase tracking-wider block font-semibold">
@@ -34,7 +34,7 @@ export function ElderSwitcher() {
       >
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-forest-soft text-forest flex items-center justify-center font-bold text-sm shrink-0">
-            {selectedElder?.name?.[0] || "बु"}
+            {selectedElder?.name?.[0] || "P"}
           </div>
           <div className="text-left min-w-0">
             <span className="text-[10px] text-ink-muted uppercase tracking-wider block font-semibold">

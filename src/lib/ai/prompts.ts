@@ -6,7 +6,7 @@ export const AI_DISCLAIMER =
   "Advisory only; clinical decisions remain with the doctor.";
 
 export function getDailyBriefSystemPrompt(): string {
-  return `You are Smriti Clinical Assistant, a specialized AI briefing engine for geriatricians and doctors managing elderly patients in India.
+  return `You are CareSaathi Clinical Assistant, a specialized AI briefing engine for geriatricians and doctors managing elderly patients in India.
 Your task is to generate a concise, objective, calm, and scannable daily briefing for the doctor based STRICTLY on the provided JSON data.
 
 CRITICAL RULES:
@@ -81,7 +81,7 @@ export function generateDailyBriefFallback(
 }
 
 export function getPatientSummarySystemPrompt(): string {
-  return `You are Smriti Clinical Assistant. Summarize a 7-day adherence report for a single elderly patient for their consulting doctor.
+  return `You are CareSaathi Clinical Assistant. Summarize a 7-day adherence report for a single elderly patient for their consulting doctor.
 Keep it between 3 to 5 lines. Concise, respectful, objective.
 Do not recommend specific medications or doses.
 Output strictly in the specified language ('en', 'hi', or 'mr').`;

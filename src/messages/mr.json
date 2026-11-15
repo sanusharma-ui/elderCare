@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "स्मृती",
+    "appName": "केअर साथी (CareSaathi)",
     "appTagline": "ज्येष्ठांची काळजी आणि औषध व्यवस्थापन",
     "save": "जतन करा",
     "cancel": "रद्द करा",
@@ -29,7 +29,7 @@
     "name": "पूर्ण नाव",
     "viewDetails": "तपशील पहा",
     "shareWhatsApp": "व्हॉट्सॲपवर पाठवा",
-    "shareWhatsAppText": "नमस्कार! मी तुम्हाला माझ्या स्मृती केअर वर्तुळात आमंत्रित केले आहे. जोडण्यासाठी 48 तासांत हा कोड वापरा: {code}"
+    "shareWhatsAppText": "नमस्कार! मी तुम्हाला माझ्या केअर साथी (CareSaathi) केअर वर्तुळात आमंत्रित केले आहे. जोडण्यासाठी 48 तासांत हा कोड वापरा: {code}"
   },
   "roles": {
     "ELDER": "ज्येष्ठ व्यक्ती (Elder)",
@@ -60,9 +60,9 @@
     "login": "लॉग इन करा",
     "loginSubtitle": "पुढे जाण्यासाठी आपला ईमेल किंवा फोन नंबर प्रविष्ट करा",
     "register": "नोंदणी करा",
-    "registerSubtitle": "ज्येष्ठ, केअरटेकर, कुटुंब किंवा डॉक्टर म्हणून स्मृतीशी जोडा",
+    "registerSubtitle": "ज्येष्ठ, केअरटेकर, कुटुंब किंवा डॉक्टर म्हणून केअर साथी (CareSaathi) शी जोडा",
     "identifierLabel": "ईमेल किंवा फोन नंबर",
-    "identifierPlaceholder": "उदा: 9811122332 किंवा dr.anjali@smriti.app",
+    "identifierPlaceholder": "उदा: 9811122332 किंवा dr.anjali@caresaathi.app",
     "passwordLabel": "पासवर्ड",
     "passwordPlaceholder": "आपला पासवर्ड प्रविष्ट करा",
     "forgotPassword": "पासवर्ड विसरलात?",
@@ -175,7 +175,7 @@
     "statCritical": "जास्त धोका",
     "statUnseenNotes": "न पाहिलेल्या नोंदी",
     "needsAttentionTitle": "प्राधान्य असलेले रुग्ण",
-    "askSmriti": "स्मृती AI ला विचारा",
+    "askSmriti": "CareSaathi AI ला विचारा",
     "askPlaceholder": "रुग्णाच्या औषधांबद्दल काहीही विचारा...",
     "askExamples": [
       "सुरेश यांनी या आठवड्यात सकाळचे औषध कधी चुकवले?",
@@ -202,8 +202,8 @@
     "markNoteSeen": "पाहिले म्हणून नोंदवा"
   },
   "pwa": {
-    "installTitle": "स्मृती ॲप इन्स्टॉल करा",
-    "installDesc": "दररोजच्या वापरासाठी स्मृती आपल्या होम स्क्रीनवर ॲपप्रमाणे जोडा.",
+    "installTitle": "CareSaathi ॲप इन्स्टॉल करा",
+    "installDesc": "दररोजच्या वापरासाठी CareSaathi आपल्या होम स्क्रीनवर ॲपप्रमाणे जोडा.",
     "installBtn": "ॲप इन्स्टॉल करा",
     "dismiss": "आता नको",
     "iosInstructions": "iPhone वर इन्स्टॉल करण्यासाठी: खाली शेअर बटण दाबा, नंतर 'Add to Home Screen' निवडा."

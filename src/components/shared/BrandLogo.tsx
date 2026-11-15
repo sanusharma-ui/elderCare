@@ -10,49 +10,47 @@ export function BrandLogo({
 }) {
   const iconSizes = {
     sm: "w-7 h-7",
-    md: "w-9 h-9",
-    lg: "w-11 h-11",
+    md: "w-8 h-8",
+    lg: "w-9 h-9",
   };
 
   const textSizes = {
-    sm: "text-lg",
-    md: "text-xl",
-    lg: "text-2xl",
+    sm: "text-base sm:text-lg",
+    md: "text-lg sm:text-xl",
+    lg: "text-xl sm:text-2xl",
   };
 
   const Content = (
-    <div className="flex items-center gap-2.5 select-none group">
+    <div className="flex items-center gap-2 select-none group whitespace-nowrap">
+      {/* Sleek Modern Care Icon */}
       <div
         className={`${iconSizes[size]} rounded-xl bg-forest flex items-center justify-center shadow-xs shrink-0 relative overflow-hidden`}
       >
         <svg
-          viewBox="0 0 512 512"
-          className="w-full h-full p-1"
+          viewBox="0 0 24 24"
+          className="w-5 h-5 text-surface"
           fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          {/* Saffron diya flame / medicinal leaf */}
-          <path
-            d="M256 96 C296 176 348 232 348 296 C348 352 308 392 256 392 C204 392 164 352 164 296 C164 232 216 176 256 96 Z"
-            fill="#E39B2B"
-          />
-          {/* Inner calming pill leaf center */}
-          <path
-            d="M256 160 C274 216 304 256 304 300 C304 336 280 360 256 360 C232 360 208 336 208 300 C208 256 238 216 256 160 Z"
-            fill="#FFFDF7"
-            opacity="0.95"
-          />
-          {/* Warm base tablet */}
-          <rect x="180" y="328" width="152" height="44" rx="22" fill="#FAF5EA" />
-          <circle cx="256" cy="350" r="8" fill="#1F5C4A" />
+          {/* Heart with medical cross and pulse */}
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+          <path d="M12 7v6" stroke="#E39B2B" strokeWidth="2.5" />
+          <path d="M9 10h6" stroke="#E39B2B" strokeWidth="2.5" />
         </svg>
       </div>
 
-      <div className="flex flex-col">
+      {/* Brand Wordmark (Single line, strictly no wrapping) */}
+      <div className="flex items-center gap-1.5">
         <span
-          className={`font-displayDeva font-bold text-ink leading-tight ${textSizes[size]}`}
+          className={`font-sans font-extrabold text-ink tracking-tight leading-none ${textSizes[size]}`}
         >
-          स्मृति <span className="text-ink-muted font-normal text-[0.85em] font-sans">· Smriti</span>
+          Care<span className="text-forest">Saathi</span>
+        </span>
+        <span className="hidden xs:inline-block text-[11px] font-semibold text-ink-muted/80 bg-forest-soft/70 px-1.5 py-0.5 rounded-md leading-none border border-forest/15">
+          केयर साथी
         </span>
       </div>
     </div>
@@ -61,7 +59,7 @@ export function BrandLogo({
   if (!href) return Content;
 
   return (
-    <Link href={href} className="inline-block focus:outline-none">
+    <Link href={href} className="inline-block focus:outline-none shrink-0">
       {Content}
     </Link>
   );

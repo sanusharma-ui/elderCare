@@ -33,14 +33,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "स्मृति • Smriti — Elderly Care & Medication Management",
+  title: "CareSaathi (केयर साथी) — Elderly Care & Medication Management",
   description:
     "A shared healthcare ecosystem for elders, caretakers, family, and doctors across India.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Smriti",
+    title: "CareSaathi",
   },
 };
 

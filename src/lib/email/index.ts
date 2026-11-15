@@ -70,7 +70,7 @@ export function buildSmritiEmailHtml(params: {
 <body>
   <div class="container">
     <div class="header">
-      <h1>स्मृति • Smriti</h1>
+      <h1>CareSaathi (केयर साथी)</h1>
       <p>Elderly Care &amp; Medication Management Ecosystem</p>
     </div>
     <div class="content">
@@ -88,7 +88,7 @@ export function buildSmritiEmailHtml(params: {
       }
     </div>
     <div class="footer">
-      This notification was sent by <strong>Smriti Care Ecosystem</strong>. To ensure safe delivery of reminders, please do not reply to this email.
+      This notification was sent by <strong>CareSaathi Care Ecosystem</strong>. To ensure safe delivery of reminders, please do not reply to this email.
     </div>
   </div>
 </body>
@@ -116,7 +116,7 @@ export async function sendEmail(params: {
   }
 
   try {
-    const from = process.env.SMTP_FROM || "Smriti Elder Care <alerts@smriti.app>";
+    const from = process.env.SMTP_FROM || "CareSaathi Elder Care <alerts@caresaathi.app>";
     await mailer.sendMail({
       from,
       to: params.to,

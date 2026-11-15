@@ -167,15 +167,15 @@ export default function ElderMePage() {
     <div className="p-4 sm:p-5 space-y-6">
       {/* Elder Profile Summary */}
       <div className="bg-surface border border-line rounded-3xl p-5 shadow-smriti flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-forest-soft flex items-center justify-center text-forest font-displayDeva font-bold text-2xl">
-          {user?.name?.[0] || "बु"}
+        <div className="w-14 h-14 rounded-2xl bg-forest-soft flex items-center justify-center text-forest font-bold text-2xl">
+          {user?.name?.[0] || "CS"}
         </div>
         <div className="flex-1">
           <h1 className="font-displayDeva text-2xl font-bold text-ink leading-tight">
             {user?.name}
           </h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            {user?.phone || user?.email || "बुजुर्ग खाता"}
+            {user?.phone || user?.email || (locale === "en" ? "Elder Account" : "बुजुर्ग खाता")}
           </p>
         </div>
       </div>

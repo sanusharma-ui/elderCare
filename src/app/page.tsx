@@ -16,7 +16,8 @@ import {
   HeartHandshake,
   ShieldAlert,
   ArrowRight,
-  Sparkles,
+  LogIn,
+  PlayCircle,
   Volume2,
   CheckCircle2,
   Menu,
@@ -49,13 +50,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col selection:bg-forest-soft">
-      {/* 1. STICKY HEADER WITH FROSTED GLASS EFFECT */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-surface/80 border-b border-line/60 shadow-xs transition-all">
-        <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      {/* 1. ULTRA-SLEEK, THIN STICKY HEADER */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-surface/90 border-b border-line/70 shadow-xs transition-all h-14 sm:h-16 flex items-center">
+        <div className="max-w-6xl w-full mx-auto px-3.5 sm:px-6 flex items-center justify-between">
           <BrandLogo size="md" href="/" />
 
           {/* Desktop Nav Items */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-ink-muted">
+          <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-ink-muted">
             <a
               href="#how-it-works"
               className="hover:text-forest transition-colors"
@@ -74,16 +75,17 @@ export default function HomePage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSwitcher compact />
 
+            {/* Desktop Only Buttons - Kept out of mobile to keep navbar thin & clean */}
             <Link
               href="/login"
-              className="hidden sm:inline-flex px-4 py-2 text-sm font-bold text-forest hover:bg-forest-soft/70 rounded-xl transition-all"
+              className="hidden md:inline-flex px-3.5 py-1.5 text-sm font-bold text-ink-muted hover:text-ink rounded-lg transition-all"
             >
               {t("login")}
             </Link>
 
             <Link
               href="/register"
-              className="px-4 py-2 text-sm font-bold bg-forest text-surface hover:bg-forest-hover rounded-xl shadow-xs transition-all active:scale-95"
+              className="hidden md:inline-flex px-4 py-2 text-sm font-bold bg-[#0D4436] hover:bg-[#083026] text-white rounded-xl shadow-xs transition-all active:scale-95"
             >
               {t("startNow")}
             </Link>
@@ -92,7 +94,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-ink hover:bg-surface rounded-xl border border-line/60 transition-colors"
+              className="md:hidden w-9 h-9 flex items-center justify-center text-ink hover:bg-paper rounded-xl border border-line/60 transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -100,45 +102,55 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Dropdown Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-surface/95 backdrop-blur-xl border-b border-line px-6 py-4 flex flex-col gap-3 shadow-smriti-float animate-slide-up">
+          <div className="md:hidden fixed top-14 left-0 right-0 bg-surface/98 backdrop-blur-2xl border-b border-line px-5 py-5 flex flex-col gap-3 shadow-smriti-float animate-slide-up z-50">
             <a
               href="#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-2 text-base font-semibold text-ink hover:text-forest border-b border-line/40"
+              className="py-2.5 text-base font-semibold text-ink hover:text-forest border-b border-line/30"
             >
               {t("howItWorks")}
             </a>
             <a
               href="#roles"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-2 text-base font-semibold text-ink hover:text-forest border-b border-line/40"
+              className="py-2.5 text-base font-semibold text-ink hover:text-forest border-b border-line/30"
             >
               {locale === "en" ? "Roles" : locale === "hi" ? "भूमिकाएं" : "भूमिका"}
             </a>
             <a
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-2 text-base font-semibold text-ink hover:text-forest border-b border-line/40"
+              className="py-2.5 text-base font-semibold text-ink hover:text-forest border-b border-line/30"
             >
               {locale === "en" ? "Features" : locale === "hi" ? "सुविधाएं" : "वैशिष्ट्ये"}
             </a>
-            <div className="pt-2 flex items-center justify-between gap-3">
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex-1 text-center py-2.5 text-sm font-bold text-forest bg-forest-soft rounded-xl"
-              >
-                {t("login")}
-              </Link>
+
+            <div className="pt-2 flex flex-col gap-2.5">
               <Link
                 href="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex-1 text-center py-2.5 text-sm font-bold bg-forest text-surface rounded-xl shadow-xs"
+                className="w-full text-center py-3 text-sm font-bold bg-[#0D4436] text-white rounded-xl shadow-sm"
               >
                 {t("startNow")}
               </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center py-2.5 text-sm font-bold text-slate-800 bg-white border border-slate-300 rounded-xl"
+                >
+                  {t("login")}
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl"
+                >
+                  {t("tryDemo")}
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -147,12 +159,12 @@ export default function HomePage() {
       {/* 2. HERO CONTAINER WITH SLIDE-IN HERO CARD & FADE-DOWN HEADINGS */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-14 flex flex-col justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left Column: Heading, Subtitle & Action buttons */}
+          {/* Left Column: Heading, Subtitle & Distinct CTA Buttons */}
           <div className="lg:col-span-7 flex flex-col">
-            {/* Top Pill Tag */}
+            {/* Top Pill Tag - Clean, Trustworthy & No Sparkles/Emojis */}
             <Reveal direction="down" delay={0.05}>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-surface/90 backdrop-blur-md border border-saffron/40 rounded-full text-xs font-bold text-ink mb-5 shadow-xs">
-                <Sparkles className="w-4 h-4 text-saffron shrink-0" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-surface/90 backdrop-blur-md border border-forest/20 rounded-full text-xs font-bold text-forest mb-4 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-forest animate-pulse" />
                 <span>{t("badge")}</span>
               </div>
             </Reveal>
@@ -171,29 +183,33 @@ export default function HomePage() {
               </p>
             </Reveal>
 
-            {/* Action Buttons: Fade Up */}
+            {/* Action Buttons: Three Distinct, Purposeful Colors & Zero Emojis */}
             <Reveal direction="up" delay={0.35}>
               <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
+                {/* 1. Primary CTA: Deep Forest Emerald */}
                 <Link
                   href="/register"
-                  className="min-h-[52px] px-8 bg-forest hover:bg-forest-hover active:scale-95 text-surface font-bold text-base sm:text-lg rounded-2xl flex items-center gap-3 shadow-smriti transition-all"
+                  className="min-h-[50px] px-7 bg-[#0D4436] hover:bg-[#083026] text-white font-bold text-base rounded-xl flex items-center gap-2.5 shadow-sm transition-all active:scale-95"
                 >
                   <span>{t("startNow")}</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 text-emerald-300" />
                 </Link>
 
+                {/* 2. Secondary CTA: Crisp Porcelain / Slate Glass */}
                 <Link
                   href="/login"
-                  className="min-h-[52px] px-7 bg-surface/90 hover:bg-surface border border-line text-ink font-semibold text-base rounded-2xl flex items-center gap-2 shadow-xs transition-all active:scale-95"
+                  className="min-h-[50px] px-6 bg-white/95 hover:bg-white text-slate-900 border border-slate-300 font-bold text-base rounded-xl flex items-center gap-2 shadow-xs transition-all active:scale-95 hover:border-slate-400"
                 >
+                  <LogIn className="w-4 h-4 text-slate-600" />
                   <span>{t("login")}</span>
                 </Link>
 
+                {/* 3. Demo Sandbox: Vibrant Royal Indigo */}
                 <Link
                   href="/login"
-                  className="min-h-[52px] px-5 bg-saffron-soft/90 hover:bg-saffron-soft border border-saffron/40 text-ink font-semibold text-sm rounded-2xl flex items-center gap-2 transition-all active:scale-95"
+                  className="min-h-[50px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base rounded-xl flex items-center gap-2 shadow-sm transition-all active:scale-95"
                 >
-                  <Sparkles className="w-4 h-4 text-saffron" />
+                  <PlayCircle className="w-4 h-4 text-indigo-200" />
                   <span>{t("tryDemo")}</span>
                 </Link>
               </div>
@@ -243,7 +259,7 @@ export default function HomePage() {
                       </span>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-ok-soft text-ok text-[11px] font-bold rounded-full">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-ok-soft text-ok text-[11px] font-bold rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-ok animate-pulse" />
                     <span>Live Schedule</span>
                   </span>
@@ -268,7 +284,7 @@ export default function HomePage() {
                         <span className="font-bold text-ink text-base">Metformin 500mg</span>
                       </div>
                       <span className="text-xs text-ink-muted mt-0.5 block">
-                        मधुमेह (Diabetes) • 1 Tablet
+                        Diabetes • 1 Tablet
                       </span>
                     </div>
                     <span className="px-3 py-1.5 bg-ok text-surface text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
@@ -502,7 +518,7 @@ export default function HomePage() {
             {/* Feature 2: Offline-First PWA */}
             <Reveal direction="up" delay={0.25}>
               <div className="p-5 bg-surface/80 backdrop-blur-md border border-line rounded-2xl shadow-xs hover:shadow-smriti transition-all">
-                <div className="w-10 h-10 rounded-xl bg-saffron-soft text-saffron flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-xl bg-forest-soft text-forest flex items-center justify-center mb-3">
                   <Smartphone className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-ink text-base">
@@ -542,7 +558,7 @@ export default function HomePage() {
         {/* 5. BOTTOM CTA BANNER */}
         <section className="mt-16 sm:mt-24">
           <Reveal direction="up" delay={0.2}>
-            <div className="bg-forest text-surface rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden shadow-smriti-float">
+            <div className="bg-[#0D4436] text-surface rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden shadow-smriti-float">
               <div className="max-w-2xl mx-auto relative z-10">
                 <h2 className="font-displayDeva text-3xl sm:text-4xl font-extrabold text-surface leading-tight">
                   {locale === "en"
@@ -554,17 +570,17 @@ export default function HomePage() {
                     ? "Join thousands of families ensuring medication adherence with dignity."
                     : "दवा की हर खुराक समय पर। कोई चिंता नहीं, कोई चूक नहीं।"}
                 </p>
-                <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
+                <div className="mt-8 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
                   <Link
                     href="/register"
-                    className="min-h-[50px] px-8 bg-surface text-forest hover:bg-forest-soft font-bold rounded-2xl flex items-center gap-2 shadow-smriti transition-all active:scale-95"
+                    className="min-h-[48px] px-7 bg-white text-[#0D4436] hover:bg-emerald-50 font-bold rounded-xl flex items-center gap-2 shadow-sm transition-all active:scale-95"
                   >
                     <span>{t("startNow")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <Link
                     href="/login"
-                    className="min-h-[50px] px-7 bg-forest-hover/80 hover:bg-forest-hover text-surface border border-surface/30 font-semibold rounded-2xl flex items-center gap-2 transition-all active:scale-95"
+                    className="min-h-[48px] px-6 bg-emerald-950/40 hover:bg-emerald-950/60 text-white border border-white/25 font-semibold rounded-xl flex items-center gap-2 transition-all active:scale-95"
                   >
                     <span>{t("login")}</span>
                   </Link>
@@ -577,7 +593,7 @@ export default function HomePage() {
 
       {/* 6. FOOTER */}
       <footer className="border-t border-line/60 bg-surface/50 backdrop-blur-md py-6 px-6 text-center text-xs text-ink-muted mt-12">
-        <p>© 2026 स्मृति • Smriti Platform. Built for Indian families with care and dignity.</p>
+        <p>© 2026 CareSaathi (केयर साथी). Built for Indian families with care and dignity.</p>
       </footer>
     </div>
   );

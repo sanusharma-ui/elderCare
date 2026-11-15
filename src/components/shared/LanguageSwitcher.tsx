@@ -19,11 +19,12 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       <div className="relative inline-block text-left">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded-xl text-sm font-medium text-ink hover:bg-paper active:scale-95 transition-all"
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-surface/90 backdrop-blur-md border border-line rounded-xl text-xs sm:text-sm font-semibold text-ink hover:bg-paper active:scale-95 transition-all shadow-xs"
           aria-label="Change language"
         >
-          <Globe className="w-4 h-4 text-forest" />
-          <span>{languages.find((l) => l.code === locale)?.name}</span>
+          <Globe className="w-3.5 h-3.5 text-forest" />
+          <span className="hidden sm:inline">{languages.find((l) => l.code === locale)?.name}</span>
+          <span className="sm:hidden uppercase tracking-wider">{locale}</span>
         </button>
 
         {open && (

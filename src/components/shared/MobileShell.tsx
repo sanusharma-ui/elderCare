@@ -62,8 +62,8 @@ export function MobileShell({
           <div className="mb-4">
             <BrandLogo size="lg" />
           </div>
-          <h2 className="font-displayDeva text-xl font-bold text-forest mb-2">
-            स्मृति • Smriti Mobile
+          <h2 className="font-display text-xl font-bold text-forest mb-2">
+            CareSaathi Mobile
           </h2>
           <p className="text-ink-muted text-sm leading-relaxed mb-4">
             Designed for mobile-first care. On large desktop screens, this frame renders the exact mobile experience used by elders, caretakers, and family members.

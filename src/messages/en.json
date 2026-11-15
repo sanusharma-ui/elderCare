@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Smriti",
+    "appName": "CareSaathi",
     "appTagline": "Elderly Care & Medication Management",
     "save": "Save",
     "cancel": "Cancel",
@@ -29,7 +29,7 @@
     "name": "Full Name",
     "viewDetails": "View Details",
     "shareWhatsApp": "Share on WhatsApp",
-    "shareWhatsAppText": "Hello! I have invited you to my Smriti care circle. Use passcode: {code} within 48 hours to connect."
+    "shareWhatsAppText": "Hello! I have invited you to my CareSaathi care circle. Use passcode: {code} within 48 hours to connect."
   },
   "roles": {
     "ELDER": "Elder (Senior)",
@@ -60,9 +60,9 @@
     "login": "Log In",
     "loginSubtitle": "Enter your email or phone number to continue",
     "register": "Register",
-    "registerSubtitle": "Join Smriti as an elder, caretaker, family, or doctor",
+    "registerSubtitle": "Join CareSaathi as an elder, caretaker, family, or doctor",
     "identifierLabel": "Email or Phone Number",
-    "identifierPlaceholder": "e.g. 9811122332 or dr.anjali@smriti.app",
+    "identifierPlaceholder": "e.g. 9811122332 or dr.anjali@caresaathi.app",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter your password",
     "forgotPassword": "Forgot Password?",
@@ -175,7 +175,7 @@
     "statCritical": "High Risk",
     "statUnseenNotes": "Unseen Notes",
     "needsAttentionTitle": "Priority Patients",
-    "askSmriti": "Ask Smriti (Clinical AI Assistant)",
+    "askSmriti": "Ask CareSaathi (Clinical AI Assistant)",
     "askPlaceholder": "Ask a question about a patient's adherence or meds...",
     "askExamples": [
       "Has Suresh missed any morning doses this week?",
@@ -202,8 +202,8 @@
     "markNoteSeen": "Mark Seen"
   },
   "pwa": {
-    "installTitle": "Install Smriti App",
-    "installDesc": "Add Smriti to your phone's home screen for quick daily access like a regular app.",
+    "installTitle": "Install CareSaathi App",
+    "installDesc": "Add CareSaathi to your phone's home screen for quick daily access like a regular app.",
     "installBtn": "Install App",
     "dismiss": "Not Now",
     "iosInstructions": "To install on iPhone: tap the Share button below, then select 'Add to Home Screen'."

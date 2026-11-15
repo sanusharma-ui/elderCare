@@ -106,7 +106,7 @@ export default function DoctorDashboardPage() {
       setAskResult(res);
     },
     onError: (err: any) => {
-      toast.error(err.message || "Ask Smriti request failed");
+      toast.error(err.message || "Ask CareSaathi request failed");
     },
   });
 
@@ -407,7 +407,7 @@ export default function DoctorDashboardPage() {
               </h2>
             </div>
             <p className="text-xs text-ink-muted leading-relaxed mb-4">
-              स्मृति AI आपके पंजीकृत मरीजों की दवाइयों, खुराक इतिहास और केयरटेकर नोट्स को स्कैन करके सटीक क्लिनिकल उत्तर देता है।
+              CareSaathi AI scans your patients' prescriptions, dose adherence logs, and caretaker observations to provide immediate clinical answers.
             </p>
 
             {/* Example Prompt Chips */}

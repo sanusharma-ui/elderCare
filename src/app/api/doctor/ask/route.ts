@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Call Gemini with the tool context
-    const systemInstruction = `You are Smriti Clinical Assistant answering a consulting doctor's question about their linked elderly patients.
+    const systemInstruction = `You are CareSaathi Clinical Assistant answering a consulting doctor's question about their linked elderly patients.
 Answer concisely in 2 to 4 sentences in the doctor's language (${authDoctor.language}).
 Base your answer ONLY on the provided tool data.
 Never recommend drug changes or diagnoses.`;

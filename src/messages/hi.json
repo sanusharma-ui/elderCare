@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "स्मृति",
+    "appName": "केयर साथी (CareSaathi)",
     "appTagline": "बुजुर्गों की देखभाल और दवा प्रबंधन",
     "save": "सहेजें",
     "cancel": "रद्द करें",
@@ -29,7 +29,7 @@
     "name": "पूरा नाम",
     "viewDetails": "विवरण देखें",
     "shareWhatsApp": "व्हाट्सएप पर शेयर करें",
-    "shareWhatsAppText": "नमस्ते! मैंने आपको अपने स्मृति केयर सर्कल में आमंत्रित किया है। जुड़ने के लिए 48 घंटों के अंदर इस कोड का उपयोग करें: {code}"
+    "shareWhatsAppText": "नमस्ते! मैंने आपको अपने केयर साथी (CareSaathi) केयर सर्कल में आमंत्रित किया है। जुड़ने के लिए 48 घंटों के अंदर इस कोड का उपयोग करें: {code}"
   },
   "roles": {
     "ELDER": "बुजुर्ग (Elder)",
@@ -60,9 +60,9 @@
     "login": "लॉग इन करें",
     "loginSubtitle": "जारी रखने के लिए अपना ईमेल या फ़ोन नंबर दर्ज करें",
     "register": "पंजीकरण करें",
-    "registerSubtitle": "बुजुर्ग, केयरटेकर, परिवार या डॉक्टर के रूप में स्मृति से जुड़ें",
+    "registerSubtitle": "बुजुर्ग, केयरटेकर, परिवार या डॉक्टर के रूप में केयर साथी (CareSaathi) से जुड़ें",
     "identifierLabel": "ईमेल या फ़ोन नंबर",
-    "identifierPlaceholder": "जैसे: 9811122332 या dr.anjali@smriti.app",
+    "identifierPlaceholder": "जैसे: 9811122332 या dr.anjali@caresaathi.app",
     "passwordLabel": "पासवर्ड",
     "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
     "forgotPassword": "पासवर्ड भूल गए?",
@@ -175,7 +175,7 @@
     "statCritical": "उच्च जोखिम",
     "statUnseenNotes": "अनदेखे नोट्स",
     "needsAttentionTitle": "प्राथमिकता वाले मरीज",
-    "askSmriti": "स्मृति AI से पूछें",
+    "askSmriti": "CareSaathi AI से पूछें",
     "askPlaceholder": "मरीज की दवा या खुराक के बारे में कुछ भी पूछें...",
     "askExamples": [
       "सुरेश जी ने इस हफ्ते सुबह की दवा कितनी बार छोड़ी?",
@@ -202,8 +202,8 @@
     "markNoteSeen": "देखा हुआ मार्क करें"
   },
   "pwa": {
-    "installTitle": "स्मृति ऐप इंस्टॉल करें",
-    "installDesc": "दैनिक उपयोग के लिए स्मृति को अपनी होम स्क्रीन पर सामान्य ऐप की तरह जोड़ें।",
+    "installTitle": "CareSaathi ऐप इंस्टॉल करें",
+    "installDesc": "दैनिक उपयोग के लिए CareSaathi को अपनी होम स्क्रीन पर सामान्य ऐप की तरह जोड़ें।",
     "installBtn": "ऐप इंस्टॉल करें",
     "dismiss": "अभी नहीं",
     "iosInstructions": "iPhone पर इंस्टॉल करने के लिए: नीचे शेयर बटन दबाएं, फिर 'Add to Home Screen' चुनें।"
