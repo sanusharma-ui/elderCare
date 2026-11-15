@@ -12,7 +12,6 @@ const mukta = Mukta({
 
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
   variable: "--font-fraunces",
   display: "swap",
 });
@@ -55,7 +54,7 @@ export default function RootLayout({
       lang="en"
       className={`${mukta.variable} ${fraunces.variable} ${notoSerifDeva.variable}`}
     >
-      <body className="bg-paper text-ink selection:bg-forest-soft">
+      <body className="text-ink selection:bg-forest-soft">
         <Providers>{children}</Providers>
       </body>
     </html>

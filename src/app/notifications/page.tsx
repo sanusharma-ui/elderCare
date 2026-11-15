@@ -63,7 +63,7 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.readAt).length;
 
   return (
-    <div className="min-h-screen bg-paper p-4 sm:p-6 lg:p-8 selection:bg-forest-soft">
+    <div className="min-h-screen bg-transparent p-4 sm:p-6 lg:p-8 selection:bg-forest-soft">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Back Link */}
         <div className="flex items-center justify-between">

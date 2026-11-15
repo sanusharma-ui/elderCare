@@ -196,7 +196,9 @@ export default function ElderMePage() {
               <span className="font-semibold text-ink text-sm sm:text-base block">
                 {t("largeText")}
               </span>
-              <span className="text-xs text-ink-muted">आंखों के लिए बड़े और स्पष्ट अक्षर</span>
+              <span className="text-xs text-ink-muted">
+                {locale === "en" ? "Larger, readable fonts & icons" : "आंखों के लिए बड़े और स्पष्ट अक्षर"}
+              </span>
             </div>
           </div>
           <button
@@ -226,7 +228,9 @@ export default function ElderMePage() {
               <span className="font-semibold text-ink text-sm sm:text-base block">
                 {t("voiceReminders")}
               </span>
-              <span className="text-xs text-ink-muted">दवा का समय होने पर बोलकर याद दिलाएं</span>
+              <span className="text-xs text-ink-muted">
+                {locale === "en" ? "Vernacular audio guidance & speech reminders" : "दवा का समय होने पर बोलकर याद दिलाएं"}
+              </span>
             </div>
           </div>
           <button

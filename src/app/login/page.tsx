@@ -74,7 +74,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-surface border border-line rounded-3xl p-6 sm:p-8 shadow-smriti">
+    <div className="w-full max-w-md bg-surface/90 backdrop-blur-xl border border-line rounded-3xl p-6 sm:p-8 shadow-smriti-float">
       <div className="mb-6">
         <h1 className="font-display text-2xl font-bold text-ink">
           {t("login")}
@@ -265,7 +265,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-paper flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-forest-soft">
+    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-forest-soft">
       {/* Header Bar */}
       <div className="w-full max-w-md flex items-center justify-between mb-6">
         <BrandLogo size="md" href="/" />

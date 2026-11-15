@@ -31,7 +31,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [identifier, setIdentifier] = useState(""); // email or phone
   const [password, setPassword] = useState("");
-  const [language, setLanguage] = useState<"en" | "hi" | "mr">("hi");
+  const [language, setLanguage] = useState<"en" | "hi" | "mr">("en");
 
   // Role specific
   const [specialization, setSpecialization] = useState("");
@@ -126,14 +126,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-forest-soft">
+    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-forest-soft">
       {/* Top Header */}
       <div className="w-full max-w-xl flex items-center justify-between mb-6">
         <BrandLogo size="md" href="/" />
         <LanguageSwitcher compact />
       </div>
 
-      <div className="w-full max-w-xl bg-surface border border-line rounded-3xl p-6 sm:p-8 shadow-smriti">
+      <div className="w-full max-w-xl bg-surface/90 backdrop-blur-xl border border-line rounded-3xl p-6 sm:p-8 shadow-smriti-float">
         {/* Step Indicator */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-line">
           <div>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
               {t("register")}
             </h1>
             <p className="text-xs text-ink-muted mt-0.5">
-              {step === 1 ? "चरण 1: अपनी भूमिका चुनें" : "चरण 2: खाता जानकारी"}
+              {step === 1 ? "Step 1: Choose Role • अपनी भूमिका चुनें" : "Step 2: Account Details • खाता जानकारी"}
             </p>
           </div>
           <span className="text-xs font-bold text-forest bg-forest-soft px-3 py-1 rounded-full">

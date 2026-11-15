@@ -20,14 +20,14 @@ interface I18nContextType {
 }
 
 const I18nContext = createContext<I18nContextType>({
-  locale: "hi",
+  locale: "en",
   setLocale: async () => {},
 });
 
 export const useI18n = () => useContext(I18nContext);
 
 export function I18nProvider({
-  initialLocale = "hi",
+  initialLocale = "en",
   children,
 }: {
   initialLocale?: Locale;
@@ -59,7 +59,7 @@ export function I18nProvider({
     }).catch(() => {});
   };
 
-  const currentMessages = messagesMap[locale] || messagesMap.hi;
+  const currentMessages = messagesMap[locale] || messagesMap.en;
 
   return (
     <I18nContext.Provider value={{ locale, setLocale }}>

@@ -231,7 +231,7 @@ export default function ElderTodayPage() {
             </h1>
             <p className="text-sm sm:text-base text-ink-muted mt-1 font-medium">
               {totalDoses === 0
-                ? "आज के लिए कोई दवा निर्धारित नहीं है।"
+                ? (locale === "en" ? "No medicines scheduled for today." : "आज के लिए कोई दवा निर्धारित नहीं है।")
                 : t("progress", { taken: totalTaken, total: totalDoses })}
             </p>
           </div>
@@ -290,7 +290,7 @@ export default function ElderTodayPage() {
       {/* SCHEDULE GROUPED BY TIME SLOTS: सुबह / दोपहर / शाम / रात */}
       <div className="space-y-4 pt-2">
         <h2 className="font-displayDeva text-xl font-bold text-ink px-1">
-          आज का पूरा समय पत्र • Full Day Schedule
+          {locale === "en" ? "Full Day Schedule" : "आज का पूरा समय पत्र • Schedule"}
         </h2>
 
         {(["MORNING", "AFTERNOON", "EVENING", "NIGHT"] as const).map((slotKey) => {
@@ -324,8 +324,12 @@ export default function ElderTodayPage() {
 
         {totalDoses === 0 && !isLoading && (
           <EmptyState
-            title="कोई दवा निर्धारित नहीं है"
-            description="आज के लिए आपके डॉक्टर द्वारा कोई दवा शेड्यूल नहीं की गई है।"
+            title={locale === "en" ? "No medicines scheduled" : "कोई दवा निर्धारित नहीं है"}
+            description={
+              locale === "en"
+                ? "No medicines have been scheduled by your doctor for today."
+                : "आज के लिए आपके डॉक्टर द्वारा कोई दवा शेड्यूल नहीं की गई है।"
+            }
           />
         )}
       </div>

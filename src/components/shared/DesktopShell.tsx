@@ -59,9 +59,9 @@ export function DesktopShell({
   ];
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
       {/* Top Ledger Header */}
-      <header className="bg-surface border-b border-line px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
+      <header className="bg-surface/90 backdrop-blur-md border-b border-line px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-xs">
         <div className="flex items-center gap-6">
           <BrandLogo size="md" href="/doctor/dashboard" />
           <div className="hidden md:flex items-center gap-2 pl-4 border-l border-line text-xs">

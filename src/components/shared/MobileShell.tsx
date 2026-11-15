@@ -24,10 +24,10 @@ export function MobileShell({
   const [viewMode, setViewMode] = useState<"phone" | "wide">("phone");
 
   return (
-    <div className="min-h-screen bg-paper-2 flex flex-col justify-center items-center py-0 sm:py-6 relative selection:bg-forest-soft">
+    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center py-0 sm:py-6 relative selection:bg-forest-soft">
       {/* Desktop Tester Controls (Visible only on screens > 640px) */}
       <div className="hidden sm:flex items-center gap-3 mb-3 bg-surface/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-line shadow-xs z-30">
-        <span className="text-xs font-semibold text-ink-muted">Desktop View:</span>
+        <span className="text-xs font-semibold text-ink-muted">View Mode:</span>
         <button
           type="button"
           onClick={() => setViewMode("phone")}
@@ -58,35 +58,35 @@ export function MobileShell({
 
       <div className="w-full flex justify-center items-center">
         {/* Side Brand Note for Wide Desktop Screens */}
-        <aside className="hidden xl:flex flex-col justify-center max-w-xs mr-10 text-ink select-none animate-fade-in">
+        <aside className="hidden xl:flex flex-col justify-center max-w-xs mr-10 text-ink select-none animate-fade-in bg-surface/80 backdrop-blur-md p-6 rounded-3xl border border-line/70 shadow-xs">
           <div className="mb-4">
             <BrandLogo size="lg" />
           </div>
           <h2 className="font-displayDeva text-xl font-bold text-forest mb-2">
-            मोबाइल केयर इंटरफ़ेस
+            स्मृति • Smriti Mobile
           </h2>
           <p className="text-ink-muted text-sm leading-relaxed mb-4">
-            बुजुर्गों, परिवार और केयरटेकरों के लिए विशेष रूप से डिज़ाइन किया गया मोबाइल ऐप। बड़ी स्क्रीन पर भी यह फोन के वास्तविक रूप में दिखाई देता है।
+            Designed for mobile-first care. On large desktop screens, this frame renders the exact mobile experience used by elders, caretakers, and family members.
           </p>
           <div className="p-3 bg-surface border border-line rounded-xl text-xs text-ink-muted space-y-1.5">
             <div className="flex items-center gap-1.5 text-forest font-bold">
               <span className="w-2 h-2 rounded-full bg-forest animate-pulse" />
               <span>PWA Ready & Responsive</span>
             </div>
-            <p>Touch-optimized targets (≥56px), haptic vibrations, and speech synthesis.</p>
+            <p>Touch targets ≥56px, high contrast readability, and voice reminders.</p>
           </div>
         </aside>
 
         {/* Main Phone / Fluid Container */}
         <div
           className={cn(
-            "w-full h-[100dvh] sm:h-[844px] bg-paper sm:border sm:border-line sm:rounded-[36px] sm:shadow-smriti-float flex flex-col overflow-hidden relative transition-all duration-300 ease-out",
+            "w-full h-[100dvh] sm:h-[844px] bg-paper/95 backdrop-blur-md sm:border sm:border-line sm:rounded-[36px] sm:shadow-smriti-float flex flex-col overflow-hidden relative transition-all duration-300 ease-out",
             viewMode === "phone" ? "max-w-[430px]" : "max-w-[720px]"
           )}
         >
           {/* Simulated Phone Top Speaker & Notch (Visible on desktop phone view) */}
           {viewMode === "phone" && (
-            <div className="hidden sm:flex justify-center pt-2 pb-1 bg-surface border-b border-line/30 select-none">
+            <div className="hidden sm:flex justify-center pt-2 pb-1 bg-surface/90 border-b border-line/30 select-none">
               <div className="w-20 h-4 bg-ink/10 rounded-full flex items-center justify-center">
                 <div className="w-3 h-3 rounded-full bg-ink/20 mr-2" />
                 <div className="w-8 h-1.5 rounded-full bg-ink/20" />
@@ -96,7 +96,7 @@ export function MobileShell({
 
           {/* Sticky Header */}
           {!hideHeader && (
-            <header className="pt-safe shrink-0 bg-surface/95 backdrop-blur-md border-b border-line px-4 py-3 flex items-center justify-between z-20">
+            <header className="pt-safe shrink-0 bg-surface/95 backdrop-blur-md border-b border-line px-4 py-3 flex items-center justify-between z-20 sticky top-0">
               <div className="flex items-center gap-2">
                 <BrandLogo size="sm" href="/" />
                 {roleBadge && (
