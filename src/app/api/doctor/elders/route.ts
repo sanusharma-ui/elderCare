@@ -3,6 +3,7 @@ import { createAuditLog } from "@/lib/audit";
 import { AppError } from "@/lib/errors";
 import { requireAuth, sanitizeUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rate-limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   DoctorCreateElderSchema,
@@ -16,6 +17,13 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const doctor = await requireAuth([Role.DOCTOR]);
+    enforceRateLimit(
+      `create-elder:doctor:${doctor.id}`,
+      15,
+      600,
+      "Patient creation limit reached (15 per 10 minutes). Please wait before adding more patients."
+    );
+
     const rawBody = await req.json();
     const data = DoctorCreateElderSchema.parse(rawBody);
 
@@ -39,9 +47,9 @@ export async function POST(req: NextRequest) {
       throw AppError.conflict("An account with this email or phone already exists");
     }
 
-    // Generate strong temporary password: e.g. "Smriti!9aF24b8C"
+    // Generate strong temporary password: e.g. "CareSaathi!9aF24b8C9A"
     const randomHex = crypto.randomBytes(4).toString("hex");
-    const temporaryPassword = `Smriti!${randomHex}9A`;
+    const temporaryPassword = `CareSaathi!${randomHex}9A`;
 
     // 1. Create confirmed Supabase Auth user
     const { data: authData, error: authError } =

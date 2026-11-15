@@ -1,30 +1,18 @@
 import { AppError } from "@/lib/errors";
+import { enforceRateLimit, RATE_LIMIT_PRESETS } from "@/lib/rate-limit";
 import { GoogleGenAI } from "@google/genai";
-
-const aiCallRateLimits = new Map<string, { count: number; resetAt: number }>();
 
 /**
  * Checks and increments rate limiting for AI calls per doctor.
  * Maximum 20 calls per doctor per hour.
  */
 export function checkAiRateLimit(doctorId: string): void {
-  const now = Date.now();
-  const limitRecord = aiCallRateLimits.get(doctorId);
-
-  if (!limitRecord || now > limitRecord.resetAt) {
-    aiCallRateLimits.set(doctorId, { count: 1, resetAt: now + 60 * 60 * 1000 });
-    return;
-  }
-
-  if (limitRecord.count >= 20) {
-    throw new AppError(
-      "TOO_MANY_ATTEMPTS",
-      "AI rate limit exceeded (maximum 20 requests per doctor per hour). Please try again later.",
-      429
-    );
-  }
-
-  limitRecord.count++;
+  enforceRateLimit(
+    `ai:doctor:${doctorId}`,
+    RATE_LIMIT_PRESETS.AI_CALLS.limit,
+    RATE_LIMIT_PRESETS.AI_CALLS.windowSeconds,
+    "AI rate limit exceeded (maximum 20 requests per doctor per hour). Please try again later."
+  );
 }
 
 /**

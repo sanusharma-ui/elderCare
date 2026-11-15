@@ -1,5 +1,6 @@
 import { handleApiError, successResponse } from "@/lib/api-response";
 import { callGemini, checkAiRateLimit } from "@/lib/ai/gemini";
+import { enforceRateLimit, RATE_LIMIT_PRESETS } from "@/lib/rate-limit";
 import { AI_DISCLAIMER } from "@/lib/ai/prompts";
 import { AppError } from "@/lib/errors";
 import { getElderAccess, requireAuth } from "@/lib/permissions";
@@ -110,6 +111,13 @@ export async function POST(
     if (blob.size > 5 * 1024 * 1024) {
       throw AppError.validation("Prescription image exceeds maximum allowable size of 5 MB");
     }
+
+    enforceRateLimit(
+      `scan:doctor:${authDoctor.id}`,
+      RATE_LIMIT_PRESETS.PRESCRIPTION_SCAN.limit,
+      RATE_LIMIT_PRESETS.PRESCRIPTION_SCAN.windowSeconds,
+      "Prescription scan limit reached (6 scans per 10 minutes). Please try again shortly."
+    );
 
     checkAiRateLimit(authDoctor.id);
 

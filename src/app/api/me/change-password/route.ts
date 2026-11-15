@@ -2,6 +2,7 @@ import { handleApiError, successResponse } from "@/lib/api-response";
 import { AppError } from "@/lib/errors";
 import { requireAuth } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rate-limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { ChangePasswordSchema } from "@/lib/validators";
 import { createClient } from "@supabase/supabase-js";
@@ -10,6 +11,13 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const authUser = await requireAuth();
+    enforceRateLimit(
+      `change-password:user:${authUser.id}`,
+      5,
+      300,
+      "Too many password change attempts. Please wait 5 minutes before trying again."
+    );
+
     const rawBody = await req.json();
     const { currentPassword, newPassword } = ChangePasswordSchema.parse(rawBody);
 

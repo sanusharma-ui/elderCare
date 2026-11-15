@@ -3,6 +3,7 @@ import { createAuditLog } from "@/lib/audit";
 import { AppError } from "@/lib/errors";
 import { getElderAccess, requireAuth } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit, RATE_LIMIT_PRESETS } from "@/lib/rate-limit";
 import { CreateInviteSchema } from "@/lib/validators";
 import { Role } from "@prisma/client";
 import crypto from "crypto";
@@ -48,6 +49,29 @@ export async function POST(
       }
     } else {
       throw AppError.forbidden("You do not have permission to generate invite codes for this elder");
+    }
+
+    // Rate limit: max 5 invites per 10 minutes per elder
+    enforceRateLimit(
+      `invite-create:elder:${elderId}`,
+      RATE_LIMIT_PRESETS.INVITE_CREATE.limit,
+      RATE_LIMIT_PRESETS.INVITE_CREATE.windowSeconds,
+      "Too many invite codes generated recently. Please wait before creating another."
+    );
+
+    // Limit active unused invites to prevent database spam
+    const activeCount = await prisma.inviteCode.count({
+      where: {
+        elderId,
+        revokedAt: null,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+    if (activeCount >= 10) {
+      throw AppError.badRequest(
+        "Maximum of 10 active invite codes reached for this elder. Please revoke or use existing codes."
+      );
     }
 
     // Generate unique code with collision retry

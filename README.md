@@ -1,227 +1,377 @@
-# CareSaathi (केयर साथी)
-### Multi-Generational Elderly Care & Proactive Medication Management Ecosystem
+# CareSaathi
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.1.7-black?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7.3-blue?logo=typescript)](https://www.typescriptlang.org/)
+### A mobile-first elder-care and medication-management platform for Indian families
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20PostgreSQL-3ECF8E?logo=supabase)](https://supabase.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-6.19.3-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Google GenAI](https://img.shields.io/badge/Google_Gemini-2.5_Flash-8E75B2?logo=google)](https://aistudio.google.com/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.4.7-0055FF?logo=framer)](https://www.framer.com/motion/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)](https://www.prisma.io/)
 [![PWA](https://img.shields.io/badge/PWA-Installable-1F5C4A?logo=pwa)](https://web.dev/progressive-web-apps/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> **CareSaathi** brings elders, doctors, caretakers, and family members into one calm, shared care circle. It combines medication adherence tracking, proactive alerts, clinical workflows, multilingual accessibility, and AI-assisted doctor tooling in a fast, polished interface.
 
 ---
 
-## 📖 Executive Summary
+## Table of Contents
 
-**CareSaathi (केयर साथी)** is an intelligent healthcare platform tailored specifically for Indian families, geriatric doctors, and domestic caretakers. It addresses the critical healthcare challenge of elderly medication non-adherence by uniting all stakeholders on a single, synchronized daily schedule with vernacular language accessibility, proactive multi-tier escalation, and clinical AI oversight.
-
-### The Problem It Solves:
-1. **Memory & Cognitive Decline:** Seniors frequently forget whether they took their morning or evening pills, leading to accidental double-dosing or missed life-saving medications.
-2. **Language & Tech Friction:** Most existing health apps are English-only and feature cluttered, confusing dashboards that intimidate seniors.
-3. **Fragmented Communication:** Family members living in another city or abroad have no visibility into daily care routines until a medical emergency occurs.
-4. **Physician Information Overload:** Geriatricians lack a consolidated adherence ledger and must rely on verbal memory during brief 10-minute clinic consultations.
-
----
-
-## 🏛️ Platform Architecture & 4-Role Care Circle
-
-CareSaathi partitions functionality across four distinct, dedicated roles connected via single-use 6-digit invitation passcodes:
-
-```
-                      ┌────────────────────────┐
-                      │      CARESATHI         │
-                      │    CENTRAL ENGINE      │
-                      └───────────┬────────────┘
-                                  │
-         ┌────────────────────────┼────────────────────────┐
-         │                        │                        │
-         ▼                        ▼                        ▼
- ┌───────────────┐        ┌───────────────┐        ┌───────────────┐
- │     ELDER     │        │    DOCTOR     │        │   CARETAKER   │
- │  (Senior PWA) │        │ (Web Console) │        │ (Mobile Care) │
- └───────┬───────┘        └───────────────┘        └───────────────┘
-         │
-         ▼
- ┌───────────────┐
- │    FAMILY     │
- │ (Alert Stream)│
- └───────────────┘
-```
-
-| Role | Form Factor | Key Capabilities |
-| :--- | :--- | :--- |
-| **ELDER (Senior)** | Mobile-First PWA | • Simple daily diary grouped by time-of-day slots (सुबह, दोपहर, शाम, रात)<br/>• Touch targets ≥ 56px with haptic feedback<br/>• Vernacular speech synthesis ("सुनो") in Hindi, Marathi & English<br/>• 10-minute instant undo window for accidental taps<br/>• Zero complex passwords (passcode-based circle linking) |
-| **DOCTOR (Geriatrician)** | Desktop Web Console | • Split-view clinical ledger with patient risk stratification<br/>• AI-powered 7-day adherence briefings (Google Gemini 2.5 Flash)<br/>• Vision-based prescription scanner (`gemini-2.5-flash` vision)<br/>• Natural language clinical Q&A tool with strict physician data scoping<br/>• Prescription & appointment scheduling |
-| **CARETAKER** | Mobile-First PWA | • Multi-elder patient switcher<br/>• Mark doses as GIVEN or SKIPPED with observation notes<br/>• Observation notes with URGENT severity triggers<br/>• Medicine inventory refill warnings |
-| **FAMILY MEMBER** | Mobile-First PWA | • Zero notification spam: receives high-priority alerts ONLY when doses are missed<br/>• Immediate escalation details with 1-tap call elder button<br/>• Link to multiple elderly parents using single-use passcodes |
+- [Why CareSaathi](#why-caresaathi)
+- [What the platform provides](#what-the-platform-provides)
+- [Four-role care circle](#four-role-care-circle)
+- [Mobile-first and PWA experience](#mobile-first-and-pwa-experience)
+- [Technical architecture](#technical-architecture)
+- [Automation and AI](#automation-and-ai)
+- [Security and rate limiting](#security-and-rate-limiting)
+- [Performance and UX](#performance-and-ux)
+- [Getting started](#getting-started)
+- [Available scripts](#available-scripts)
+- [Demo flow](#demo-flow)
+- [Production checklist](#production-checklist)
+- [License](#license)
 
 ---
 
-## 🤖 AI & Automation Engines
+## Why CareSaathi
 
-### 1. Minute Cron Scheduler (`/api/cron/tick`)
-Called every 60 seconds by an external scheduler (cron-job.org or Vercel Cron):
-- **Materialization:** Automatically generates scheduled dose logs in elder-specific timezones (`Asia/Kolkata`).
-- **Grace Period & Escalation Engine:**
-  - `Level 0`: Pending (within scheduled window).
-  - `Level 1`: In-app reminder dispatched to elder.
-  - `Level 2`: Notification dispatched to caretaker.
-  - `Level 3`: Marked as `MISSED` — Urgent email and in-app alerts dispatched to all linked family members.
-- **Inventory Auto-Decrement:** Real-time stock counts decrease upon dose confirmation; automatically alerts when stock hits the refill threshold.
-- **Appointment Reminders:** Dispatches proactive notifications at T-24h and T-2h before scheduled doctor appointments.
+Many families coordinate elder care over phone calls and chat messages. That makes it difficult to answer simple but important questions:
 
-### 2. Clinical AI Assistant (Google Gemini 2.5 Flash)
-- **Daily Doctor Brief:** Summarizes the entire patient ledger into an actionable 3-bullet priority briefing in the doctor's preferred language.
-- **Vision Prescription Digitizer:** Doctors photograph handwritten prescriptions; Gemini Vision extracts medication name, dosage, frequency, and instructions into a structured draft for doctor review.
-- **Natural Language Assistant ("Ask CareSaathi"):** Answers doctor questions about linked patients using scoped, tamper-proof database tools.
+- Was the morning medicine taken?
+- Which doses were missed?
+- Does the doctor need to see a caretaker's observation?
+- Is medicine stock running low?
+- How can a family member help when they do not have a laptop?
 
----
+CareSaathi solves this with a shared, time-based medication diary and role-specific experiences.
 
-## 👥 Seeded Demo Accounts
+### Designed for real-world constraints
 
-The database comes pre-seeded with realistic Indian patient profiles, medication schedules, and historical dose logs:
-
-| Role | Name | Email / Phone | Password | Profile Details |
-| :--- | :--- | :--- | :--- | :--- |
-| **DOCTOR** | Dr. Anjali Mehta | `dr.anjali@caresaathi.app` | `Password@123` | Senior Physician managing all seeded patients |
-| **ELDER** | Ramesh Sharma | `+919811122332` | `Password@123` | High adherence profile (Metformin, Amlodipine) |
-| **ELDER** | Suresh Kulkarni | `+919822012345` | `Password@123` | Poor adherence profile (demonstrates doctor alert triggers) |
-| **CARETAKER** | Pooja Sawant | `pooja.sawant@care.in` | `Password@123` | Linked to Ramesh Sharma & Suresh Kulkarni |
-| **FAMILY** | Amit Sharma | `amit.sharma@family.com` | `Password@123` | Son of Ramesh Sharma; receives missed-dose alerts |
+- **Not everyone has a PC:** elders, domestic caretakers, and family members can use the mobile-first interface from a phone.
+- **Web apps can feel unstable on mobile:** the production build can be installed as a standalone PWA with an app icon, splash experience, responsive layout, and offline fallback page.
+- **Elders need clarity, not dashboard overload:** large touch targets, simple daily schedules, high-contrast status states, voice reminders, and calm visual hierarchy keep the primary action obvious.
+- **Families need signal, not notification spam:** escalation is focused on missed doses, urgent notes, and clinically relevant events.
+- **Doctors need structured information:** adherence summaries, risk indicators, prescription scanning, audit history, and patient-scoped clinical Q&A reduce manual review time.
 
 ---
 
-## 🛠️ Technology Stack
+## What the platform provides
 
-- **Framework:** Next.js 15.1.7 (React 19, App Router, Server Components)
-- **Language:** TypeScript 5.7.3 (Strict Mode)
-- **Styling:** Tailwind CSS with custom Indian healthcare palette (`forest`, `saffron`, `ok`, `brick`, `paper`)
-- **Animations:** Framer Motion (`Reveal` component with staggered viewport-aware ease-out)
-- **Database & Auth:** Supabase Auth (Cookie-based sessions) + PostgreSQL with Row-Level Security (RLS)
-- **ORM:** Prisma ORM 6.19.3
-- **Client Cache:** TanStack React Query v5
-- **Artificial Intelligence:** Google GenAI SDK (`@google/genai`) — Gemini 2.5 Flash
-- **Email:** Nodemailer (SMTP over TLS)
-- **Typography:** Mukta, Fraunces, Noto Serif Devanagari
+### Medication adherence
+
+- Daily schedules grouped into morning, afternoon, evening, and night.
+- Dose states: `PENDING`, `TAKEN`, `GIVEN`, `MISSED`, and `SKIPPED`.
+- Elder confirmation and caretaker confirmation are tracked separately.
+- A 10-minute undo window helps recover from accidental taps.
+- Medicine stock counts and refill thresholds are tracked.
+- Food relation, dosage, timing, instructions, and warnings are shown with every medicine.
+
+### Care coordination
+
+- Single-use invite passcodes connect members to an elder.
+- Doctors, caretakers, and family members receive role-scoped access.
+- Caretakers can switch between multiple elders.
+- Caretakers can create clinical observation notes with `INFO`, `WARNING`, or `URGENT` severity.
+- Family members get an alert stream and a one-tap call prompt when an escalation needs attention.
+
+### Doctor workflow
+
+- Clinical ledger and patient directory.
+- Patient risk stratification based on adherence signals.
+- Daily AI clinical brief with cached results.
+- Prescription image scanning with Google Gemini Vision.
+- Appointment scheduling and reminder support.
+- Audit timeline for important clinical changes.
+- Patient-scoped natural-language assistant with server-side data access controls.
+
+### Language and accessibility
+
+- English, Hindi, and Marathi message catalogs.
+- Language selection updates the UI immediately and persists through the `NEXT_LOCALE` cookie.
+- User language preference is synchronized with the account when available.
+- Elder-friendly large-text mode.
+- Browser speech synthesis for schedule reading in English, Hindi, and Marathi.
+- Responsive layouts for phone, tablet, and desktop testing.
 
 ---
 
-## 🚀 Getting Started
+## Four-role care circle
+
+| Role | Primary experience | Main capabilities |
+|---|---|---|
+| **Elder** | Installable mobile PWA | View today's medicines, listen to schedule, mark doses as taken, manage care-circle access |
+| **Caretaker** | Mobile-first care console | Switch elders, mark doses as given or skipped, write observations, monitor stock |
+| **Family member** | Mobile-first alert stream | Link elders, receive missed-dose alerts, review recent notifications, call the elder |
+| **Doctor** | Desktop clinical console | Review patients, risk signals, AI briefs, prescriptions, appointments, audit history, and clinical Q&A |
+
+Access is enforced on the server. A user's role is read from the application database, and elder-specific access is checked through active care-circle relationships.
+
+---
+
+## Mobile-first and PWA experience
+
+CareSaathi is already structured to behave like a mobile app without forcing every user to own a computer.
+
+### What works today
+
+- Installable PWA manifest with standalone display mode.
+- Production-only service-worker registration.
+- Responsive phone frame and wide-fluid desktop testing modes.
+- Static assets and fonts use cache-first behavior.
+- Navigation uses network-first behavior with an offline fallback page.
+- API requests and mutation requests are deliberately **network-only** so medical data is never served stale from a cache.
+- Large touch targets, haptic feedback where supported, and speech reminders improve phone usability.
+
+### Why a mobile app conversion is valuable
+
+The current PWA is the fastest path for distribution: users can open the web URL and install it from a supported browser. If a store-distributed application is required later, the same frontend can be packaged with:
+
+- **Capacitor** for Android/iOS builds and native plugins.
+- **Trusted Web Activity** for an Android Play Store wrapper.
+- A future native shell for push notifications, background sync, deep links, and device integrations.
+
+This approach avoids maintaining a separate Android and iOS codebase while preserving the existing responsive UI and API contracts.
+
+### Important offline design decision
+
+The offline layer caches the shell and static assets, not medication or clinical API responses. This is intentional: stale health information must never be presented as current. Users see a clear offline state and can continue once connectivity returns.
+
+---
+
+## Technical architecture
+
+### Frontend
+
+- **Next.js 15** App Router with React 19.
+- TypeScript with strict project settings.
+- Tailwind CSS with a custom healthcare visual system.
+- Framer Motion reveal animations.
+- TanStack React Query for client-side server-state caching and invalidation.
+- `next-intl` message catalogs for English, Hindi, and Marathi.
+- Lucide icons, Mukta, Fraunces, and Noto Serif Devanagari typography.
+
+### Backend
+
+- Next.js Route Handlers under `src/app/api`.
+- Supabase Auth for browser sessions and token verification.
+- PostgreSQL on Supabase.
+- Prisma ORM for typed database access.
+- Server-side role and elder-access checks.
+- Nodemailer SMTP integration for urgent email notifications.
+- Google GenAI SDK for Gemini-powered clinical tooling.
+
+### Data model
+
+The Prisma schema includes entities for:
+
+- Users and role-specific profiles.
+- Elder access relationships and invite codes.
+- Medicines and schedules.
+- Dose logs and adherence calculations.
+- Appointments.
+- Caretaker notes.
+- Notifications.
+- AI briefs and patient summaries.
+- Audit logs.
+
+Row-Level Security SQL is included under `prisma/` and `supabase/migrations/`.
+
+---
+
+## Automation and AI
+
+### Minute scheduler: `/api/cron/tick`
+
+An external scheduler can call this endpoint every minute:
+
+1. Materializes scheduled dose logs in the elder's timezone.
+2. Evaluates grace periods.
+3. Sends reminders to the appropriate care-circle role.
+4. Marks expired doses as missed.
+5. Creates family escalation notifications and email outbox events.
+6. Decrements medicine inventory when a dose is confirmed.
+7. Creates appointment reminders at T-24 hours and T-2 hours.
+
+### Daily brief scheduler: `/api/cron/daily`
+
+Generates or refreshes daily doctor briefs, with cached AI results stored in the database to reduce repeated model calls and improve response speed.
+
+### Clinical AI
+
+- **Daily clinical brief:** turns adherence metrics into a concise, actionable summary.
+- **Prescription scanner:** extracts medicine name, dosage, frequency, form, food relation, and instructions from a prescription image for doctor review.
+- **Ask CareSaathi:** answers questions only from the linked patient's scoped clinical data.
+- **Fallback summaries:** deterministic summaries remain available when the AI service is unavailable.
+
+AI output is an assistant for review; doctors remain responsible for clinical decisions.
+
+---
+
+## Security and rate limiting
+
+### Request protection
+
+The middleware applies security headers including:
+
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy`
+- HSTS in production
+
+Mutating API requests perform origin/host checks for CSRF protection. Cron routes use bearer-token authentication and are excluded from browser-origin checks.
+
+### Authentication and authorization
+
+- Supabase sessions are verified cryptographically.
+- Bearer tokens are supported for API clients and testing tools.
+- Role checks are enforced server-side.
+- Elder access is checked through active care-circle links.
+- Authenticated user sessions use a short-lived 15-second in-memory cache to avoid redundant auth round trips during rapid navigation.
+- Sensitive internal fields are removed before user data is returned to clients.
+
+### Rate-limit presets
+
+| Operation | Limit |
+|---|---:|
+| Login | 5 requests / minute / IP and target |
+| Registration | 5 requests / 10 minutes / IP |
+| Invite redemption | 10 requests / 5 minutes / IP |
+| Invite creation | 5 requests / 10 minutes / elder |
+| Gemini AI calls | 20 requests / hour / user |
+| Prescription scans | 6 scans / 10 minutes |
+| Sensitive writes | 10 requests / minute |
+| Standard writes | 60 requests / minute |
+| General API | 120 requests / minute / IP |
+
+Rate-limited responses return HTTP `429`, `Retry-After`, and `X-RateLimit-*` headers. The current implementation uses an in-memory fixed-window store, which is excellent for a single instance and local development. A distributed store such as Redis should be used before running multiple production instances.
+
+
+---
+
+## Performance and UX
+
+CareSaathi is designed to feel fast even on modest mobile devices:
+
+- Optimistic dose updates make the primary action feel instant.
+- React Query keeps frequently used server data warm and avoids unnecessary refetching.
+- Auth validation has a short-lived server cache for rapid page transitions.
+- Static Next.js assets and fonts are cached by the service worker.
+- Production builds use Next.js optimization and route-level code splitting.
+- UI feedback uses lightweight toast notifications instead of blocking dialogs for normal actions.
+- The visual system uses spacious cards, clear status colors, large controls, and subtle motion rather than dense enterprise tables on mobile.
+
+The result is a clean, modern interface that is easy to understand at a glance while still giving doctors the data density they need.
+
+---
+
+## Getting started
 
 ### Prerequisites
-- Node.js 18.18+ or 20+
-- PostgreSQL database (Supabase project recommended)
-- Google Gemini API Key
 
-### 1. Clone & Install
-```bash
-git clone https://github.com/your-username/caresaathi.git
-cd caresaathi
+- Node.js 18.18+ or 20+
+- npm
+- Supabase project with PostgreSQL
+- Google Gemini API key for AI features
+- SMTP credentials for email alerts (optional during basic development)
+
+### 1. Install
+
+```powershell
+cd D:\Projects\smriti
 npm install
 ```
 
-### 2. Environment Configuration
-Create a `.env` file in the root directory:
-```env
-# Database (Supabase PostgreSQL)
-DATABASE_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres"
+### 2. Configure environment variables
 
-# Supabase Auth
-NEXT_PUBLIC_SUPABASE_URL="https://[PROJECT_REF].supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOi..."
-SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
-
-# Google Gemini AI
-GEMINI_API_KEY="AIzaSy..."
-GEMINI_MODEL="gemini-2.5-flash"
-
-# Cron Security Secret
-CRON_SECRET="your_secret_cron_token"
-
-# Email Configuration (Nodemailer SMTP)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="465"
-SMTP_SECURE="true"
-SMTP_USER="alerts@caresaathi.app"
-SMTP_PASS="your_gmail_app_password"
-SMTP_FROM="CareSaathi Elder Care <alerts@caresaathi.app>"
-
-# App Settings
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXT_PUBLIC_DEMO_MODE="true"
+```powershell
+Copy-Item .env.example .env
 ```
 
-### 3. Database Migration & Seeding
-```bash
-# Push schema to PostgreSQL
-npm run db:push
+Fill in the values in `.env`. At minimum, configure Supabase and PostgreSQL values. Keep `.env` local and never force-add it to git.
 
-# Run idempotent seed script
+### 3. Generate Prisma client and prepare the database
+
+```powershell
+npm run db:generate
+npm run db:push
+```
+
+For local/demo data:
+
+```powershell
 npm run db:seed
 ```
 
-### 4. Run Development Server
-```bash
+### 4. Start development
+
+```powershell
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### 5. Run the production build
+
+```powershell
+npm run build
+npm run start
+```
+
+PWA installation and service-worker behavior should be tested against the production build, not only `next dev`.
 
 ---
 
-## 📱 Progressive Web App (PWA) Verification
+## Available scripts
 
-CareSaathi is built as an installable PWA with offline caching and native app behavior:
-
-1. **Production Build:**
-   ```bash
-   npm run build
-   npm run start
-   ```
-2. **Mobile Emulation:** Open Chrome DevTools (`F12`), toggle Device Toolbar (`Ctrl+Shift+M`), select **Pixel 7** or **iPhone 14** (390–430px).
-3. **PWA Audit:** Run a Lighthouse audit under **Progressive Web App** to verify manifest validity, offline fallback, and install prompts.
-4. **Desktop Shell Simulation:** When testing on wide monitors, `MobileShell` automatically centers the phone view inside a 430px column with a switch for fluid view.
-
----
-
-## ⏱️ 3-Minute Demonstration Script
-
-1. **Doctor Console:**
-   - Sign in as `dr.anjali@caresaathi.app` (or click Doctor demo button).
-   - Review the **AI Clinical Brief** at the top of the dashboard.
-   - Click **Patients Directory** -> select **Suresh Kulkarni**.
-   - Navigate to **AI Prescription Scan** tab -> upload sample prescription image to extract medicines.
-2. **Elder Mobile Diary:**
-   - Sign in as `+919811122332` (Ramesh Sharma).
-   - Switch language to **हिन्दी** or **मराठी**.
-   - Tap **"सुनो"** to trigger speech synthesis reading today's schedule aloud.
-   - Tap the large 56px **"मैंने ले ली"** button -> verify instant green status update and 10-minute undo toast.
-3. **Simulated Missed Dose:**
-   - Trigger the cron webhook advancing time past a grace period:
-     ```bash
-     curl -X POST "http://localhost:3000/api/cron/tick?now=2026-11-15T10:00:00Z" \
-       -H "Authorization: Bearer your_secret_cron_token"
-     ```
-4. **Family Missed Dose Alert:**
-   - Sign in as `amit.sharma@family.com` (Family).
-   - View the urgent **MISSED DOSE** alert with immediate call prompt.
-5. **Caretaker Note & Doctor Sync:**
-   - Sign in as `pooja.sawant@care.in` (Caretaker).
-   - Write an **URGENT** clinical observation note.
-   - Return to Doctor console to see unread note counter and ask the AI assistant: *"Did Suresh miss any doses this week?"*
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the Next.js development server |
+| `npm run build` | Generate Prisma client and build the production app |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run the configured Next.js lint command |
+| `npm run db:generate` | Generate the Prisma client |
+| `npm run db:push` | Push the Prisma schema to the database |
+| `npm run db:migrate` | Create/apply a Prisma development migration |
+| `npm run db:seed` | Seed demo users, medicines, schedules, and history |
+| `npm run db:studio` | Open Prisma Studio |
+| `npm run test:smoke` | Run the main smoke test |
+| `npm run test:smoke:stage2` | Run the Stage 2 smoke test |
 
 ---
 
-## 🔒 Security & Privacy
+## Demo flow
 
-- **Row Level Security (RLS):** All database tables have RLS enabled.
-- **Service Role Isolation:** The Supabase service-role key is never exposed to the client.
-- **Constant-Time Verification:** Cron endpoints compare bearer secrets with `crypto.timingSafeEqual` to prevent timing attacks.
-- **Audit Logging:** Every critical clinical modification is immutably recorded in the `AuditLog` table.
+1. Open the login page and use one of the configured demo account buttons.
+2. Open the doctor dashboard and review the clinical brief, patient list, and risk indicators.
+3. Open an elder account and test the daily schedule, language switcher, voice reminder, and large dose action.
+4. Open a caretaker account and test elder switching, dose marking, inventory warnings, and urgent notes.
+5. Open a family account and review missed-dose alerts and the call prompt.
+6. Test the cron endpoint with a valid local `CRON_SECRET`:
+
+```powershell
+curl.exe -X POST "http://localhost:3000/api/cron/tick?now=2026-11-15T10:00:00Z" `
+  -H "Authorization: Bearer your_local_cron_secret"
+```
+
+Demo credentials are created by the seed script. Treat them as local-only demo data and change or disable them before any shared or production deployment.
 
 ---
 
-## 📄 License
+## Production checklist
 
-CareSaathi is open-source software licensed under the [MIT License](LICENSE).
+- [ ] Replace every placeholder in `.env.example`.
+- [ ] Rotate any service-role, database, SMTP, Gemini, or cron secret that has been exposed.
+- [ ] Use strong random secrets, especially `CRON_SECRET`.
+- [ ] Disable or replace fixed demo credentials.
+- [ ] Run database migrations and verify RLS policies.
+- [ ] Use a distributed rate-limit store when deploying multiple instances.
+- [ ] Configure a trusted external scheduler for the cron endpoints.
+- [ ] Configure SMTP sender and delivery monitoring.
+- [ ] Build and test the PWA over HTTPS.
+- [ ] Run Lighthouse and test on low-end Android hardware.
+- [ ] Verify that offline mode never displays stale clinical API data.
+
+---
+
+## License
+
+The repository does not currently include a license file. Add the intended license before public distribution.

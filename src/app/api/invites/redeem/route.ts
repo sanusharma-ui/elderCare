@@ -3,13 +3,27 @@ import { createAuditLog } from "@/lib/audit";
 import { AppError } from "@/lib/errors";
 import { requireAuth } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit, getClientIp, RATE_LIMIT_PRESETS } from "@/lib/rate-limit";
 import { RedeemInviteSchema } from "@/lib/validators";
 import { AccessStatus } from "@prisma/client";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
+    enforceRateLimit(
+      `redeem:ip:${clientIp}`,
+      RATE_LIMIT_PRESETS.INVITE_REDEEM.limit,
+      RATE_LIMIT_PRESETS.INVITE_REDEEM.windowSeconds
+    );
+
     const authUser = await requireAuth();
+    enforceRateLimit(
+      `redeem:user:${authUser.id}`,
+      RATE_LIMIT_PRESETS.INVITE_REDEEM.limit,
+      RATE_LIMIT_PRESETS.INVITE_REDEEM.windowSeconds
+    );
+
     const rawBody = await req.json();
     const { code } = RedeemInviteSchema.parse(rawBody);
 

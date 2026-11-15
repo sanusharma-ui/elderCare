@@ -74,7 +74,7 @@ export const RegisterSchema = z
     name: z.string().min(2, "Name must be at least 2 characters").max(100),
     email: EmailSchema.optional(),
     phone: PhoneSchema.optional(),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password cannot exceed 128 characters"),
     role: RoleEnum,
     language: SupportedLanguageSchema,
 
@@ -130,13 +130,13 @@ export const RegisterSchema = z
   });
 
 export const LoginSchema = z.object({
-  identifier: z.string().min(1, "Email or phone is required"),
-  password: z.string().min(1, "Password is required"),
+  identifier: z.string().min(1, "Email or phone is required").max(255, "Identifier is too long"),
+  password: z.string().min(1, "Password is required").max(128, "Password is too long"),
 });
 
 export const ChangePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+  currentPassword: z.string().min(1, "Current password is required").max(128),
+  newPassword: z.string().min(8, "New password must be at least 8 characters").max(128),
 });
 
 export const UpdateMeSchema = z.object({

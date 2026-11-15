@@ -1,4 +1,5 @@
 import { AccessStatus, Role, User } from "@prisma/client";
+import crypto from "crypto";
 import { headers } from "next/headers";
 import { AppError } from "./errors";
 import { prisma } from "./prisma";
@@ -43,14 +44,17 @@ export async function requireAuth(allowedRoles?: Role[]): Promise<AuthenticatedU
   const authHeader = headersList.get("authorization") || headersList.get("Authorization");
   const cookieHeader = headersList.get("cookie") || "";
 
-  // Compute fast cache key
+  // Compute collision-proof cryptographic cache key
   let cacheKey: string | null = null;
   if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
-    cacheKey = `bearer:${authHeader.slice(7, 40)}`;
+    const rawToken = authHeader.slice(7).trim();
+    if (rawToken) {
+      cacheKey = `bearer:${crypto.createHash("sha256").update(rawToken).digest("hex")}`;
+    }
   } else if (cookieHeader) {
     const match = cookieHeader.match(/sb-[a-zA-Z0-9_-]+-auth-token=([^;]+)/);
-    if (match) {
-      cacheKey = `cookie:${match[1].slice(-32)}`;
+    if (match && match[1]) {
+      cacheKey = `cookie:${crypto.createHash("sha256").update(match[1]).digest("hex")}`;
     }
   }
 

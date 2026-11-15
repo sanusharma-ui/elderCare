@@ -2,6 +2,7 @@ import { handleApiError, successResponse } from "@/lib/api-response";
 import { AppError } from "@/lib/errors";
 import { sanitizeUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit, getClientIp, RATE_LIMIT_PRESETS } from "@/lib/rate-limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient as createServerSupabaseClient } from "@/lib/supabase/server";
 import {
@@ -13,6 +14,14 @@ import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
+    enforceRateLimit(
+      `register:ip:${clientIp}`,
+      RATE_LIMIT_PRESETS.AUTH_REGISTER.limit,
+      RATE_LIMIT_PRESETS.AUTH_REGISTER.windowSeconds,
+      "Too many registration requests from this network. Please wait a few minutes before trying again."
+    );
+
     const rawBody = await req.json();
     const data = RegisterSchema.parse(rawBody);
 
