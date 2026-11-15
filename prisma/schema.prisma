@@ -1,0 +1,390 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  DOCTOR
+  ELDER
+  CARETAKER
+  FAMILY
+}
+
+enum AccessStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum MedicineForm {
+  TABLET
+  CAPSULE
+  SYRUP
+  INJECTION
+  DROPS
+  INHALER
+  OINTMENT
+  OTHER
+}
+
+enum MedicineStatus {
+  ACTIVE
+  PAUSED
+  STOPPED
+}
+
+enum FoodRelation {
+  BEFORE_FOOD
+  AFTER_FOOD
+  WITH_FOOD
+  ANYTIME
+}
+
+enum TimeSlot {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum DoseStatus {
+  PENDING
+  TAKEN
+  GIVEN
+  MISSED
+  SKIPPED
+}
+
+enum NoteSeverity {
+  INFO
+  WARNING
+  URGENT
+}
+
+enum NotificationType {
+  MISSED_DOSE
+  UPCOMING_DOSE
+  APPOINTMENT_REMINDER
+  CARETAKER_NOTE
+  REFILL_REMINDER
+  SYSTEM
+}
+
+model User {
+  id                 String          @id @db.Uuid
+  name               String
+  email              String?         @unique
+  authEmail          String          @unique
+  hasRealEmail       Boolean         @default(true)
+  phone              String?         @unique
+  role               Role
+  language           String          @default("en")
+  isActive           Boolean         @default(true)
+  mustChangePassword Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  doctorProfile       DoctorProfile?
+  elderProfile        ElderProfile?   @relation("UserElderProfile")
+  createdElders       ElderProfile[]  @relation("DoctorCreatedElders")
+
+  elderAccessAsElder  ElderAccess[]   @relation("ElderToAccess")
+  elderAccessAsMember ElderAccess[]   @relation("MemberToAccess")
+
+  createdInvites      InviteCode[]    @relation("InviteCreator")
+  usedInvites         InviteCode[]    @relation("InviteUser")
+  elderInvites        InviteCode[]    @relation("ElderInvites")
+  redeemAttempts      RedeemAttempt[]
+
+  prescribedMedicines Medicine[]      @relation("DoctorPrescriptions")
+  elderMedicines      Medicine[]      @relation("ElderMedicines")
+
+  createdAppointments Appointment[]   @relation("CreatedAppointments")
+  doctorAppointments  Appointment[]   @relation("DoctorAppointments")
+  elderAppointments   Appointment[]   @relation("ElderAppointments")
+
+  markedDoseLogs      DoseLog[]       @relation("MarkedDoses")
+  elderDoseLogs       DoseLog[]       @relation("ElderDoseLogs")
+
+  authoredNotes       CaretakerNote[] @relation("AuthorNotes")
+  elderNotes          CaretakerNote[] @relation("ElderCaretakerNotes")
+
+  notifications       Notification[]  @relation("UserNotifications")
+  elderNotifications  Notification[]  @relation("ElderNotifications")
+
+  actorAuditLogs      AuditLog[]      @relation("ActorAuditLogs")
+  elderAuditLogs      AuditLog[]      @relation("ElderAuditLogs")
+
+  aiBriefs            AiBrief[]
+
+  @@map("users")
+}
+
+model DoctorProfile {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @unique @db.Uuid
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization     String
+  registrationNumber String
+  clinicName         String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("doctor_profiles")
+}
+
+model ElderProfile {
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @unique @db.Uuid
+  user                  User     @relation("UserElderProfile", fields: [userId], references: [id], onDelete: Cascade)
+  dateOfBirth           DateTime?
+  gender                String?
+  bloodGroup            String?
+  medicalConditions     String?  @db.Text
+  allergies             String?  @db.Text
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  timezone              String   @default("Asia/Kolkata")
+  largeTextMode         Boolean  @default(true)
+  voiceReminders        Boolean  @default(false)
+  createdByDoctorId     String?  @db.Uuid
+  createdByDoctor       User?    @relation("DoctorCreatedElders", fields: [createdByDoctorId], references: [id], onDelete: SetNull)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("elder_profiles")
+}
+
+model ElderAccess {
+  id                String       @id @default(uuid()) @db.Uuid
+  elderId           String       @db.Uuid
+  memberId          String       @db.Uuid
+  role              Role
+  status            AccessStatus @default(ACTIVE)
+  linkedViaInviteId String?      @db.Uuid
+  revokedAt         DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  elder             User         @relation("ElderToAccess", fields: [elderId], references: [id], onDelete: Cascade)
+  member            User         @relation("MemberToAccess", fields: [memberId], references: [id], onDelete: Cascade)
+  linkedViaInvite   InviteCode?  @relation("InviteAccess", fields: [linkedViaInviteId], references: [id], onDelete: SetNull)
+
+  @@unique([elderId, memberId])
+  @@index([elderId])
+  @@index([memberId])
+  @@index([status])
+  @@map("elder_access")
+}
+
+model InviteCode {
+  id           String        @id @default(uuid()) @db.Uuid
+  code         String        @unique
+  elderId      String        @db.Uuid
+  createdById  String        @db.Uuid
+  intendedRole Role
+  expiresAt    DateTime
+  usedAt       DateTime?
+  usedById     String?       @db.Uuid
+  revokedAt    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  elder        User          @relation("ElderInvites", fields: [elderId], references: [id], onDelete: Cascade)
+  createdBy    User          @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  usedBy       User?         @relation("InviteUser", fields: [usedById], references: [id], onDelete: SetNull)
+  elderAccess  ElderAccess[] @relation("InviteAccess")
+
+  @@index([elderId])
+  @@index([code])
+  @@map("invite_codes")
+}
+
+model RedeemAttempt {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("redeem_attempts")
+}
+
+model Medicine {
+  id              String            @id @default(uuid()) @db.Uuid
+  elderId         String            @db.Uuid
+  prescribedById  String            @db.Uuid
+  name            String
+  nameLocal       String?
+  genericName     String?
+  dosage          String
+  form            MedicineForm
+  foodRelation    FoodRelation      @default(ANYTIME)
+  instructions    String?           @db.Text
+  warnings        String?           @db.Text
+  status          MedicineStatus    @default(ACTIVE)
+  startDate       DateTime
+  endDate         DateTime?
+  stockCount      Int?
+  refillThreshold Int?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  elder           User              @relation("ElderMedicines", fields: [elderId], references: [id], onDelete: Cascade)
+  prescribedBy    User              @relation("DoctorPrescriptions", fields: [prescribedById], references: [id], onDelete: Restrict)
+  schedules       MedicineSchedule[]
+  doseLogs        DoseLog[]
+
+  @@index([elderId, status])
+  @@map("medicines")
+}
+
+model MedicineSchedule {
+  id           String     @id @default(uuid()) @db.Uuid
+  medicineId   String     @db.Uuid
+  timeOfDay    String
+  slot         TimeSlot
+  daysOfWeek   Int[]      @default([0, 1, 2, 3, 4, 5, 6])
+  doseQuantity String     @default("1 tablet")
+  graceMinutes Int        @default(30)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  medicine     Medicine   @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  doseLogs     DoseLog[]
+
+  @@index([medicineId])
+  @@map("medicine_schedules")
+}
+
+model Appointment {
+  id                String            @id @default(uuid()) @db.Uuid
+  elderId           String            @db.Uuid
+  doctorId          String?           @db.Uuid
+  createdById       String            @db.Uuid
+  title             String
+  scheduledAt       DateTime
+  location          String?
+  notes             String?           @db.Text
+  status            AppointmentStatus @default(SCHEDULED)
+  reminder24hSentAt DateTime?
+  reminder2hSentAt  DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  elder             User              @relation("ElderAppointments", fields: [elderId], references: [id], onDelete: Cascade)
+  doctor            User?             @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: SetNull)
+  createdBy         User              @relation("CreatedAppointments", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([elderId, scheduledAt])
+  @@map("appointments")
+}
+
+model DoseLog {
+  id               String           @id @default(uuid()) @db.Uuid
+  scheduleId       String           @db.Uuid
+  medicineId       String           @db.Uuid
+  elderId          String           @db.Uuid
+  scheduledFor     DateTime
+  status           DoseStatus       @default(PENDING)
+  markedById       String?          @db.Uuid
+  markedByRole     Role?
+  markedAt         DateTime?
+  escalationLevel  Int              @default(0)
+  notifiedFamilyAt DateTime?
+  note             String?          @db.Text
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  schedule         MedicineSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  medicine         Medicine         @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  elder            User             @relation("ElderDoseLogs", fields: [elderId], references: [id], onDelete: Cascade)
+  markedBy         User?            @relation("MarkedDoses", fields: [markedById], references: [id], onDelete: SetNull)
+
+  @@unique([scheduleId, scheduledFor])
+  @@index([elderId, scheduledFor])
+  @@index([status, scheduledFor])
+  @@map("dose_logs")
+}
+
+model CaretakerNote {
+  id           String       @id @default(uuid()) @db.Uuid
+  elderId      String       @db.Uuid
+  authorId     String       @db.Uuid
+  text         String       @db.Text
+  severity     NoteSeverity @default(INFO)
+  doctorSeenAt DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  elder        User         @relation("ElderCaretakerNotes", fields: [elderId], references: [id], onDelete: Cascade)
+  author       User         @relation("AuthorNotes", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([elderId, createdAt])
+  @@map("caretaker_notes")
+}
+
+model Notification {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @db.Uuid
+  elderId     String?          @db.Uuid
+  type        NotificationType
+  title       String
+  body        String           @db.Text
+  data        Json?
+  readAt      DateTime?
+  emailSentAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user        User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  elder       User?            @relation("ElderNotifications", fields: [elderId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  actorId   String?  @db.Uuid
+  elderId   String?  @db.Uuid
+  action    String
+  entity    String
+  entityId  String
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now())
+
+  actor     User?    @relation("ActorAuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
+  elder     User?    @relation("ElderAuditLogs", fields: [elderId], references: [id], onDelete: Cascade)
+
+  @@index([elderId, createdAt])
+  @@map("audit_logs")
+}
+
+model AiBrief {
+  id        String   @id @default(uuid()) @db.Uuid
+  doctorId  String   @db.Uuid
+  briefDate DateTime @db.Date
+  content   String   @db.Text
+  stats     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor    User     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, briefDate])
+  @@map("ai_briefs")
+}

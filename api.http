@@ -1,0 +1,427 @@
+### ==============================================================================
+### SMRITI PLATFORM - API SPECIFICATION & TEST COLLECTION (api.http)
+### Elderly Care & Medication Management Platform - Backend Foundation
+### Compatible with VS Code REST Client / Thunder Client / Postman
+### ==============================================================================
+
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+# Tokens: Replace these variables after running the login requests below
+@doctorToken = YOUR_DOCTOR_ACCESS_TOKEN
+@elderToken = YOUR_ELDER_ACCESS_TOKEN
+@caretakerToken = YOUR_CARETAKER_ACCESS_TOKEN
+@familyToken = YOUR_FAMILY_ACCESS_TOKEN
+
+# Dynamic Test IDs (Set after creating/fetching resources)
+@testElderId = ELDER_UUID_HERE
+@testMedicineId = MEDICINE_UUID_HERE
+@testAppointmentId = APPOINTMENT_UUID_HERE
+@testInviteId = INVITE_UUID_HERE
+@testMemberId = MEMBER_UUID_HERE
+@testInviteCode = K7QD-9M2X
+
+### ==============================================================================
+### 1. SYSTEM HEALTH
+### ==============================================================================
+
+# @name healthCheck
+GET {{baseUrl}}/health HTTP/1.1
+
+### ==============================================================================
+### 2. AUTHENTICATION & REGISTRATION
+### ==============================================================================
+
+### 2.1 Register Doctor
+# @name registerDoctor
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Dr. Sameer Joshi",
+  "email": "dr.sameer.joshi@smriti.app",
+  "phone": "+919820199887",
+  "password": "Password@123",
+  "role": "DOCTOR",
+  "language": "en",
+  "specialization": "Geriatric Cardiologist",
+  "registrationNumber": "MMC-2015-44910",
+  "clinicName": "Joshi Heart & Elder Clinic, Pune"
+}
+
+### 2.2 Register Elder (Self Registration)
+# @name registerElder
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Govind Narang",
+  "email": "govind.narang@gmail.com",
+  "phone": "+919811988771",
+  "password": "Password@123",
+  "role": "ELDER",
+  "language": "hi",
+  "bloodGroup": "B+",
+  "medicalConditions": "Hypertension, Mild Glaucoma",
+  "allergies": "Sulfa antibiotics",
+  "emergencyContactName": "Rahul Narang",
+  "emergencyContactPhone": "+919844112233",
+  "timezone": "Asia/Kolkata",
+  "largeTextMode": true,
+  "voiceReminders": false
+}
+
+### 2.3 Register Phone-Only Elder (No Real Email)
+# Automatically generates internal auth email "p919811988772@users.smriti.app"
+# @name registerPhoneOnlyElder
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Anandi Bai",
+  "phone": "+919811988772",
+  "password": "Password@123",
+  "role": "ELDER",
+  "language": "mr",
+  "bloodGroup": "O+",
+  "medicalConditions": "Osteoarthritis",
+  "emergencyContactName": "Sachin (Grandson)",
+  "emergencyContactPhone": "+919844112244",
+  "timezone": "Asia/Kolkata"
+}
+
+### 2.4 Register Caretaker
+# @name registerCaretaker
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Sunita Patil",
+  "email": "sunita.patil@smriti.app",
+  "phone": "+919833556677",
+  "password": "Password@123",
+  "role": "CARETAKER",
+  "language": "mr"
+}
+
+### 2.5 Register Family Member
+# @name registerFamily
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Rahul Narang",
+  "email": "rahul.narang@gmail.com",
+  "phone": "+919844112233",
+  "password": "Password@123",
+  "role": "FAMILY",
+  "language": "hi"
+}
+
+### 2.6 Login with Email (Doctor)
+# @name loginDoctor
+POST {{baseUrl}}/auth/login HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "identifier": "dr.anjali@smriti.app",
+  "password": "Password@123"
+}
+
+### 2.7 Login with Phone Number (Elder)
+# @name loginElderByPhone
+POST {{baseUrl}}/auth/login HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "identifier": "+919811122331",
+  "password": "Password@123"
+}
+
+### 2.8 Logout
+# @name logout
+POST {{baseUrl}}/auth/logout HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 3. USER PROFILE (/api/me)
+### ==============================================================================
+
+### 3.1 Get Current User Profile
+# @name getMe
+GET {{baseUrl}}/me HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 3.2 Update User Profile
+# @name updateMe
+PATCH {{baseUrl}}/me HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Dr. Anjali R. Mehta",
+  "language": "en",
+  "clinicName": "Mehta Geriatric Super-Speciality Hospital, Mumbai"
+}
+
+### 3.3 Change Password
+# @name changePassword
+POST {{baseUrl}}/me/change-password HTTP/1.1
+Authorization: Bearer {{elderToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Password@123",
+  "newPassword": "NewSecurePassword#2026"
+}
+
+### 3.4 Get Linked Elders for Current Member (Role-appropriate projection)
+# @name getMyLinkedElders
+GET {{baseUrl}}/me/elders HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 3.5 Member Unlinks Self from Elder
+# @name unlinkSelf
+DELETE {{baseUrl}}/me/links/{{testElderId}} HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+
+### ==============================================================================
+### 4. DOCTOR PATIENT MANAGEMENT
+### ==============================================================================
+
+### 4.1 Doctor Creates Elder Account Directly
+# Auto-links doctor with DOCTOR role and returns temporary password once
+# @name doctorCreateElder
+POST {{baseUrl}}/doctor/elders HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Balkrishna Gokhale",
+  "phone": "+919811554433",
+  "language": "mr",
+  "bloodGroup": "AB+",
+  "medicalConditions": "Chronic Angina, Type 2 Diabetes",
+  "allergies": "None known",
+  "emergencyContactName": "Kedar Gokhale (Son)",
+  "emergencyContactPhone": "+919844223311",
+  "timezone": "Asia/Kolkata",
+  "largeTextMode": true
+}
+
+### 4.2 Doctor Lists Linked Patients (with active meds and next appointment)
+# @name doctorListElders
+GET {{baseUrl}}/doctor/elders?search=&page=1&limit=10 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 5. ELDER PROFILE, ACCESS & PASSCODE INVITES
+### ==============================================================================
+
+### 5.1 Get Elder Profile (IDOR protected: 404 for unlinked, minimal for FAMILY)
+# @name getElderProfile
+GET {{baseUrl}}/elders/{{testElderId}} HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 5.2 Update Elder Profile (Elder self or linked Doctor only)
+# @name updateElderProfile
+PATCH {{baseUrl}}/elders/{{testElderId}} HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "bloodGroup": "O+",
+  "medicalConditions": "Type 2 Diabetes, Hypertension, Osteoarthritis Grade 1",
+  "allergies": "Sulfa drugs, Aspirin (mild gastritis)"
+}
+
+### 5.3 Generate Single-Use Passcode Invite (Elder self or Caretaker for FAMILY)
+# @name createInviteCode
+POST {{baseUrl}}/elders/{{testElderId}}/invites HTTP/1.1
+Authorization: Bearer {{elderToken}}
+Content-Type: {{contentType}}
+
+{
+  "intendedRole": "CARETAKER"
+}
+
+### 5.4 List Active Invite Codes (Elder only)
+# @name listInvites
+GET {{baseUrl}}/elders/{{testElderId}}/invites HTTP/1.1
+Authorization: Bearer {{elderToken}}
+
+### 5.5 Revoke Invite Code (Elder only)
+# @name revokeInvite
+DELETE {{baseUrl}}/elders/{{testElderId}}/invites/{{testInviteId}} HTTP/1.1
+Authorization: Bearer {{elderToken}}
+
+### 5.6 Redeem Single-Use Passcode Invite (Matches intendedRole, throttles brute-force)
+# @name redeemInvite
+POST {{baseUrl}}/invites/redeem HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "{{testInviteCode}}"
+}
+
+### 5.7 List Care Team Members (Elder only)
+# @name listElderMembers
+GET {{baseUrl}}/elders/{{testElderId}}/members HTTP/1.1
+Authorization: Bearer {{elderToken}}
+
+### 5.8 Elder Revokes Member Access
+# @name revokeMemberAccess
+DELETE {{baseUrl}}/elders/{{testElderId}}/members/{{testMemberId}} HTTP/1.1
+Authorization: Bearer {{elderToken}}
+
+### ==============================================================================
+### 6. MEDICATIONS & SCHEDULES
+### ==============================================================================
+
+### 6.1 Doctor Prescribes Medicine with Nested Schedules
+# @name prescribeMedicine
+POST {{baseUrl}}/elders/{{testElderId}}/medicines HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Metformin 500 mg",
+  "nameLocal": "मेटफॉर्मिन 500 मिलीग्राम",
+  "genericName": "Metformin Hydrochloride",
+  "dosage": "500 mg",
+  "form": "TABLET",
+  "foodRelation": "AFTER_FOOD",
+  "instructions": "भोजन के तुरंत बाद 1 गोली लें। Take immediately after breakfast and dinner.",
+  "warnings": "खाली पेट न लें। चक्कर आने पर तुरंत मीठा खाएं।",
+  "startDate": "2026-11-01T00:00:00.000Z",
+  "endDate": null,
+  "stockCount": 60,
+  "refillThreshold": 10,
+  "schedules": [
+    {
+      "timeOfDay": "08:30",
+      "daysOfWeek": [0, 1, 2, 3, 4, 5, 6],
+      "doseQuantity": "1 tablet",
+      "graceMinutes": 30,
+      "isActive": true
+    },
+    {
+      "timeOfDay": "20:30",
+      "daysOfWeek": [0, 1, 2, 3, 4, 5, 6],
+      "doseQuantity": "1 tablet",
+      "graceMinutes": 30,
+      "isActive": true
+    }
+  ]
+}
+
+### 6.2 List Elder's Medicines (Readable by Elder, Doctor, Caretaker)
+# @name listMedicines
+GET {{baseUrl}}/elders/{{testElderId}}/medicines?status=ACTIVE HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 6.3 Get Medicine Details by ID
+# @name getMedicineDetails
+GET {{baseUrl}}/medicines/{{testMedicineId}} HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+
+### 6.4 Doctor Updates Medicine Details
+# @name updateMedicine
+PATCH {{baseUrl}}/medicines/{{testMedicineId}} HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "dosage": "1000 mg",
+  "instructions": "बढ़ी हुई खुराक: भोजन के 10 मिनट बाद लें।",
+  "stockCount": 90
+}
+
+### 6.5 Doctor Replaces All Schedules for Medicine (Atomic)
+# @name replaceSchedules
+PUT {{baseUrl}}/medicines/{{testMedicineId}}/schedules HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "schedules": [
+    {
+      "timeOfDay": "09:00",
+      "daysOfWeek": [0, 1, 2, 3, 4, 5, 6],
+      "doseQuantity": "1 tablet",
+      "graceMinutes": 45,
+      "isActive": true
+    },
+    {
+      "timeOfDay": "21:00",
+      "daysOfWeek": [0, 1, 2, 3, 4, 5, 6],
+      "doseQuantity": "1 tablet",
+      "graceMinutes": 45,
+      "isActive": true
+    }
+  ]
+}
+
+### 6.6 Doctor Stops Medicine (Soft stop: status STOPPED, never hard deletes)
+# @name stopMedicine
+DELETE {{baseUrl}}/medicines/{{testMedicineId}} HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 7. DAILY MEDICATION SCHEDULE (/today)
+### ==============================================================================
+
+### 7.1 Get Today's Doses in Elder's Timezone
+# Grouped by TimeSlot (MORNING, AFTERNOON, EVENING, NIGHT) with attached DoseLog status
+# Readable by Elder, Doctor, Caretaker
+# @name getTodayDoses
+GET {{baseUrl}}/elders/{{testElderId}}/today HTTP/1.1
+Authorization: Bearer {{caretakerToken}}
+
+### ==============================================================================
+### 8. APPOINTMENTS
+### ==============================================================================
+
+### 8.1 Doctor Schedules Appointment
+# @name scheduleAppointment
+POST {{baseUrl}}/elders/{{testElderId}}/appointments HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Comprehensive Cardiac & Blood Sugar Review",
+  "scheduledAt": "2026-11-25T10:30:00.000Z",
+  "location": "Mehta Geriatric Clinic, Suite 302, Bandra West, Mumbai",
+  "notes": "Fast 10 hours prior for fasting blood sugar test. Bring current pill box."
+}
+
+### 8.2 List Appointments for Elder
+# @name listAppointments
+GET {{baseUrl}}/elders/{{testElderId}}/appointments?status=SCHEDULED HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### 8.3 Doctor Updates Appointment
+# @name updateAppointment
+PATCH {{baseUrl}}/appointments/{{testAppointmentId}} HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+Content-Type: {{contentType}}
+
+{
+  "location": "Mehta Geriatric Super-Speciality Hospital, Room 104, Mumbai",
+  "notes": "Updated venue. Please arrive 15 minutes before scheduled time."
+}
+
+### 8.4 Doctor Cancels Appointment (Soft status CANCELLED)
+# @name cancelAppointment
+DELETE {{baseUrl}}/appointments/{{testAppointmentId}} HTTP/1.1
+Authorization: Bearer {{doctorToken}}
+
+### ==============================================================================
+### 9. CLINICAL AUDIT TRAIL
+### ==============================================================================
+
+### 9.1 Get Elder Audit Log (Elder and linked Doctor only, paginated)
+# @name getAuditLog
+GET {{baseUrl}}/elders/{{testElderId}}/audit-log?page=1&limit=20 HTTP/1.1
+Authorization: Bearer {{doctorToken}}
